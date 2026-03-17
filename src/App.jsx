@@ -1,4 +1,8 @@
+import { useState } from 'react';
+
 export default function TXMHEurasiaLandingPage() {
+  const [activeTab, setActiveTab] = useState('lcl');
+
   const europeRoutes = [
     "Germany",
     "Poland",
@@ -50,11 +54,31 @@ export default function TXMHEurasiaLandingPage() {
               Eurasia Rail Logistics
             </div>
           </div>
-          <div className="hidden md:flex gap-6 text-sm text-slate-300">
-            <span>铁路拼箱 LCL</span>
-            <span>铁路整柜 FCL</span>
-            <span>欧洲全境配送</span>
-            <span>中亚 / 俄罗斯</span>
+          <div className="hidden md:flex gap-6 text-sm">
+            <button 
+              onClick={() => setActiveTab('lcl')}
+              className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+            >
+              铁路拼箱 LCL
+            </button>
+            <button 
+              onClick={() => setActiveTab('fcl')}
+              className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+            >
+              铁路整柜 FCL
+            </button>
+            <button 
+              onClick={() => setActiveTab('europe')}
+              className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+            >
+              欧洲全境配送
+            </button>
+            <button 
+              onClick={() => setActiveTab('asia-russia')}
+              className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+            >
+              中亚 / 俄罗斯
+            </button>
           </div>
         </div>
 
@@ -126,42 +150,51 @@ export default function TXMHEurasiaLandingPage() {
           <div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">服务覆盖范围</h2>
             <p className="text-slate-600 mb-6">
-              我们提供中国至欧洲、中亚、俄罗斯的铁路拼箱与整柜服务，并支持欧洲目的港后的全境派送。
+              {activeTab === 'lcl' ? '拼箱服务支持全国 200+ 网点提货，覆盖欧洲、中亚、俄罗斯主要目的地。' : 
+               activeTab === 'fcl' ? '整柜服务适合大批量出货，支持全国集港，更经济高效。' :
+               activeTab === 'europe' ? '欧洲全境门到门派送，波兰枢纽清关后可直送欧洲各地。' :
+               '直达中亚及俄罗斯主要城市，稳定班列时效。'}
             </p>
 
             <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold mb-3">欧洲直拼</h3>
-                <div className="flex flex-wrap gap-3">
-                  {europeRoutes.map((route) => (
-                    <span key={route} className="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
-                      {route}
-                    </span>
-                  ))}
+              {(activeTab === 'europe' || activeTab === 'lcl' || activeTab === 'fcl') && (
+                <div>
+                  <h3 className="font-semibold mb-3">欧洲直拼</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {europeRoutes.map((route) => (
+                      <span key={route} className="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
+                        {route}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <h3 className="font-semibold mb-3">中亚线路</h3>
-                <div className="flex flex-wrap gap-3">
-                  {centralAsiaRoutes.map((route) => (
-                    <span key={route} className="px-4 py-2 rounded-full bg-amber-50 text-slate-700 text-sm font-medium">
-                      {route}
-                    </span>
-                  ))}
+              {(activeTab === 'asia-russia' || activeTab === 'lcl' || activeTab === 'fcl') && (
+                <div>
+                  <h3 className="font-semibold mb-3">中亚线路</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {centralAsiaRoutes.map((route) => (
+                      <span key={route} className="px-4 py-2 rounded-full bg-amber-50 text-slate-700 text-sm font-medium">
+                        {route}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <h3 className="font-semibold mb-3">俄罗斯主要目的地</h3>
-                <div className="flex flex-wrap gap-3">
-                  {russiaRoutes.map((route) => (
-                    <span key={route} className="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
-                      {route}
-                    </span>
-                  ))}
+              {(activeTab === 'asia-russia' || activeTab === 'lcl' || activeTab === 'fcl') && (
+                <div>
+                  <h3 className="font-semibold mb-3">俄罗斯主要目的地</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {russiaRoutes.map((route) => (
+                      <span key={route} className="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
+                        {route}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
