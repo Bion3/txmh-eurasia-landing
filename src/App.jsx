@@ -110,6 +110,8 @@ export default function TXMHEurasiaLandingPage() {
         { name: '布达佩斯', days: '约22天' },
         { name: '米兰', days: '约25天' },
       ],
+      contactEmail: 'Email: chengbin0211@gmail.com',
+      contactPhone: 'Tel: 13419675338',
       backButton: '返回首页',
     },
     en: {
@@ -189,6 +191,8 @@ export default function TXMHEurasiaLandingPage() {
         { name: 'Budapest', days: '≈22 days' },
         { name: 'Milan', days: '≈25 days' },
       ],
+      contactEmail: 'Email: chengbin0211@gmail.com',
+      contactPhone: 'Tel: 13419675338',
       backButton: 'Back to Home',
     },
     ru: {
@@ -268,6 +272,8 @@ export default function TXMHEurasiaLandingPage() {
         { name: 'Будапешт', days: '≈22 дня' },
         { name: 'Милан', days: '≈25 дней' },
       ],
+      contactEmail: 'Email: chengbin0211@gmail.com',
+      contactPhone: 'Tel: 13419675338',
       backButton: 'Назад на главную',
     },
   };
@@ -593,7 +599,11 @@ export default function TXMHEurasiaLandingPage() {
                 <div><strong>{t.cardBrand}</strong>TXMH-Eurasia</div>
                 <div><strong>{t.cardService}</strong>中欧 / 中亚 / 中俄 铁路拼箱 & 整柜</div>
                 <div><strong>{t.cardAdvantage}</strong>200+收货网点 / 欧洲全境配送 / 稳定班列时效</div>
-                <button className="w-full mt-2 px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold hover:opacity-90 transition">
+                <div className="pt-2 border-t border-slate-200">
+                  <div className="text-xs text-slate-600 mb-2">{t.contactEmail}</div>
+                  <div className="text-xs text-slate-600">{t.contactPhone}</div>
+                </div>
+                <button className="w-full mt-3 px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold hover:opacity-90 transition">
                   {t.cardBtn}
                 </button>
               </div>
