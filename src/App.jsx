@@ -58,6 +58,27 @@ export default function TXMHEurasiaLandingPage() {
         '欧洲中转清关、末端派送一站式跟进',
         '实时班列跟踪、专业客户服务支持',
       ],
+      lclDetailPageTitle: '铁路拼箱 LCL 详情',
+      stats: [
+        { value: '200+', label: '中国收货网点' },
+        { value: '10–16天', label: '欧洲核心站点参考时效' },
+        { value: 'LCL/FCL', label: '拼箱 / 整柜双方案' },
+        { value: 'EU', label: '欧洲全境门到门' },
+      ],
+      highlights: [
+        { title: '中欧门到门拼箱', desc: '全国提货、铁路干线、清关支持、欧洲末端派送，一站式覆盖。' },
+        { title: '全国200+收货网点', desc: '覆盖中国主要制造业与出口城市，适合光伏、汽配、设备及一般贸易货。' },
+        { title: '海运不稳，铁路更可控', desc: '近期海运绕行、舱位和时效波动明显，铁路时效更稳定，便于客户周转。' },
+        { title: '欧洲全境配送', desc: '波兰枢纽到站后，可衔接卡车网络，支持欧洲全境门到门派送。' },
+      ],
+      transit: [
+        { name: '马拉快线', days: '10–15天' },
+        { name: '汉堡快线', days: '14–16天' },
+        { name: '杜伊斯堡快线', days: '14–16天' },
+        { name: '布拉格 / 捷克', days: '约20天' },
+        { name: '布达佩斯', days: '约22天' },
+        { name: '米兰', days: '约25天' },
+      ],
       backButton: '返回首页',
     },
     en: {
@@ -111,6 +132,27 @@ export default function TXMHEurasiaLandingPage() {
         '200+ pickup points nationwide',
         'One-stop customs and delivery',
         'Train tracking and dedicated support',
+      ],
+      lclDetailPageTitle: 'Rail LCL Details',
+      stats: [
+        { value: '200+', label: 'China pickup points' },
+        { value: '10–16 days', label: 'Avg EU core route time' },
+        { value: 'LCL/FCL', label: 'LCL / FCL options' },
+        { value: 'EU', label: 'Europe door-to-door' },
+      ],
+      highlights: [
+        { title: 'Door-to-door LCL', desc: 'Nationwide pickup, rail mainline, customs clearance and European last-mile delivery in one stop.' },
+        { title: '200+ pickup points', desc: 'Covering major manufacturing and export cities in China for PV, auto parts, equipment, and general cargo.' },
+        { title: 'Stable alternative to sea', desc: 'Sea shipping detours and schedule fluctuations make rail more controllable for turnover.' },
+        { title: 'Europe-wide delivery', desc: 'Poland hub arrival connects to truck network for full Europe delivery.' },
+      ],
+      transit: [
+        { name: 'Mala Express', days: '10–15 days' },
+        { name: 'Hamburg Express', days: '14–16 days' },
+        { name: 'Duisburg Express', days: '14–16 days' },
+        { name: 'Prague / Czech', days: '≈20 days' },
+        { name: 'Budapest', days: '≈22 days' },
+        { name: 'Milan', days: '≈25 days' },
       ],
       backButton: 'Back to Home',
     },
@@ -166,6 +208,27 @@ export default function TXMHEurasiaLandingPage() {
         'Таможня и доставка «под ключ»',
         'Отслеживание и поддержка',
       ],
+      lclDetailPageTitle: 'Детали LCL железной дороги',
+      stats: [
+        { value: '200+', label: 'Пункты приема в Китае' },
+        { value: '10–16 дней', label: 'Сроки для основных маршрутов ЕС' },
+        { value: 'LCL/FCL', label: 'Опции LCL / FCL' },
+        { value: 'EU', label: 'Доставка по Европе' },
+      ],
+      highlights: [
+        { title: 'Дверь в дверь по LCL', desc: 'Прием по стране, ж/д магистраль, таможня и доставка в Европе.' },
+        { title: '200+ пунктов приема', desc: 'Покрытие основных экспортных городов Китая для PV, автозапчастей, оборудования и общего груза.' },
+        { title: 'Стабильнее моря', desc: 'Морские маршруты могут быть нестабильными, железная дорога дает более предсказуемое время.' },
+        { title: 'Доставка по всей Европе', desc: 'Польский хаб + европейская сеть автодоставки.' },
+      ],
+      transit: [
+        { name: 'Мала экспресс', days: '10–15 дней' },
+        { name: 'Гамбург экспресс', days: '14–16 дней' },
+        { name: 'Дуйсбург экспресс', days: '14–16 дней' },
+        { name: 'Прага / Чехия', days: '≈20 дней' },
+        { name: 'Будапешт', days: '≈22 дня' },
+        { name: 'Милан', days: '≈25 дней' },
+      ],
       backButton: 'Назад на главную',
     },
   };
@@ -185,33 +248,8 @@ export default function TXMHEurasiaLandingPage() {
   const centralAsiaRoutes = ["Kazakhstan", "Uzbekistan", "Kyrgyzstan"];
   const russiaRoutes = ["Moscow", "St. Petersburg", "Yekaterinburg"];
 
-  const highlights = [
-    {
-      title: "中欧门到门拼箱",
-      desc: "全国提货、铁路干线、清关支持、欧洲末端派送，一站式覆盖。",
-    },
-    {
-      title: "全国200+收货网点",
-      desc: "覆盖中国主要制造业与出口城市，适合光伏、汽配、设备及一般贸易货。",
-    },
-    {
-      title: "海运不稳，铁路更可控",
-      desc: "近期海运绕行、舱位和时效波动明显，铁路时效更稳定，便于客户周转。",
-    },
-    {
-      title: "欧洲全境配送",
-      desc: "波兰枢纽到站后，可衔接卡车网络，支持欧洲全境门到门派送。",
-    },
-  ];
-
-  const transit = [
-    { name: "马拉快线", days: "10–15天" },
-    { name: "汉堡快线", days: "14–16天" },
-    { name: "杜伊斯堡快线", days: "14–16天" },
-    { name: "布拉格 / 捷克", days: "约20天" },
-    { name: "布达佩斯", days: "约22天" },
-    { name: "米兰", days: "约25天" },
-  ];
+  const highlights = t.highlights;
+  const transit = t.transit;
 
   if (currentPage === 'lclDetail') {
     return (
@@ -219,46 +257,45 @@ export default function TXMHEurasiaLandingPage() {
         <header className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white">
           <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold tracking-wide">TXMH-Eurasia</div>
-              <div className="text-xs uppercase tracking-[0.25em] text-slate-400 mt-1">铁路拼箱 LCL 详情</div>
+              <div className="text-2xl font-bold tracking-wide">{t.siteTitle}</div>
+              <div className="text-xs uppercase tracking-[0.25em] text-slate-400 mt-1">{t.lclDetailPageTitle}</div>
             </div>
-            <div className="hidden md:flex gap-6 text-sm">
-              <button
-                onClick={() => {
-                  setActiveTab('lcl');
-                  setCurrentPage('lclDetail');
-                }}
-                className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex gap-6 text-sm">
+                <button
+                  onClick={() => { setActiveTab('lcl'); setCurrentPage('lclDetail'); }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabLcl}
+                </button>
+                <button
+                  onClick={() => { setActiveTab('fcl'); setCurrentPage('home'); }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabFcl}
+                </button>
+                <button
+                  onClick={() => { setActiveTab('europe'); setCurrentPage('home'); }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabEurope}
+                </button>
+                <button
+                  onClick={() => { setActiveTab('asia-russia'); setCurrentPage('home'); }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabAsiaRussia}
+                </button>
+              </div>
+              <select
+                value={locale}
+                onChange={(e) => setLocale(e.target.value)}
+                className="px-3 py-1 rounded bg-white text-slate-900 font-semibold"
               >
-                铁路拼箱 LCL
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('fcl');
-                  setCurrentPage('home');
-                }}
-                className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-              >
-                铁路整柜 FCL
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('europe');
-                  setCurrentPage('home');
-                }}
-                className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-              >
-                欧洲全境配送
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('asia-russia');
-                  setCurrentPage('home');
-                }}
-                className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-              >
-                中亚 / 俄罗斯
-              </button>
+                <option value="zh">中文</option>
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+              </select>
             </div>
             <button
               onClick={() => setCurrentPage('home')}
@@ -271,14 +308,14 @@ export default function TXMHEurasiaLandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div>
                 <p className="uppercase tracking-[0.2em] text-sm text-slate-300 mb-4">
-                  China–Europe / Russia / Central Asia Rail Freight
+                  {t.heroLabel}
                 </p>
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                  中欧门到门铁路拼箱
-                  <span className="block text-amber-400">稳定时效 · 欧洲全境配送</span>
+                  {t.heroTitle}
+                  <span className="block text-amber-400">{t.heroSubtitle}</span>
                 </h1>
                 <p className="text-lg text-slate-200 mb-8 max-w-xl leading-8">
-                  适合中国出口企业的欧亚铁路物流方案。支持拼箱（LCL）与整柜（FCL），全国 200+ 收货网点，覆盖欧洲、中亚及俄罗斯主要目的地。
+                  {t.heroText}
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <button className="px-6 py-3 rounded-2xl bg-amber-400 text-slate-900 font-semibold shadow-lg hover:scale-105 transition">
@@ -291,22 +328,12 @@ export default function TXMHEurasiaLandingPage() {
               </div>
               <div className="bg-white/10 backdrop-blur rounded-3xl p-6 shadow-2xl border border-white/10">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl bg-white/10 p-5">
-                    <div className="text-3xl font-bold text-amber-400">200+</div>
-                    <div className="text-sm text-slate-200 mt-1">中国收货网点</div>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-5">
-                    <div className="text-3xl font-bold text-amber-400">10–16天</div>
-                    <div className="text-sm text-slate-200 mt-1">欧洲核心站点参考时效</div>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-5">
-                    <div className="text-3xl font-bold text-amber-400">LCL/FCL</div>
-                    <div className="text-sm text-slate-200 mt-1">拼箱 / 整柜双方案</div>
-                  </div>
-                  <div className="rounded-2xl bg-white/10 p-5">
-                    <div className="text-3xl font-bold text-amber-400">EU</div>
-                    <div className="text-sm text-slate-200 mt-1">欧洲全境门到门</div>
-                  </div>
+                  {t.stats.map((stat) => (
+                    <div key={stat.label} className="rounded-2xl bg-white/10 p-5">
+                      <div className="text-3xl font-bold text-amber-400">{stat.value}</div>
+                      <div className="text-sm text-slate-200 mt-1">{stat.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -338,13 +365,11 @@ export default function TXMHEurasiaLandingPage() {
           </div>
 
           <div className="mt-8 rounded-3xl bg-slate-950 text-white p-6">
-            <h3 className="text-xl font-semibold mb-3">典型流程</h3>
+            <h3 className="text-xl font-semibold mb-3">{t.timelineTitle}</h3>
             <ol className="list-decimal list-inside space-y-2">
-              <li>下单确认：测算体积重量、报价核价</li>
-              <li>提货进仓：全国收货网点揽收、集中拼箱</li>
-              <li>铁路运输：班列出发至波兰枢纽/中亚枢纽</li>
-              <li>清关派送：目的地清关、欧洲/中亚/俄罗斯派送</li>
-              <li>签收反馈：到站确认、图片回传、异常处理</li>
+              {t.timelineSteps.map((step, idx) => (
+                <li key={idx}>{step}</li>
+              ))}
             </ol>
           </div>
         </section>
@@ -362,58 +387,55 @@ export default function TXMHEurasiaLandingPage() {
                 {t.siteSub}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setLocale('zh')}
-                className={`px-2 py-1 rounded ${locale === 'zh' ? 'bg-amber-400 text-slate-900' : 'bg-white/20 text-white hover:bg-white/30'}`}
-              >中文</button>
-              <button
-                onClick={() => setLocale('en')}
-                className={`px-2 py-1 rounded ${locale === 'en' ? 'bg-amber-400 text-slate-900' : 'bg-white/20 text-white hover:bg-white/30'}`}
-              >EN</button>
-              <button
-                onClick={() => setLocale('ru')}
-                className={`px-2 py-1 rounded ${locale === 'ru' ? 'bg-amber-400 text-slate-900' : 'bg-white/20 text-white hover:bg-white/30'}`}
-              >RU</button>
+            <div className="flex items-center gap-4">
+              <div className="hidden md:flex gap-6 text-sm">
+                <button 
+                  onClick={() => {
+                    setActiveTab('lcl');
+                    setCurrentPage('lclDetail');
+                  }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabLcl}
+                </button>
+                <button 
+                  onClick={() => {
+                    setActiveTab('fcl');
+                    setCurrentPage('home');
+                  }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabFcl}
+                </button>
+                <button 
+                  onClick={() => {
+                    setActiveTab('europe');
+                    setCurrentPage('home');
+                  }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabEurope}
+                </button>
+                <button 
+                  onClick={() => {
+                    setActiveTab('asia-russia');
+                    setCurrentPage('home');
+                  }}
+                  className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {t.tabAsiaRussia}
+                </button>
+              </div>
+              <select
+                value={locale}
+                onChange={(e) => setLocale(e.target.value)}
+                className="px-3 py-1 rounded bg-white text-slate-900 font-semibold"
+              >
+                <option value="zh">中文</option>
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+              </select>
             </div>
-          <div className="hidden md:flex gap-6 text-sm">
-            <button 
-              onClick={() => {
-                setActiveTab('lcl');
-                setCurrentPage('lclDetail');
-              }}
-              className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-            >
-              {t.tabLcl}
-            </button>
-            <button 
-              onClick={() => {
-                setActiveTab('fcl');
-                setCurrentPage('home');
-              }}
-              className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-            >
-              {t.tabFcl}
-            </button>
-            <button 
-              onClick={() => {
-                setActiveTab('europe');
-                setCurrentPage('home');
-              }}
-              className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-            >
-              {t.tabEurope}
-            </button>
-            <button 
-              onClick={() => {
-                setActiveTab('asia-russia');
-                setCurrentPage('home');
-              }}
-              className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-            >
-              {t.tabAsiaRussia}
-            </button>
-          </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
@@ -440,22 +462,12 @@ export default function TXMHEurasiaLandingPage() {
             </div>
             <div className="bg-white/10 backdrop-blur rounded-3xl p-6 shadow-2xl border border-white/10">
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl bg-white/10 p-5">
-                  <div className="text-3xl font-bold text-amber-400">200+</div>
-                  <div className="text-sm text-slate-200 mt-1">中国收货网点</div>
-                </div>
-                <div className="rounded-2xl bg-white/10 p-5">
-                  <div className="text-3xl font-bold text-amber-400">10–16天</div>
-                  <div className="text-sm text-slate-200 mt-1">欧洲核心站点参考时效</div>
-                </div>
-                <div className="rounded-2xl bg-white/10 p-5">
-                  <div className="text-3xl font-bold text-amber-400">LCL/FCL</div>
-                  <div className="text-sm text-slate-200 mt-1">拼箱 / 整柜双方案</div>
-                </div>
-                <div className="rounded-2xl bg-white/10 p-5">
-                  <div className="text-3xl font-bold text-amber-400">EU</div>
-                  <div className="text-sm text-slate-200 mt-1">欧洲全境门到门</div>
-                </div>
+                {t.stats.map((stat) => (
+                  <div key={stat.label} className="rounded-2xl bg-white/10 p-5">
+                    <div className="text-3xl font-bold text-amber-400">{stat.value}</div>
+                    <div className="text-sm text-slate-200 mt-1">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
