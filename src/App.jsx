@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 export default function TXMHEurasiaLandingPage() {
   const [activeTab, setActiveTab] = useState('lcl');
+  const [currentPage, setCurrentPage] = useState('home');
 
   const europeRoutes = [
     "Germany",
@@ -44,6 +45,65 @@ export default function TXMHEurasiaLandingPage() {
     { name: "米兰", days: "约25天" },
   ];
 
+  if (currentPage === 'lclDetail') {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900">
+        <header className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white">
+          <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold tracking-wide">TXMH-Eurasia</div>
+              <div className="text-xs uppercase tracking-[0.25em] text-slate-400 mt-1">铁路拼箱 LCL 详情</div>
+            </div>
+            <button
+              onClick={() => setCurrentPage('home')}
+              className="px-4 py-2 rounded-lg bg-white text-slate-900 font-semibold hover:bg-slate-200 transition"
+            >
+              返回
+            </button>
+          </div>
+        </header>
+
+        <section className="max-w-7xl mx-auto px-6 py-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">铁路拼箱（LCL）服务说明</h2>
+          <p className="text-slate-600 leading-7 mb-6">
+            LCL（Less than Container Load）适合中小批量货物，按体积或重量计费，可与其他客户货物拼柜运输，成本与效率更佳。
+          </p>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+              <h3 className="text-xl font-semibold mb-3">适用场景</h3>
+              <ul className="list-disc list-inside text-slate-600 space-y-2">
+                <li>单票货量少于整柜或不满一柜</li>
+                <li>订单频率中高、资金周转快</li>
+                <li>希望减少库存压力、分批发运</li>
+                <li>普货、轻小件或非危险品</li>
+              </ul>
+            </div>
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+              <h3 className="text-xl font-semibold mb-3">服务优势</h3>
+              <ul className="list-disc list-inside text-slate-600 space-y-2">
+                <li>成本按实际体积 / 重量计费，更灵活</li>
+                <li>全国 200+ 提货网点，覆盖中国主要产区</li>
+                <li>欧洲中转清关、末端派送一站式跟进</li>
+                <li>实时班列跟踪、专业客户服务支持</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-3xl bg-slate-950 text-white p-6">
+            <h3 className="text-xl font-semibold mb-3">典型流程</h3>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>下单确认：测算体积重量、报价核价</li>
+              <li>提货进仓：全国收货网点揽收、集中拼箱</li>
+              <li>铁路运输：班列出发至波兰枢纽/中亚枢纽</li>
+              <li>清关派送：目的地清关、欧洲/中亚/俄罗斯派送</li>
+              <li>签收反馈：到站确认、图片回传、异常处理</li>
+            </ol>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white">
@@ -56,25 +116,37 @@ export default function TXMHEurasiaLandingPage() {
           </div>
           <div className="hidden md:flex gap-6 text-sm">
             <button 
-              onClick={() => setActiveTab('lcl')}
+              onClick={() => {
+                setActiveTab('lcl');
+                setCurrentPage('lclDetail');
+              }}
               className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
             >
               铁路拼箱 LCL
             </button>
             <button 
-              onClick={() => setActiveTab('fcl')}
+              onClick={() => {
+                setActiveTab('fcl');
+                setCurrentPage('home');
+              }}
               className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
             >
               铁路整柜 FCL
             </button>
             <button 
-              onClick={() => setActiveTab('europe')}
+              onClick={() => {
+                setActiveTab('europe');
+                setCurrentPage('home');
+              }}
               className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
             >
               欧洲全境配送
             </button>
             <button 
-              onClick={() => setActiveTab('asia-russia')}
+              onClick={() => {
+                setActiveTab('asia-russia');
+                setCurrentPage('home');
+              }}
               className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
             >
               中亚 / 俄罗斯
