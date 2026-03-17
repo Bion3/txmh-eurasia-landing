@@ -1,9 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function TXMHEurasiaLandingPage() {
-  const [activeTab, setActiveTab] = useState('lcl');
-  const [currentPage, setCurrentPage] = useState('home');
-  const [locale, setLocale] = useState('zh');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return 'lcl';
+    return localStorage.getItem('txmh_activeTab') || 'lcl';
+  });
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (typeof window === 'undefined') return 'home';
+    return localStorage.getItem('txmh_currentPage') || 'home';
+  });
+  const [locale, setLocale] = useState(() => {
+    if (typeof window === 'undefined') return 'zh';
+    return localStorage.getItem('txmh_locale') || 'zh';
+  });
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const changePage = (page, tab = null) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (tab) setActiveTab(tab);
+      setCurrentPage(page);
+      setIsTransitioning(false);
+    }, 180);
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('txmh_activeTab', activeTab);
+      localStorage.setItem('txmh_currentPage', currentPage);
+      localStorage.setItem('txmh_locale', locale);
+    }
+  }, [activeTab, currentPage, locale]);
 
   const i18n = {
     zh: {
@@ -17,6 +44,10 @@ export default function TXMHEurasiaLandingPage() {
       heroTitle: '中欧门到门铁路拼箱',
       heroSubtitle: '稳定时效 · 欧洲全境配送',
       heroText: '适合中国出口企业的欧亚铁路物流方案。支持拼箱（LCL）与整柜（FCL），全国 200+ 收货网点，覆盖欧洲、中亚及俄罗斯主要目的地。',
+      lclHeroLabel: '更大灵活性的专属拼箱方案',
+      lclHeroTitle: '铁路拼箱 LCL 详情',
+      lclHeroSubtitle: '精细化服务 · 高效供应链',
+      lclHeroText: '针对中小批量出口需求，提供定制化拼箱对接、报关、集运、末端派送一体化流程。',
       btnEta: '获取最新时效',
       btnQuote: '立即询价',
       whyTitle: '为什么选择铁路拼箱？',
@@ -92,6 +123,10 @@ export default function TXMHEurasiaLandingPage() {
       heroTitle: 'Door-to-Door Railway LCL',
       heroSubtitle: 'Stable Transit · Europe Wide Delivery',
       heroText: 'A Eurasia rail logistics solution for Chinese exporters. Supports LCL and FCL, 200+ pickup points across China, covering Europe, Central Asia, and Russia.',
+      lclHeroLabel: 'Dedicated LCL solution for flexible volume',
+      lclHeroTitle: 'Rail LCL Detail Plan',
+      lclHeroSubtitle: 'Tailored service · faster logistics',
+      lclHeroText: 'For small/medium export loads, we provide end-to-end LCL consolidation, customs, and last-mile delivery integration.',
       btnEta: 'Get Transit Time',
       btnQuote: 'Get Quote',
       whyTitle: 'Why Choose Rail LCL?',
@@ -167,6 +202,10 @@ export default function TXMHEurasiaLandingPage() {
       heroTitle: 'Дверь в дверь железная дорога LCL',
       heroSubtitle: 'Стабильное время в пути · Доставка по всей Европе',
       heroText: 'Логистика по Евразии для китайских экспортеров. Поддержка LCL и FCL, 200+ пунктов приема по Китаю, покрытие Европы, ЦА и России.',
+      lclHeroLabel: 'Специальное решение для LCL',
+      lclHeroTitle: 'Детали LCL железнодорожной доставки',
+      lclHeroSubtitle: 'Индивидуальный сервис · быстрый цикл',
+      lclHeroText: 'Для малых/средних экспортных грузов: комплексный LCL, таможня и доставка до двери.',
       btnEta: 'Узнать срок',
       btnQuote: 'Запросить цену',
       whyTitle: 'Почему LCL по железной дороге?',
@@ -253,7 +292,7 @@ export default function TXMHEurasiaLandingPage() {
 
   if (currentPage === 'lclDetail') {
     return (
-      <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className={`min-h-screen bg-slate-50 text-slate-900 transition-all duration-300 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
         <header className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white">
           <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
             <div>
@@ -263,25 +302,25 @@ export default function TXMHEurasiaLandingPage() {
             <div className="flex items-center gap-4">
               <div className="hidden md:flex gap-6 text-sm">
                 <button
-                  onClick={() => { setActiveTab('lcl'); setCurrentPage('lclDetail'); }}
+                  onClick={() => changePage('lclDetail', 'lcl')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabLcl}
                 </button>
                 <button
-                  onClick={() => { setActiveTab('fcl'); setCurrentPage('home'); }}
+                  onClick={() => changePage('home', 'fcl')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabFcl}
                 </button>
                 <button
-                  onClick={() => { setActiveTab('europe'); setCurrentPage('home'); }}
+                  onClick={() => changePage('home', 'europe')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabEurope}
                 </button>
                 <button
-                  onClick={() => { setActiveTab('asia-russia'); setCurrentPage('home'); }}
+                  onClick={() => changePage('home', 'asia-russia')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabAsiaRussia}
@@ -298,7 +337,7 @@ export default function TXMHEurasiaLandingPage() {
               </select>
             </div>
             <button
-              onClick={() => setCurrentPage('home')}
+              onClick={() => changePage('home')}
               className="px-4 py-2 rounded-lg bg-white text-slate-900 font-semibold hover:bg-slate-200 transition"
             >
               {t.backButton}
@@ -308,14 +347,14 @@ export default function TXMHEurasiaLandingPage() {
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div>
                 <p className="uppercase tracking-[0.2em] text-sm text-slate-300 mb-4">
-                  {t.heroLabel}
+                  {t.lclHeroLabel}
                 </p>
                 <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                  {t.heroTitle}
-                  <span className="block text-amber-400">{t.heroSubtitle}</span>
+                  {t.lclHeroTitle}
+                  <span className="block text-amber-400">{t.lclHeroSubtitle}</span>
                 </h1>
                 <p className="text-lg text-slate-200 mb-8 max-w-xl leading-8">
-                  {t.heroText}
+                  {t.lclHeroText}
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <button className="px-6 py-3 rounded-2xl bg-amber-400 text-slate-900 font-semibold shadow-lg hover:scale-105 transition">
@@ -378,7 +417,7 @@ export default function TXMHEurasiaLandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className={`min-h-screen bg-slate-50 text-slate-900 transition-all duration-300 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
       <header className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white">
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <div>
@@ -390,37 +429,25 @@ export default function TXMHEurasiaLandingPage() {
             <div className="flex items-center gap-4">
               <div className="hidden md:flex gap-6 text-sm">
                 <button 
-                  onClick={() => {
-                    setActiveTab('lcl');
-                    setCurrentPage('lclDetail');
-                  }}
+                  onClick={() => changePage('lclDetail', 'lcl')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'lcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabLcl}
                 </button>
                 <button 
-                  onClick={() => {
-                    setActiveTab('fcl');
-                    setCurrentPage('home');
-                  }}
+                  onClick={() => changePage('home', 'fcl')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabFcl}
                 </button>
                 <button 
-                  onClick={() => {
-                    setActiveTab('europe');
-                    setCurrentPage('home');
-                  }}
+                  onClick={() => changePage('home', 'europe')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabEurope}
                 </button>
                 <button 
-                  onClick={() => {
-                    setActiveTab('asia-russia');
-                    setCurrentPage('home');
-                  }}
+                  onClick={() => changePage('home', 'asia-russia')}
                   className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
                 >
                   {t.tabAsiaRussia}
