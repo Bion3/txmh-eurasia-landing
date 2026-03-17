@@ -307,25 +307,13 @@ export default function TXMHEurasiaLandingPage() {
                 >
                   {t.tabLcl}
                 </button>
-                <button
-                  onClick={() => changePage('home', 'fcl')}
-                  className={`pb-2 border-b-2 transition ${activeTab === 'fcl' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-                >
-                  {t.tabFcl}
-                </button>
-                <button
-                  onClick={() => changePage('home', 'europe')}
-                  className={`pb-2 border-b-2 transition ${activeTab === 'europe' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-                >
-                  {t.tabEurope}
-                </button>
-                <button
-                  onClick={() => changePage('home', 'asia-russia')}
-                  className={`pb-2 border-b-2 transition ${activeTab === 'asia-russia' ? 'border-amber-400 text-amber-400 font-semibold' : 'border-transparent text-slate-300 hover:text-white'}`}
-                >
-                  {t.tabAsiaRussia}
-                </button>
               </div>
+              <button
+                onClick={() => changePage('home')}
+                className="px-4 py-2 rounded-lg bg-white text-slate-900 font-semibold hover:bg-slate-200 transition"
+              >
+                {t.backButton}
+              </button>
               <select
                 value={locale}
                 onChange={(e) => setLocale(e.target.value)}
@@ -336,12 +324,6 @@ export default function TXMHEurasiaLandingPage() {
                 <option value="ru">RU</option>
               </select>
             </div>
-            <button
-              onClick={() => changePage('home')}
-              className="px-4 py-2 rounded-lg bg-white text-slate-900 font-semibold hover:bg-slate-200 transition"
-            >
-              {t.backButton}
-            </button>
           </div>
           <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
