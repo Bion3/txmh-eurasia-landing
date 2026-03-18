@@ -295,6 +295,9 @@ export default function TXMHEurasiaLandingPage() {
     'United Kingdom',
   ]
 
+  const centralAsiaRoutes = ['Kazakhstan', 'Uzbekistan', 'Kyrgyzstan'];
+  const russiaRoutes = ['Moscow', 'St. Petersburg', 'Yekaterinburg'];
+
   const highlights = t.highlights;
   const transit = t.transit;
 
