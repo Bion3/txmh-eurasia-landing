@@ -590,7 +590,7 @@ export default function TXMHEurasiaLandingPage() {
         </div>
       </section>
 
-      <MiniTMSSection />
+   <MiniTMSSection />
 
       <ContactCTA />
     </div>
