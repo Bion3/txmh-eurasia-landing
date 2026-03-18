@@ -285,6 +285,9 @@ export default function TXMHEurasiaLandingPage() {
 
   const t = i18n[locale];
 
+  console.log('Current page:', currentPage);
+  console.log('Active tab:', activeTab);
+
   const europeRoutes = [
     'Germany',
     'Poland',

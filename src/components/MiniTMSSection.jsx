@@ -2,6 +2,8 @@
 import React from 'react';
 
 export default function MiniTMSSection() {
+  console.log('MiniTMSSection is rendering');
+
   const [selectedOrder, setSelectedOrder] = React.useState(null);
   const [showOrderDetail, setShowOrderDetail] = React.useState(false);
 
@@ -102,10 +104,13 @@ export default function MiniTMSSection() {
   ]
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-16 border-4 border-red-500 bg-red-50" id="mini-tms-section">
+      <div style={{fontSize: '48px', color: 'red', fontWeight: 'bold', textAlign: 'center', marginBottom: '20px'}}>
+        🚨 MINI TMS SECTION IS HERE 🚨
+      </div>
       <div className="mb-10 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-3">
-          TXMH-Eurasia 铁路拼箱管理系统原型
+        <h2 className="text-3xl md:text-4xl font-bold mb-3 text-red-600">
+          TXMH-Eurasia 铁路拼箱管理系统原型 (DEBUG - RED BORDER)
         </h2>
         <p className="text-slate-600 max-w-3xl mx-auto">
           作为官网展示模块，可直接嵌入当前页面。既能展示我们“系统化运营能力”，后续也可独立升级为完整 TMS / CRM 平台。
