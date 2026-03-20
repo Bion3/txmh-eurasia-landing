@@ -13,11 +13,9 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
     leads: 0,
   });
 
-  const combinedRefreshKey = refreshKey + localRefreshKey;
-
   useEffect(() => {
     setDashboardData((prev) => ({ ...prev, leads: getLeads().length }));
-  }, [combinedRefreshKey]);
+  }, [refreshKey, localRefreshKey]);
 
   const handleSaveQuoteToCRM = (quoteData) => {
     const newLead = createLeadFromQuote(quoteData);
@@ -207,7 +205,7 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
             )}
 
             {activeMenu === 'quote' && <QuoteCalculator locale={locale} onSaveToCRM={handleSaveQuoteToCRM} />}
-            {activeMenu === 'crm' && <InquiryCRM locale={locale} refreshKey={combinedRefreshKey} />}
+            {activeMenu === 'crm' && <InquiryCRM locale={locale} refreshKey={refreshKey + localRefreshKey} />}
 
             {activeMenu === 'schedule' && (
               <div className="bg-white rounded-3xl border border-slate-200 p-6">
