@@ -3,10 +3,12 @@ import Navbar from "./components/Navbar";
 import HomePage from "./page/HomePage";
 import TMSPage from "./page/TMSPage";
 import { i18n } from "./data/i18n";
+import { addLead, createLeadFromInquiry } from "./store/crmStore";
 
 export default function App() {
   const [locale, setLocale] = useState(() => localStorage.getItem("txmh_locale") || "en");
   const [currentPage, setCurrentPage] = useState("home");
+  const [crmRefreshKey, setCrmRefreshKey] = useState(0);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,13 +43,13 @@ export default function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // 先做前端演示版
-    console.log("Inquiry submitted:", formData);
+    const newLead = createLeadFromInquiry(formData);
+    addLead(newLead);
 
     alert(
       locale === "zh"
-        ? "询价已提交（演示版）。下一步可接入邮箱 / Supabase / API。"
-        : "Inquiry submitted (demo mode). Next step: connect Email / Supabase / API."
+        ? "询价已提交，可在 TMS 系统查看。"
+        : "Inquiry submitted. Check it in TMS."
     );
 
     setFormData({
@@ -56,6 +58,9 @@ export default function App() {
       route: "",
       cargo: ""
     });
+
+    setCrmRefreshKey((prev) => prev + 1);
+    setCurrentPage("tms");
   };
 
   const renderPage = () => {
@@ -73,7 +78,7 @@ export default function App() {
         );
 
       case "tms":
-        return <TMSPage locale={locale} text={text} />;
+        return <TMSPage locale={locale} text={text} refreshKey={crmRefreshKey} />;
 
       case "quote":
         return (

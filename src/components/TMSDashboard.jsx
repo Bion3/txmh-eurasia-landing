@@ -1,11 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QuoteCalculator from './tms/QuoteCalculator';
 import InquiryCRM from './tms/InquiryCRM';
 import ShipmentDetailDrawer from './tms/ShipmentDetailDrawer';
+import { getLeads, addLead, createLeadFromQuote } from '../store/crmStore';
 
-export default function TMSDashboard({ locale = 'en' }) {
+export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [selectedShipment, setSelectedShipment] = useState(null);
+  const [localRefreshKey, setLocalRefreshKey] = useState(0);
+  const [dashboardData, setDashboardData] = useState({
+    orders: 3,
+    leads: 0,
+  });
+
+  const combinedRefreshKey = refreshKey + localRefreshKey;
+
+  useEffect(() => {
+    setDashboardData((prev) => ({ ...prev, leads: getLeads().length }));
+  }, [combinedRefreshKey]);
+
+  const handleSaveQuoteToCRM = (quoteData) => {
+    const newLead = createLeadFromQuote(quoteData);
+    addLead(newLead);
+    setLocalRefreshKey((k) => k + 1);
+    setActiveMenu('crm');
+  };
 
   const menuItems = [
     { key: 'dashboard', label: 'Dashboard' },
@@ -98,8 +117,8 @@ export default function TMSDashboard({ locale = 'en' }) {
                     <div className="text-4xl font-bold mt-2">3</div>
                   </div>
                   <div className="bg-white rounded-3xl border border-slate-200 p-5">
-                    <div className="text-slate-500">This Week Departures</div>
-                    <div className="text-4xl font-bold mt-2">18</div>
+                    <div className="text-slate-500">New Leads</div>
+                    <div className="text-4xl font-bold mt-2">{dashboardData.leads}</div>
                   </div>
                   <div className="bg-white rounded-3xl border border-slate-200 p-5">
                     <div className="text-slate-500">EU Delivery Nodes</div>
@@ -187,8 +206,8 @@ export default function TMSDashboard({ locale = 'en' }) {
               </div>
             )}
 
-            {activeMenu === 'quote' && <QuoteCalculator locale={locale} />}
-            {activeMenu === 'crm' && <InquiryCRM locale={locale} />}
+            {activeMenu === 'quote' && <QuoteCalculator locale={locale} onSaveToCRM={handleSaveQuoteToCRM} />}
+            {activeMenu === 'crm' && <InquiryCRM locale={locale} refreshKey={combinedRefreshKey} />}
 
             {activeMenu === 'schedule' && (
               <div className="bg-white rounded-3xl border border-slate-200 p-6">
