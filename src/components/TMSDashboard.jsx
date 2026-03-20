@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import QuoteCalculator from './tms/QuoteCalculator';
-import InquiryCRM from './tms/InquiryCRM';
-import ShipmentDetailDrawer from './tms/ShipmentDetailDrawer';
+import QuoteCalculator from './TMS/QuoteCalculator';
+import InquiryCRM from './TMS/InquiryCRM';
+import ShipmentDetailDrawer from './TMS/ShipmentDetailDrawer';
 import { getLeads, addLead, createLeadFromQuote } from '../store/crmStore';
 
 export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
