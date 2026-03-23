@@ -48,8 +48,8 @@ export default function App() {
 
     alert(
       locale === "zh"
-        ? "询价已提交，可在 TMS 系统查看。"
-        : "Inquiry submitted. Check it in TMS."
+        ? "询价已提交，可在 TMS 系统查看！"
+        : "Inquiry submitted. Check it in TMS!"
     );
 
     setFormData({
