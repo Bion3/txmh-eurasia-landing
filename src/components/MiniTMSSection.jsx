@@ -19,7 +19,7 @@ export default function MiniTMSSection({ t, changePage }) {
             {tabs.map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => changePage('tms')}
+                onClick={() => changePage('TMS')}
                 className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-medium transition text-sm"
               >
                 {tab.label}
@@ -28,7 +28,7 @@ export default function MiniTMSSection({ t, changePage }) {
           </div>
 
           <button
-            onClick={() => changePage('tms')}
+            onClick={() => changePage('TMS')}
             className="px-6 py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 font-semibold"
           >
             {t.nav.tms}

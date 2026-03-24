@@ -60,7 +60,7 @@ export default function App() {
     });
 
     setCrmRefreshKey((prev) => prev + 1);
-    setCurrentPage("tms");
+    setCurrentPage("TMS");
   };
 
   const renderPage = () => {
@@ -77,7 +77,7 @@ export default function App() {
           />
         );
 
-      case "tms":
+      case "TMS":
         return <TMSPage locale={locale} text={text} refreshKey={crmRefreshKey} />;
 
       case "quote":

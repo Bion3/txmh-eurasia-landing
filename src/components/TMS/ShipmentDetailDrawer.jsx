@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' }) {
   if (!shipment) return null;
@@ -63,7 +63,7 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
         <div className="rounded-3xl border border-slate-200 p-5">
           <Item label={t.orderNo} value={shipment.id} />
           <Item label={t.customer} value={shipment.customer} />
-          <Item label={t.route} value={`${shipment.pol}  ${shipment.pod}`} />
+          <Item label={t.route} value={`${shipment.pol} → ${shipment.pod}`} />
           <Item label={t.service} value={shipment.service} />
           <Item label={t.status} value={shipment.status} />
           <Item label={t.atd} value={shipment.atd} />

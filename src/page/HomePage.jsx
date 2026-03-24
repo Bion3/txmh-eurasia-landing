@@ -30,7 +30,7 @@ export default function HomePage({
                 {text.hero.cta1}
               </button>
               <button
-                onClick={() => changePage("tms")}
+                onClick={() => changePage("TMS")}
                 className="px-6 py-3 rounded-2xl border border-gray-300 text-gray-800 font-semibold hover:bg-gray-50 transition"
               >
                 {text.hero.cta2}
@@ -95,7 +95,7 @@ export default function HomePage({
           <h2 className="text-3xl font-bold">{text.home.tmsTitle}</h2>
           <p className="mt-4 text-blue-100 max-w-3xl leading-8">{text.home.tmsText}</p>
           <button
-            onClick={() => changePage("tms")}
+            onClick={() => changePage("TMS")}
             className="mt-6 px-6 py-3 rounded-2xl bg-white text-blue-700 font-semibold hover:bg-blue-50 transition"
           >
             {locale === "zh" ? "进入系统原型" : "Open Prototype"}

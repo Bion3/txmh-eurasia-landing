@@ -1,4 +1,4 @@
-﻿export default function Navbar({ locale, text, currentPage, changePage, toggleLocale }) {
+﻿﻿export default function Navbar({ locale, text, currentPage, changePage, toggleLocale }) {
   const navItemClass = (page) =>
     `px-4 py-2 rounded-xl text-sm font-medium transition ${
       currentPage === page
@@ -26,7 +26,7 @@
           <button className={navItemClass("home")} onClick={() => changePage("home")}>
             {text.nav.home}
           </button>
-          <button className={navItemClass("tms")} onClick={() => changePage("tms")}>
+          <button className={navItemClass("TMS")} onClick={() => changePage("TMS")}>
             {text.nav.tms}
           </button>
           <button className={navItemClass("quote")} onClick={() => changePage("quote")}>

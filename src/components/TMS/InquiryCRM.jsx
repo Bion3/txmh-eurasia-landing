@@ -1,41 +1,13 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
+import { getLeads } from "../../store/crmStore";
 
-const initialLeads = [
-  {
-    id: 'INQ-260328-001',
-    customer: 'Auto Parts Import GmbH',
-    route: 'XIAN  HAMBURG',
-    cargo: 'Auto Parts',
-    volume: '3.2 CBM / 680 KG',
-    status: 'New',
-    owner: 'Ben',
-    updatedAt: '2026-03-28',
-  },
-  {
-    id: 'INQ-260328-002',
-    customer: 'Benelux Trade BV',
-    route: 'WUHAN  DUISBURG',
-    cargo: 'Consumer Goods',
-    volume: '5.8 CBM / 1220 KG',
-    status: 'Quoted',
-    owner: 'Ben',
-    updatedAt: '2026-03-28',
-  },
-  {
-    id: 'INQ-260329-003',
-    customer: 'Poland Distribution Sp. z o.o.',
-    route: 'CHENGDU  WARSAW',
-    cargo: 'Furniture',
-    volume: '8.5 CBM / 1600 KG',
-    status: 'Follow-up',
-    owner: 'Sales Team',
-    updatedAt: '2026-03-29',
-  },
-];
+export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
+  const [filter, setFilter] = useState("All");
+  const [leads, setLeads] = useState([]);
 
-export default function InquiryCRM({ locale = 'en' }) {
-  const [filter, setFilter] = useState('All');
-  const [leads] = useState(initialLeads);
+  useEffect(() => {
+    setLeads(getLeads());
+  }, [refreshKey]);
 
   const t = {
     zh: {
