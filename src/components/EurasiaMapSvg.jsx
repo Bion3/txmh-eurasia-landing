@@ -6,6 +6,7 @@ import mapSvg from "./Eurasia_location_map.svg";
 // =========================
 const hubs = [
   { id: "xian", name: "Xi'an", x: 58, y: 30, type: "origin", country: "China" },
+  { id: "zhengzhou", name: "Zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
   { id: "wuhan", name: "Wuhan", x: 62, y: 34, type: "origin", country: "China" },
   { id: "alashankou", name: "Alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
   { id: "moscow", name: "Moscow", x: 30, y: 18, type: "hub", country: "Russia" },
@@ -21,30 +22,30 @@ const hubs = [
 const routes = [
   {
     id: "route-1",
-    name: "China-EU Route (North)",
+    name: "China-EU Route (Xian)",
     color: "#ef4444",
     duration: "18–22 days",
     service: "Rail LCL",
-    path: "M 58,30 Q 54,27 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,22 T 16,21",
+    path: "M 58,30 Q 54,27 49,25 Q 40,21 30,18 Q 26,19 23,21 T 19,21.5 T 16,21",
     points: ["xian", "alashankou", "moscow", "mala", "warsaw", "hamburg"],
   },
   {
     id: "route-2",
-    name: "China-EU Route (Central)",
+    name: "China-EU Route (Wuhan)",
     color: "#3b82f6",
     duration: "20–25 days",
     service: "Rail LCL",
-    path: "M 62,34 Q 55,28 49,25 Q 40,21 30,18 Q 26,19 23,21 T 15,22 T 13,24",
+    path: "M 62,34 Q 55,28 49,25 Q 40,21 30,18 Q 26,19 23,21 T 16,22 T 13,24",
     points: ["wuhan", "alashankou", "moscow", "mala", "duisburg", "paris"],
   },
   {
     id: "route-3",
-    name: "China-EU Route (South)",
+    name: "China-EU Route (Zhengzhou)",
     color: "#10b981",
     duration: "22–26 days",
     service: "Rail LCL",
-    path: "M 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
-    points: ["alashankou", "moscow", "mala", "budapest", "milan"],
+    path: "M 63,31 Q 56,29 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
+    points: ["zhengzhou", "alashankou", "moscow", "mala", "budapest", "milan"],
   },
 ];
 
@@ -205,7 +206,7 @@ export default function EurasiaMapSvg() {
       </div>
 
       {/* 左下角标题信息 */}
-      <div className="absolute left-4 top-4 md:left-6 md:top-6 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-sm max-w-xs">
+      <div className="absolute left-2 top-2 md:left-4 md:top-6 bg-white/10 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-sm max-w-xs">
         <div className="text-sm font-semibold text-slate-900">
           Eurasia Rail LCL Coverage
         </div>
@@ -215,11 +216,11 @@ export default function EurasiaMapSvg() {
       </div>
 
       {/* 右下角图例 */}
-      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-xl border border-slate-200 text-xs shadow-sm">
+      <div className="absolute bottom-3 right-3 bg-white/50 backdrop-blur-sm p-1 rounded-xl border border-slate-200 text-xs shadow-sm">
         {routes.map((route) => (
-          <div key={route.id} className="flex items-center gap-2 font-medium text-slate-700 mb-1 last:mb-0">
+          <div key={route.id} className="flex items-center gap-1 font-medium text-slate-500 mb-1 last:mb-0">
             <span
-              className="inline-block w-4 h-0.5 rounded-full"
+              className="inline-block w-2 h-0.5 rounded-full"
               style={{ backgroundColor: route.color }}
             />
             {route.name}

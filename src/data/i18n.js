@@ -21,7 +21,7 @@
       service2: "中欧铁路整柜（FCL）",
       service3: "欧洲清关与末端配送",
       service4: "中亚 / 俄罗斯综合运输",
-      coverageTitle: "覆盖网络",
+      coverageTitle: "铁路覆盖网络",
       coverageText:
         "覆盖华沙、捷克周边、汉堡、杜伊斯堡、巴黎、米兰、布达佩斯及英国等主要节点。",
       tmsTitle: "Mini TMS 原型",
@@ -72,7 +72,7 @@
       service2: "China-Europe Rail FCL",
       service3: "EU Customs & Final Delivery",
       service4: "Central Asia / Russia Solutions",
-      coverageTitle: "Coverage Network",
+      coverageTitle: "Rail Coverage Network ",
       coverageText:
         "Strong coverage across Warsaw, Czech regions, Hamburg, Duisburg, Paris, Milan, Budapest, and the UK.",
       tmsTitle: "Mini TMS Prototype",
