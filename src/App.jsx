@@ -120,7 +120,7 @@ export default function App() {
 
       <footer className="border-t border-gray-200 mt-10">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 text-sm text-gray-500">
-          © 2026 TXMH-Eurasia · Rail LCL · Europe Delivery · Mini TMS Prototype
+          © 2026 EurasiaGo · Rail LCL · Europe Delivery · Mini TMS Prototype
         </div>
       </footer>
     </div>

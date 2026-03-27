@@ -9,7 +9,7 @@
       contact: "联系我们"
     },
     hero: {
-      title: "TXMH-Eurasia 欧亚大陆公路运输与综合物流",
+      title: "EurasiaGo 欧亚大陆公路运输与综合物流",
       subtitle:
         "专注中欧铁路拼箱、整柜、欧洲末端配送、中亚及俄罗斯方向综合物流解决方案。",
       cta1: "获取报价",
@@ -35,7 +35,7 @@
       submit: "提交询价"
     },
     tms: {
-      title: "TXMH-Eurasia 铁路拼箱管理系统原型",
+      title: "EurasiaGo 铁路拼箱管理系统原型",
       subtitle: "展示业务能力的轻量化可视原型",
       modules: {
         shipment: "货件看板",
@@ -79,7 +79,7 @@
       contact: "Contact"
     },
     hero: {
-      title: "TXMH-Eurasia  Continental Road Transport & Integrated Logistics",
+      title: "EurasiaGo  Continental Road Transport & Integrated Logistics",
       subtitle:
         "Focused on China-Europe rail LCL, FCL, European final-mile delivery, and integrated logistics to Central Asia & Russia.",
       cta1: "Get a Quote",
@@ -105,7 +105,7 @@
       submit: "Submit Inquiry"
     },
     tms: {
-      title: "TXMH-Eurasia Rail LCL Management Prototype",
+      title: "EurasiaGo Rail LCL Management Prototype",
       subtitle: "A lightweight visual prototype to demonstrate operational capability",
       modules: {
         shipment: "Shipment Board",

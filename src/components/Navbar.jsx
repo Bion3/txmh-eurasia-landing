@@ -17,7 +17,7 @@
             TX
           </div>
           <div>
-            <div className="font-bold text-gray-900">TXMH-Eurasia</div>
+            <div className="font-bold text-gray-900">EurasiaGo</div>
             <div className="text-xs text-gray-500">Rail LCL & Logistics</div>
           </div>
         </div>

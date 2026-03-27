@@ -15,7 +15,7 @@ export default function HomePage({
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <div className="inline-flex px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mb-4">
-              TXMH-Eurasia
+              EurasiaGo
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight text-gray-900">
               {text.hero.title}
