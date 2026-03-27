@@ -23,7 +23,7 @@ const routes = [
   {
     id: "route-1",
     name: "China-EU Route (Xian)",
-    color: "#ef4444",
+    color: "#151414",
     duration: "18–22 days",
     service: "Rail LCL",
     path: "M 58,30 Q 54,27 49,25 Q 40,21 30,18 Q 26,19 23,21 T 19,21.5 T 16,21",

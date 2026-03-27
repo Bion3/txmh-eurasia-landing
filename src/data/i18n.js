@@ -1,4 +1,4 @@
-﻿export const i18n = {
+﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
@@ -44,6 +44,27 @@
         route: "线路时效面板",
         customs: "清关状态",
         kpi: "业务数据概览"
+      }
+    },
+    map: {
+      hubs: {
+        xian: "西安",
+        zhengzhou: "郑州",
+        wuhan: "武汉",
+        alashankou: "阿拉山口",
+        moscow: "莫斯科",
+        mala: "马拉舍维切",
+        warsaw: "华沙",
+        hamburg: "汉堡",
+        duisburg: "杜伊斯堡",
+        paris: "巴黎",
+        milan: "米兰",
+        budapest: "布达佩斯"
+      },
+      routes: {
+        "route-1": "中欧班列 (西安)",
+        "route-2": "中欧班列 (武汉)",
+        "route-3": "中欧班列 (郑州)"
       }
     }
   },
@@ -93,6 +114,27 @@
         route: "Route ETA Panel",
         customs: "Customs Status",
         kpi: "Business KPI Overview"
+      }
+    },
+    map: {
+      hubs: {
+        xian: "Xi'an",
+        zhengzhou: "Zhengzhou",
+        wuhan: "Wuhan",
+        alashankou: "Alashankou",
+        moscow: "Moscow",
+        mala: "Mala",
+        warsaw: "Warsaw",
+        hamburg: "Hamburg",
+        duisburg: "Duisburg",
+        paris: "Paris",
+        milan: "Milan",
+        budapest: "Budapest"
+      },
+      routes: {
+        "route-1": "China-EU Route (Xi'an)",
+        "route-2": "China-EU Route (Wuhan)",
+        "route-3": "China-EU Route (Zhengzhou)"
       }
     }
   }
