@@ -3,7 +3,7 @@ import EurasiaMapSvg from "./EurasiaMapSvg";
 
 export default function EurasiaMap() {
   return (
-    <section className="py-16 bg-slate-50">
+    <section className="pt-8 pb-16 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="mb-8 md:mb-10">
           <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
