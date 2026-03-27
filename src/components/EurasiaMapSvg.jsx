@@ -205,15 +205,7 @@ export default function EurasiaMapSvg() {
         </svg>
       </div>
 
-      {/* 左下角标题信息 */}
-      <div className="absolute left-2 top-2 md:left-4 md:top-6 bg-white/10 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-sm max-w-xs">
-        <div className="text-sm font-semibold text-slate-900">
-          Eurasia Rail LCL Coverage
-        </div>
-        <div className="mt-1 text-xs text-slate-600 leading-relaxed">
-          China origins → border crossing → CIS transit → European hub distribution
-        </div>
-      </div>
+  
 
       {/* 右下角图例 */}
       <div className="absolute bottom-3 right-3 bg-white/50 backdrop-blur-sm p-1 rounded-xl border border-slate-200 text-xs shadow-sm">
