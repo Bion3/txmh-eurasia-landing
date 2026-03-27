@@ -9,7 +9,7 @@
       contact: "联系我们"
     },
     hero: {
-      title: "TXMH-Eurasia 欧亚铁路拼箱与综合物流",
+      title: "TXMH-Eurasia 欧亚大陆公路运输与综合物流",
       subtitle:
         "专注中欧铁路拼箱、整柜、欧洲末端配送、中亚及俄罗斯方向综合物流解决方案。",
       cta1: "获取报价",
@@ -21,10 +21,8 @@
       service2: "中欧铁路整柜（FCL）",
       service3: "欧洲清关与末端配送",
       service4: "中亚 / 俄罗斯综合运输",
-      coverageTitle: "铁路覆盖网络",
-      coverageText:
-        "覆盖华沙、捷克周边、汉堡、杜伊斯堡、巴黎、米兰、布达佩斯及英国等主要节点。",
-      tmsTitle: "Mini TMS 原型",
+    
+      tmsTitle: "Mini TMS",
       tmsText:
         "用于展示铁路拼箱管理能力：询价、报价、货件追踪、时效看板、客户管理。"
     },
@@ -60,7 +58,7 @@
       contact: "Contact"
     },
     hero: {
-      title: "TXMH-Eurasia Rail LCL & Integrated Logistics",
+      title: "TXMH-Eurasia  Continental Road Transport & Integrated Logistics",
       subtitle:
         "Focused on China-Europe rail LCL, FCL, European final-mile delivery, and integrated logistics to Central Asia & Russia.",
       cta1: "Get a Quote",
@@ -72,9 +70,7 @@
       service2: "China-Europe Rail FCL",
       service3: "EU Customs & Final Delivery",
       service4: "Central Asia / Russia Solutions",
-      coverageTitle: "Rail Coverage Network ",
-      coverageText:
-        "Strong coverage across Warsaw, Czech regions, Hamburg, Duisburg, Paris, Milan, Budapest, and the UK.",
+      
       tmsTitle: "Mini TMS Prototype",
       tmsText:
         "A lightweight prototype to demonstrate rail LCL management capabilities: inquiry, quotation, tracking, transit visibility, and customer follow-up."

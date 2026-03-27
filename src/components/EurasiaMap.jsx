@@ -11,7 +11,7 @@ export default function EurasiaMap() {
           </div>
 
           <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-            China to Europe Rail LCL Network
+            China - Europe Rail Network
           </h2>
 
           <p className="mt-3 text-slate-600 max-w-3xl leading-relaxed">

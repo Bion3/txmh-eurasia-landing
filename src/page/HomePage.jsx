@@ -63,6 +63,15 @@ export default function HomePage({
         </div>
       </section>
 
+      {/* Coverage Map */}
+      <section className="bg-gray-50 py-14">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">{text.home.coverageTitle}</h2>
+          <p className="text-gray-600 max-w-4xl leading-8 mb-8">{text.home.coverageText}</p>
+          <EurasiaMap />
+        </div>
+      </section>
+
       {/* Services */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-14">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">{text.home.servicesTitle}</h2>
@@ -80,15 +89,6 @@ export default function HomePage({
               </div>
             )
           )}
-        </div>
-      </section>
-
-      {/* Coverage Map */}
-      <section className="bg-gray-50 py-14">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">{text.home.coverageTitle}</h2>
-          <p className="text-gray-600 max-w-4xl leading-8 mb-8">{text.home.coverageText}</p>
-          <EurasiaMap />
         </div>
       </section>
 
