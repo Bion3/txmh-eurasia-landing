@@ -1,12 +1,10 @@
-﻿﻿﻿﻿export const i18n = {
+﻿﻿﻿﻿﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
-      railLcl: "铁路拼箱",
-      europeDelivery: "欧洲配送",
-      tms: "Mini TMS",
-      quote: "询价",
-      contact: "联系我们"
+      tms: "TMS 系统",
+      quote: "获取报价",
+      about: "关于我们"
     },
     hero: {
       title: "EurasiaGo 欧亚大陆公路运输与综合物流",
@@ -84,11 +82,9 @@
   en: {
     nav: {
       home: "Home",
-      railLcl: "Rail LCL",
-      europeDelivery: "Europe Delivery",
-      tms: "Mini TMS",
-      quote: "Quote",
-      contact: "Contact"
+      tms: "TMS System",
+      quote: "Get a Quote",
+      about: "About Us"
     },
     hero: {
       title: "EurasiaGo  Continental Road Transport & Integrated Logistics",
