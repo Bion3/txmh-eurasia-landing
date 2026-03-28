@@ -50,7 +50,7 @@ export default function HomePage({
       </section>
 
       {/* Coverage Map */}
-      <EurasiaMap />
+      <EurasiaMap text={text} />
 
       {/* Services */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-14">

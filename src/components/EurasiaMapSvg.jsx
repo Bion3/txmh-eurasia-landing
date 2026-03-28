@@ -5,26 +5,25 @@ import mapSvg from "./Eurasia_location_map.svg";
 // 1) 可维护的数据（后续可从后台读取）
 // =========================
 const hubs = [
-  { id: "xian", name: "Xi'an", x: 58, y: 30, type: "origin", country: "China" },
-  { id: "zhengzhou", name: "Zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
-  { id: "wuhan", name: "Wuhan", x: 62, y: 34, type: "origin", country: "China" },
-  { id: "shenzhen", name: "Shenzhen", x: 64, y: 37, type: "origin", country: "China" },
-  { id: "yiwu", name: "Yiwu", x: 67, y: 35, type: "origin", country: "China" },
-  { id: "alashankou", name: "Alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
-  { id: "moscow", name: "Moscow", x: 30, y: 18, type: "hub", country: "Russia" },
-  { id: "mala", name: "Mala", x: 23, y: 21, type: "hub", country: "Poland" },
-  { id: "warsaw", name: "Warsaw", x: 21, y: 22, type: "hub", country: "Poland" },
-  { id: "hamburg", name: "Hamburg", x: 16, y: 21, type: "hub", country: "Germany" },
-  { id: "duisburg", name: "Duisburg", x: 15, y: 22, type: "hub", country: "Germany" },
-  { id: "paris", name: "Paris", x: 13, y: 24, type: "hub", country: "France" },
-  { id: "milan", name: "Milan", x: 17, y: 26, type: "hub", country: "Italy" },
-  { id: "budapest", name: "Budapest", x: 21, y: 24, type: "hub", country: "Hungary" },
+  { id: "xian", x: 58, y: 30, type: "origin", country: "China" },
+  { id: "zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
+  { id: "wuhan", x: 62, y: 34, type: "origin", country: "China" },
+  { id: "shenzhen", x: 64, y: 37, type: "origin", country: "China" },
+  { id: "yiwu", x: 67, y: 35, type: "origin", country: "China" },
+  { id: "alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
+  { id: "moscow", x: 30, y: 18, type: "hub", country: "Russia" },
+  { id: "mala", x: 23, y: 21, type: "hub", country: "Poland" },
+  { id: "warsaw", x: 21, y: 22, type: "hub", country: "Poland" },
+  { id: "hamburg", x: 16, y: 21, type: "hub", country: "Germany" },
+  { id: "duisburg", x: 15, y: 22, type: "hub", country: "Germany" },
+  { id: "paris", x: 13, y: 24, type: "hub", country: "France" },
+  { id: "milan", x: 17, y: 26, type: "hub", country: "Italy" },
+  { id: "budapest", x: 21, y: 24, type: "hub", country: "Hungary" },
 ];
 
 const routes = [
   {
     id: "route-1",
-    name: "China-EU Route (Xian)",
     color: "#151414",
     duration: "18–22 days",
     service: "Rail LCL",
@@ -33,7 +32,6 @@ const routes = [
   },
   {
     id: "route-2",
-    name: "China-EU Route (Wuhan)",
     color: "#3b82f6",
     duration: "20–25 days",
     service: "Rail LCL",
@@ -42,7 +40,6 @@ const routes = [
   },
   {
     id: "route-3",
-    name: "China-EU Route (Zhengzhou)",
     color: "#10b981",
     duration: "22–26 days",
     service: "Rail LCL",
@@ -67,7 +64,7 @@ function getTypeColor(type) {
 // =========================
 // 3) 城市点位组件
 // =========================
-function CityMarker({ hub, active, onEnter, onLeave }) {
+function CityMarker({ hub, name, active, onEnter, onLeave }) {
   const color = getTypeColor(hub.type);
 
   return (
@@ -102,7 +99,7 @@ function CityMarker({ hub, active, onEnter, onLeave }) {
         fill="#0f172a"
         className="font-semibold"
       >
-        {hub.name}
+        {name}
       </text>
     </g>
   );
@@ -111,7 +108,7 @@ function CityMarker({ hub, active, onEnter, onLeave }) {
 // =========================
 // 4) 主组件
 // =========================
-export default function EurasiaMapSvg() {
+export default function EurasiaMapSvg({ mapText }) {
   const [hoveredHub, setHoveredHub] = useState(null);
   const [hoveredRoute, setHoveredRoute] = useState(null);
 
@@ -199,6 +196,7 @@ export default function EurasiaMapSvg() {
             <CityMarker
               key={hub.id}
               hub={hub}
+              name={mapText.hubs[hub.id]}
               active={hoveredHub?.id === hub.id}
               onEnter={(e, item) => setHoveredHub(item)}
               onLeave={() => setHoveredHub(null)}
@@ -217,7 +215,7 @@ export default function EurasiaMapSvg() {
               className="inline-block w-2 h-0.5 rounded-full"
               style={{ backgroundColor: route.color }}
             />
-            {route.name}
+            {mapText.routes[route.id]}
           </div>
         ))}
       </div>
@@ -225,7 +223,7 @@ export default function EurasiaMapSvg() {
       {/* 城市 hover 信息卡 */}
       {hoveredHub && (
         <div className="absolute left-4 bottom-4 md:left-6 md:bottom-6 bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-md min-w-[180px]">
-          <div className="text-sm font-semibold text-slate-900">{hoveredHub.name}</div>
+          <div className="text-sm font-semibold text-slate-900">{mapText.hubs[hoveredHub.id]}</div>
           <div className="mt-1 text-xs text-slate-600">Type: {hoveredHub.type}</div>
           <div className="text-xs text-slate-600">Country: {hoveredHub.country}</div>
         </div>
@@ -234,11 +232,11 @@ export default function EurasiaMapSvg() {
       {/* 路线 hover 信息卡 */}
       {hoveredRoute && (
         <div className="absolute right-4 top-20 md:right-6 md:top-24 bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-md min-w-[220px]">
-          <div className="text-sm font-semibold text-slate-900">{hoveredRoute.name}</div>
+          <div className="text-sm font-semibold text-slate-900">{mapText.routes[hoveredRoute.id]}</div>
           <div className="mt-1 text-xs text-slate-600">Service: {hoveredRoute.service}</div>
           <div className="text-xs text-slate-600">Transit: {hoveredRoute.duration}</div>
           <div className="text-xs text-slate-600 mt-1">
-            Stops: {hoveredRoute.points.map((id) => hubMap[id]?.name).join(" → ")}
+            Stops: {hoveredRoute.points.map((id) => mapText.hubs[id]).join(" → ")}
           </div>
         </div>
       )}

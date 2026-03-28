@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿export const i18n = {
+﻿﻿﻿﻿﻿﻿﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
@@ -31,6 +31,10 @@
         title: "中亚 / 俄罗斯综合运输",
         desc: "提供面向中亚及俄罗斯市场的定制化多式联运解决方案，满足多样化物流需求。"
       },
+      service5: {
+        title: "中欧铁路网络",
+        desc: "我们的铁路拼箱服务可从中国多个站点始发，网络强力覆盖华沙、汉堡、杜伊斯堡、巴黎、米兰、布达佩斯及其周边的欧盟派送区域。"
+      },
     
       tmsTitle: "Mini TMS",
       tmsText:
@@ -60,6 +64,8 @@
       hubs: {
         xian: "西安",
         zhengzhou: "郑州",
+        shenzhen: "深圳",
+        yiwu:"义乌",
         wuhan: "武汉",
         alashankou: "阿拉山口",
         moscow: "莫斯科",
@@ -111,6 +117,10 @@
         title: "Central Asia / Russia Solutions",
         desc: "Customized multimodal transport solutions for Central Asian and Russian markets to meet diverse logistics needs."
       },
+      service5: {
+        title: "China - Europe Rail Network",
+        desc: "Multi-origin rail consolidation from China with strong coverage across Warsaw, Hamburg, Duisburg, Paris, Milan, Budapest and surrounding EU delivery zones."
+      },
       
       tmsTitle: "Mini TMS Prototype",
       tmsText:
@@ -140,6 +150,8 @@
       hubs: {
         xian: "Xi'an",
         zhengzhou: "Zhengzhou",
+        shenzhen: "Shenzhen",
+        yiwu: "Yiwu",
         wuhan: "Wuhan",
         alashankou: "Alashankou",
         moscow: "Moscow",

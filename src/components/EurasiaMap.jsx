@@ -1,7 +1,7 @@
 import React from "react";
 import EurasiaMapSvg from "./EurasiaMapSvg";
 
-export default function EurasiaMap() {
+export default function EurasiaMap({ text }) {
   return (
     <section className="pt-8 pb-16 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -11,16 +11,15 @@ export default function EurasiaMap() {
           </div>
 
           <h2 className="mt-4 text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
-            China - Europe Rail Network
+            {text.home.service5.title}
           </h2>
 
           <p className="mt-3 text-slate-600 max-w-3xl leading-relaxed">
-            Multi-origin rail consolidation from China with strong coverage across
-            Warsaw, Hamburg, Duisburg, Paris, Milan, Budapest and surrounding EU delivery zones.
+            {text.home.service5.desc}
           </p>
         </div>
 
-        <EurasiaMapSvg />
+        <EurasiaMapSvg mapText={text.map} />
       </div>
     </section>
   );
