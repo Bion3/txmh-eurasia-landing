@@ -13,8 +13,8 @@
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => changePage("home")}
         >
-          <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold">
-            TX
+          <div className="w-10 h-10 rounded-2xl bg-blue-500 text-white flex items-center justify-center font-bold">
+            EG
           </div>
           <div>
             <div className="font-bold text-gray-900">EurasiaGo</div>

@@ -74,12 +74,13 @@ export default function HomePage({
             (service, index) => (
               <div
                 key={index}
-                className="rounded-3xl bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition"
+                className="rounded-3xl bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition flex flex-col"
               >
-                <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold flex-shrink-0">
                   {index + 1}
                 </div>
-                <h3 className="mt-4 font-semibold text-gray-900">{service}</h3>
+                <h3 className="mt-4 font-semibold text-gray-900">{service.title}</h3>
+                <p className="mt-2 text-sm text-gray-600 flex-grow">{service.desc}</p>
               </div>
             )
           )}

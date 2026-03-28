@@ -1,4 +1,4 @@
-﻿﻿export const i18n = {
+﻿﻿﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
@@ -17,10 +17,22 @@
     },
     home: {
       servicesTitle: "核心服务",
-      service1: "中欧铁路拼箱（LCL）",
-      service2: "中欧铁路整柜（FCL）",
-      service3: "欧洲清关与末端配送",
-      service4: "中亚 / 俄罗斯综合运输",
+      service1: {
+        title: "中欧铁路拼箱 (LCL)",
+        desc: "灵活、经济的铁路拼箱方案，适合小批量、多批次的货物运输需求，有效控制成本。"
+      },
+      service2: {
+        title: "中欧铁路整柜 (FCL)",
+        desc: "提供稳定、可靠的整柜运输服务，保障大批量货物安全、准时到达欧洲目的地。"
+      },
+      service3: {
+        title: "欧洲清关与末端配送",
+        desc: "覆盖欧洲全境的清关和门到门配送网络，简化流程，确保货物顺利交付。"
+      },
+      service4: {
+        title: "中亚 / 俄罗斯综合运输",
+        desc: "提供面向中亚及俄罗斯市场的定制化多式联运解决方案，满足多样化物流需求。"
+      },
     
       tmsTitle: "Mini TMS",
       tmsText:
@@ -87,10 +99,22 @@
     },
     home: {
       servicesTitle: "Core Services",
-      service1: "China-Europe Rail LCL",
-      service2: "China-Europe Rail FCL",
-      service3: "EU Customs & Final Delivery",
-      service4: "Central Asia / Russia Solutions",
+      service1: {
+        title: "China-Europe Rail LCL",
+        desc: "Flexible and economical rail LCL solutions, ideal for small and frequent shipments to effectively control costs."
+      },
+      service2: {
+        title: "China-Europe Rail FCL",
+        desc: "Stable and reliable FCL services ensuring safe and timely delivery of large-volume shipments to European destinations."
+      },
+      service3: {
+        title: "EU Customs & Final Delivery",
+        desc: "Comprehensive customs clearance and door-to-door delivery network across Europe, simplifying processes for smooth delivery."
+      },
+      service4: {
+        title: "Central Asia / Russia Solutions",
+        desc: "Customized multimodal transport solutions for Central Asian and Russian markets to meet diverse logistics needs."
+      },
       
       tmsTitle: "Mini TMS Prototype",
       tmsText:
