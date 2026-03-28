@@ -11,16 +11,21 @@ export default function HomePage({
   return (
     <main>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
+      <section className="relative bg-cover bg-bottom" style={{ backgroundImage: "url('/hero-background.jpg')" }}>
+        {/* Overlay to improve text readability */}
+       
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
           <div>
             <div className="inline-flex px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mb-4">
               EurasiaGo
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight text-gray-900">
+            <h1
+              className="text-4xl md:text-6xl font-bold leading-tight text-gray-900"
+              style={{ textShadow: "0 0 8px white" }}
+            >
               {text.hero.title}
             </h1>
-            <p className="mt-6 text-lg text-gray-600 leading-8">
+            <p className="mt-6 text-lg text-black leading-8" style={{ textShadow: "0 0 5px white" }}>
               {text.hero.subtitle}
             </p>
 
@@ -40,26 +45,7 @@ export default function HomePage({
             </div>
           </div>
 
-          <div className="rounded-3xl bg-white border border-gray-200 shadow-xl p-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl bg-gray-50 p-5 border border-gray-100">
-                <div className="text-sm text-gray-500">{locale === "zh" ? "铁路拼箱" : "Rail LCL"}</div>
-                <div className="mt-2 text-2xl font-bold">LCL</div>
-              </div>
-              <div className="rounded-2xl bg-gray-50 p-5 border border-gray-100">
-                <div className="text-sm text-gray-500">{locale === "zh" ? "欧洲配送" : "EU Delivery"}</div>
-                <div className="mt-2 text-2xl font-bold">8+ Nodes</div>
-              </div>
-              <div className="rounded-2xl bg-gray-50 p-5 border border-gray-100">
-                <div className="text-sm text-gray-500">{locale === "zh" ? "中欧班列" : "Rail Transit"}</div>
-                <div className="mt-2 text-2xl font-bold">16-24D</div>
-              </div>
-              <div className="rounded-2xl bg-gray-50 p-5 border border-gray-100">
-                <div className="text-sm text-gray-500">{locale === "zh" ? "Mini TMS" : "Mini TMS"}</div>
-                <div className="mt-2 text-2xl font-bold">Prototype</div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </section>
 

@@ -8,6 +8,8 @@ const hubs = [
   { id: "xian", name: "Xi'an", x: 58, y: 30, type: "origin", country: "China" },
   { id: "zhengzhou", name: "Zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
   { id: "wuhan", name: "Wuhan", x: 62, y: 34, type: "origin", country: "China" },
+  { id: "shenzhen", name: "Shenzhen", x: 64, y: 37, type: "origin", country: "China" },
+  { id: "yiwu", name: "Yiwu", x: 67, y: 35, type: "origin", country: "China" },
   { id: "alashankou", name: "Alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
   { id: "moscow", name: "Moscow", x: 30, y: 18, type: "hub", country: "Russia" },
   { id: "mala", name: "Mala", x: 23, y: 21, type: "hub", country: "Poland" },
