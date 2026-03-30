@@ -6,7 +6,13 @@ export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
   const [leads, setLeads] = useState([]);
 
   useEffect(() => {
-    setLeads(getLeads());
+    async function fetchLeads() {
+      const leadsData = await getLeads();
+      if (Array.isArray(leadsData)) {
+        setLeads(leadsData);
+      }
+    }
+    fetchLeads();
   }, [refreshKey]);
 
   const t = {

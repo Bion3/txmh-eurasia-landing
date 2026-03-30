@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./page/HomePage";
 import TMSPage from "./page/TMSPage";
 import { i18n } from "./data/i18n";
-import { addLead, createLeadFromInquiry } from "./store/crmStore";
+import { addLead } from "./store/crmStore";
 
 export default function App() {
   const [locale, setLocale] = useState(() => localStorage.getItem("txmh_locale") || "en");
@@ -40,11 +40,18 @@ export default function App() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newLead = createLeadFromInquiry(formData);
-    addLead(newLead);
+    const newLead = {
+      customer_name: formData.name,
+      email: formData.email,
+      route: formData.route,
+      cargo_details: formData.cargo,
+      status: 'New'
+    };
+
+    await addLead(newLead);
 
     alert(
       locale === "zh"
