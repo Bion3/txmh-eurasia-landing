@@ -100,7 +100,7 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
     { key: 'orders', label: 'LCL Orders' },
     { key: 'schedule', label: 'Train Schedule' },
     { key: 'delivery', label: 'EU Delivery' },
-    { key: 'quote', label: 'Quote Center' },
+    { key: 'quote', label: 'Quote Tool' },
     { key: 'crm', label: 'CRM' },
   ];
 
@@ -290,7 +290,11 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
 
                 {/* QUOTE */}
                 {activeMenu === 'quote' && (
-                  <QuoteCalculator locale={locale} onSaveToCRM={handleSaveQuoteToCRM} />
+                   <QuoteCalculator
+                    locale={locale}
+                      mode="admin"
+                      onSaveToCRM={handleSaveQuoteToCRM}
+                    />
                 )}
 
                 {/* CRM */}

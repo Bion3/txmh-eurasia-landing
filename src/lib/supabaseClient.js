@@ -1,12 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = 'https://hcorkkudgicarsmexnqf.supabase.co' // 替换为您的真实 URL
+const supabaseAnonKey = 'sb_publishable_nB2eShVqNNkND-zOSHYSnQ_Pf2xtBgp' // 替换为您的真实 Key
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-})
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
