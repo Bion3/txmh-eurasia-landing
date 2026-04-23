@@ -126,8 +126,14 @@ export default function App() {
       {renderPage()}
 
       <footer className="border-t border-gray-200 mt-10">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 text-sm text-gray-500">
-          © 2026 EurasiaGo · Rail LCL · Europe Delivery · Mini TMS Prototype
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 text-sm text-gray-500 flex justify-between items-center">
+          <span>© 2026 EurasiaGo · Rail LCL · Europe Delivery · Mini TMS Prototype</span>
+          <div>
+            <span>Contact: </span>
+            <a href="mailto:Benjamin@eurasiago.com" className="hover:text-blue-600">
+              Benjamin@eurasiago.com
+            </a>
+          </div>
         </div>
       </footer>
     </div>
