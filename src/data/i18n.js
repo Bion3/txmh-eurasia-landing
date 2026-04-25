@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿export const i18n = {
+﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
@@ -59,6 +59,9 @@
         customs: "清关状态",
         kpi: "业务数据概览"
       }
+    },
+    about: {
+      title: "关于我们"
     },
     map: {
       hubs: {
@@ -145,6 +148,9 @@
         customs: "Customs Status",
         kpi: "Business KPI Overview"
       }
+    },
+    about: {
+      title: "About Us"
     },
     map: {
       hubs: {

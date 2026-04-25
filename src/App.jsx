@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import HomePage from "./page/HomePage";
 import TMSPage from "./page/TMSPage";
+import AboutPage from "./page/AboutPage";
 import { i18n } from "./data/i18n";
 import { addLead } from "./store/crmStore";
 
@@ -86,6 +87,9 @@ export default function App() {
 
       case "TMS":
         return <TMSPage locale={locale} text={text} refreshKey={crmRefreshKey} />;
+      
+      case "about":
+        return <AboutPage locale={locale} text={text} />;
 
       case "quote":
         return (
