@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./page/HomePage";
 import TMSPage from "./page/TMSPage";
 import AboutPage from "./page/AboutPage";
+import QuotePage from "./page/QuotePage";
 import { i18n } from "./data/i18n";
 import { addLead } from "./store/crmStore";
 
@@ -93,10 +94,9 @@ export default function App() {
 
       case "quote":
         return (
-          <HomePage
+          <QuotePage
             locale={locale}
             text={text}
-            changePage={changePage}
             formData={formData}
             handleChange={handleChange}
             handleSubmit={handleSubmit}

@@ -1,4 +1,4 @@
-﻿﻿export const i18n = {
+﻿﻿﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
@@ -35,44 +35,36 @@
         title: "中欧铁路网络",
         desc: "我们的铁路拼箱服务可从中国多个站点始发，网络强力覆盖华沙、汉堡、杜伊斯堡、巴黎、米兰、布达佩斯及其周边的欧盟派送区域。"
       },
-    
-      tmsTitle: "Mini TMS",
+      tmsTitle: "免费试用我们的 Mini TMS",
       tmsText:
-        "用于展示铁路拼箱管理能力：询价、报价、货件追踪、时效看板、客户管理。"
+        "我们为 LCL 客户提供一个简洁的迷你 TMS 原型，用于管理您的货物、跟踪状态、并获取实时报价。体验一下，看看它如何简化您的物流操作。"
     },
     quote: {
-      title: "快速询价",
-      name: "姓名 / 公司",
-      email: "邮箱",
-      route: "运输路线",
-      cargo: "货物信息",
+      title: "快速报价",
+      subtitle: "提交您的货物信息，获取中欧铁路拼箱的优惠价格。",
+      name: "您的称呼",
+      email: "您的邮箱",
+      route: "期望路线 (例如: 深圳 → 华沙)",
+      cargo: "货物详情 (例如: 2 CBM, 500 KG, 电子产品)",
       submit: "提交询价"
     },
     tms: {
-      title: "EurasiaGo 铁路拼箱管理系统原型",
-      subtitle: "展示业务能力的轻量化可视原型",
-      modules: {
-        shipment: "货件看板",
-        quote: "报价引擎",
-        inquiry: "客户询价管理",
-        route: "线路时效面板",
-        customs: "清关状态",
-        kpi: "业务数据概览"
-      }
-    },
-    about: {
-      title: "关于我们"
+      title: "Mini TMS 仪表板",
+      subtitle: "管理您的询价和货物",
+      quotesTitle: "铁路拼箱报价计算器",
+      crmTitle: "询价 CRM",
+      shipmentsTitle: "在途货物追踪"
     },
     map: {
       hubs: {
         xian: "西安",
         zhengzhou: "郑州",
-        shenzhen: "深圳",
-        yiwu:"义乌",
         wuhan: "武汉",
+        shenzhen: "深圳",
+        yiwu: "义乌",
         alashankou: "阿拉山口",
         moscow: "莫斯科",
-        mala: "马拉舍维切",
+        mala: "马拉舍维奇",
         warsaw: "华沙",
         hamburg: "汉堡",
         duisburg: "杜伊斯堡",
@@ -81,9 +73,9 @@
         budapest: "布达佩斯"
       },
       routes: {
-        "route-1": "中欧班列 (西安)",
-        "route-2": "中欧班列 (武汉)",
-        "route-3": "中欧班列 (郑州)"
+        "route-1": "西安 → 汉堡",
+        "route-2": "武汉 → 巴黎",
+        "route-3": "郑州 → 米兰"
       }
     }
   },
@@ -124,44 +116,36 @@
         title: "China - Europe Rail Network",
         desc: "Multi-origin rail consolidation from China with strong coverage across Warsaw, Hamburg, Duisburg, Paris, Milan, Budapest and surrounding EU delivery zones."
       },
-      
-      tmsTitle: "Mini TMS Prototype",
+      tmsTitle: "Try Our Mini TMS for Free",
       tmsText:
-        "A lightweight prototype to demonstrate rail LCL management capabilities: inquiry, quotation, tracking, transit visibility, and customer follow-up."
+        "We offer our LCL clients a lean, mini-TMS prototype to manage your cargo, track status, and get real-time quotes. Give it a try and see how it can streamline your logistics operations."
     },
     quote: {
-      title: "Quick Inquiry",
-      name: "Name / Company",
-      email: "Email",
-      route: "Route",
-      cargo: "Cargo Details",
+      title: "Get a Quote",
+      subtitle: "Submit your shipment details for China-Europe rail LCL pricing.",
+      name: "Your Name",
+      email: "Your Email",
+      route: "Desired Route (e.g., Shenzhen → Warsaw)",
+      cargo: "Cargo Details (e.g., 2 CBM, 500 KG, Electronics)",
       submit: "Submit Inquiry"
     },
     tms: {
-      title: "EurasiaGo Rail LCL Management Prototype",
-      subtitle: "A lightweight visual prototype to demonstrate operational capability",
-      modules: {
-        shipment: "Shipment Board",
-        quote: "Quote Engine",
-        inquiry: "Customer Inquiry",
-        route: "Route ETA Panel",
-        customs: "Customs Status",
-        kpi: "Business KPI Overview"
-      }
-    },
-    about: {
-      title: "About Us"
+      title: "Mini TMS Dashboard",
+      subtitle: "Manage your inquiries and shipments",
+      quotesTitle: "Rail LCL Quote Calculator",
+      crmTitle: "Inquiry CRM",
+      shipmentsTitle: "Live Shipment Tracking"
     },
     map: {
       hubs: {
         xian: "Xi'an",
         zhengzhou: "Zhengzhou",
+        wuhan: "Wuhan",
         shenzhen: "Shenzhen",
         yiwu: "Yiwu",
-        wuhan: "Wuhan",
         alashankou: "Alashankou",
         moscow: "Moscow",
-        mala: "Mala",
+        mala: "Małaszewicze",
         warsaw: "Warsaw",
         hamburg: "Hamburg",
         duisburg: "Duisburg",
@@ -170,9 +154,9 @@
         budapest: "Budapest"
       },
       routes: {
-        "route-1": "China-EU Route (Xi'an)",
-        "route-2": "China-EU Route (Wuhan)",
-        "route-3": "China-EU Route (Zhengzhou)"
+        "route-1": "Xi'an → Hamburg",
+        "route-2": "Wuhan → Paris",
+        "route-3": "Zhengzhou → Milan"
       }
     }
   }

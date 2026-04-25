@@ -1,4 +1,4 @@
-﻿﻿export default function Navbar({ locale, text, currentPage, changePage, toggleLocale }) {
+﻿﻿﻿﻿export default function Navbar({ locale, text, currentPage, changePage, toggleLocale }) {
   const navItemClass = (page) =>
     `px-4 py-2 rounded-xl text-sm font-medium transition ${
       currentPage === page
@@ -30,18 +30,17 @@
             <button className={navItemClass("TMS")} onClick={() => changePage("TMS")}>
               {text.nav.tms}
             </button>
-            <button className={navItemClass("about")} onClick={() => changePage("about")}>
-              {text.nav.about}
-            </button>
             <button className={navItemClass("quote")} onClick={() => changePage("quote")}>
               {text.nav.quote}
             </button>
+            <button className={navItemClass("about")} onClick={() => changePage("about")}>
+              {text.nav.about}
+            </button>
           </nav>
 
-          <button
-            onClick={toggleLocale}
-            className="px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium hover:bg-gray-50"
-          >
+          <div className="w-px h-6 bg-gray-200 hidden md:block"></div>
+
+          <button onClick={toggleLocale} className="px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
             {locale === "zh" ? "EN" : "中文"}
           </button>
         </div>
