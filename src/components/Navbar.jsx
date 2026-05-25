@@ -6,7 +6,6 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
 
   const navItems = [
     { page: "home", label: text.nav.home },
-    { page: "TMS", label: text.nav.tms },
     { page: "quote", label: text.nav.quote },
     { page: "about", label: text.nav.about },
   ];
@@ -62,14 +61,14 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
             onClick={toggleLocale}
             className="px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
           >
-            {locale === "zh" ? "EN" : "жпнд"}
+            {locale === "zh" ? "EN" : "О©╫О©╫О©╫О©╫"}
           </button>
 
           <button
             type="button"
             className="md:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition"
             onClick={() => setIsMenuOpen((open) => !open)}
-            aria-label={isMenuOpen ? "Close menu" : "жпнд"}
+            aria-label={isMenuOpen ? "Close menu" : "О©╫О©╫О©╫О©╫"}
             aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? (
@@ -101,4 +100,3 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
     </header>
   );
 }
-

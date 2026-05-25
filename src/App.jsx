@@ -3,7 +3,6 @@ import Navbar from "./components/Navbar";
 import HomePage from "./page/HomePage";
 import { i18n } from "./data/i18n";
 
-const TMSPage = lazy(() => import("./page/TMSPage"));
 const AboutPage = lazy(() => import("./page/AboutPage"));
 const QuoteCalculator = lazy(() => import("./components/TMS/QuoteCalculator"));
 
@@ -36,9 +35,6 @@ export default function App() {
             changePage={changePage}
           />
         );
-
-      case "TMS":
-        return <TMSPage locale={locale} text={text} />;
 
       case "about":
         return <AboutPage locale={locale} text={text} />;
