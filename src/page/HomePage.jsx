@@ -1,139 +1,138 @@
+import React from "react";
 import EurasiaMap from "../components/EurasiaMap";
 
-export default function HomePage({
-  locale,
-  text,
-  changePage,
-  formData,
-  handleChange,
-  handleSubmit
-}) {
+const pageCopy = {
+  zh: {
+    heroTitle: "中欧铁路拼箱物流",
+    heroSubtitle: "15-20 天稳定时效 | 拼箱集运 | 清关派送一站式服务",
+    primaryCta: "获取报价",
+    secondaryCta: "联系我们",
+    whyTitle: "为什么选择我们",
+    strengths: [
+      { title: "15-20 天", desc: "稳定的中欧铁路运输时效" },
+      { title: "欧盟覆盖", desc: "德国、波兰、法国、意大利等主要市场" },
+      { title: "拼箱专家", desc: "适合小批量、多频次货物，成本更可控" },
+      { title: "门到门", desc: "集运、清关、末端派送整合交付" },
+    ],
+    servicesTitle: "核心服务",
+    networkTitle: "服务网络",
+    processTitle: "服务流程",
+    process: ["提交询价", "确认报价", "安排发运", "追踪签收"],
+    finalTitle: "准备从中国发货到欧洲？",
+    finalCta: "立即获取报价",
+  },
+  en: {
+    heroTitle: "China-Europe Rail LCL Logistics",
+    heroSubtitle: "15-20 day transit | LCL consolidation | Customs and final-mile delivery",
+    primaryCta: "Get a Quote",
+    secondaryCta: "Contact Us",
+    whyTitle: "Why Choose Us",
+    strengths: [
+      { title: "15-20 Days", desc: "Stable China-Europe rail transit" },
+      { title: "EU Coverage", desc: "Germany, Poland, France, Italy and more" },
+      { title: "LCL Experts", desc: "Cost-efficient consolidation for smaller shipments" },
+      { title: "Door-to-Door", desc: "Consolidation, customs and delivery in one flow" },
+    ],
+    servicesTitle: "Core Services",
+    networkTitle: "Our Network",
+    processTitle: "How It Works",
+    process: ["Submit Inquiry", "Confirm Quote", "Ship Cargo", "Track & Receive"],
+    finalTitle: "Ready to ship from China to Europe?",
+    finalCta: "Get Quote Now",
+  },
+};
+
+export default function HomePage({ locale = "en", text, changePage }) {
+  const copy = pageCopy[locale] || pageCopy.en;
+  const services = text.home.services || [];
+
   return (
-    <main>
-      {/* Hero */}
-      <section className="relative bg-cover bg-bottom" style={{ backgroundImage: "url('/hero-background.jpg')" }}>
-        {/* Overlay to improve text readability */}
-       
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <div className="inline-flex px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold mb-4">
-              EurasiaGo
-            </div>
-            <h1
-              className="text-4xl md:text-6xl font-bold leading-tight text-gray-900"
-              style={{ textShadow: "0 0 8px white" }}
+    <div className="bg-white text-gray-900">
+      <section
+        className="relative min-h-[calc(100vh-65px)] flex flex-col justify-center items-center text-center px-5 py-16 bg-cover bg-center bg-gray-800 text-white"
+        style={{ backgroundImage: "url('/hero-background.jpg')" }}
+      >
+        <div className="absolute inset-0 bg-slate-950/55" aria-hidden="true" />
+        <div className="relative z-10 w-full max-w-4xl">
+          <h1 className="mx-auto max-w-3xl text-4xl font-bold leading-tight md:text-6xl">
+            {copy.heroTitle}
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/90 md:text-xl">
+            {copy.heroSubtitle}
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => changePage("quote")}
+              className="w-full rounded-xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
             >
-              {text.hero.title}
-            </h1>
-            <p className="mt-6 text-lg text-black leading-8" style={{ textShadow: "0 0 5px white" }}>
-              {text.hero.subtitle}
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-4">
-              <button
-                onClick={() => changePage("quote")}
-                className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-              >
-                {text.hero.cta1}
-              </button>
-              <button
-                onClick={() => changePage("TMS")}
-                className="px-6 py-3 rounded-2xl border border-gray-300 text-gray-800 font-semibold hover:bg-gray-50 transition"
-              >
-                {text.hero.cta2}
-              </button>
-            </div>
+              {copy.primaryCta}
+            </button>
+            <button
+              type="button"
+              onClick={() => changePage("about")}
+              className="w-full rounded-xl border border-white/80 px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-white hover:text-gray-900 sm:w-auto"
+            >
+              {copy.secondaryCta}
+            </button>
           </div>
-
-
         </div>
       </section>
 
-      {/* Coverage Map */}
-      <EurasiaMap text={text} />
+      <section className="py-16 text-center md:py-20">
+        <h2 className="mb-12 text-3xl font-semibold">{copy.whyTitle}</h2>
+        <div className="mx-auto grid max-w-6xl gap-8 px-6 md:grid-cols-4">
+          {copy.strengths.map((item) => (
+            <div key={item.title} className="flex flex-col items-center">
+              <h3 className="text-2xl font-bold text-blue-600">{item.title}</h3>
+              <p className="mt-2 text-gray-600">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* Services */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-14">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">{text.home.servicesTitle}</h2>
-        <div className="grid md:grid-cols-4 gap-5">
-          {[text.home.service1, text.home.service2, text.home.service3, text.home.service4].map(
-            (service, index) => (
-              <div
-                key={index}
-                className="rounded-3xl bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition flex flex-col"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold flex-shrink-0">
-                  {index + 1}
-                </div>
-                <h3 className="mt-4 font-semibold text-gray-900">{service.title}</h3>
-                <p className="mt-2 text-sm text-gray-600 flex-grow">{service.desc}</p>
+      <section className="bg-gray-50 py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="mb-12 text-center text-3xl font-semibold">{copy.servicesTitle}</h2>
+          <div className="grid gap-8 md:grid-cols-3">
+            {services.slice(0, 3).map((service) => (
+              <div key={service.title} className="rounded-xl bg-white p-8 shadow-md transition-shadow hover:shadow-lg">
+                <h3 className="mb-2 text-xl font-bold">{service.title}</h3>
+                <p className="text-gray-600">{service.desc}</p>
               </div>
-            )
-          )}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Mini TMS Intro */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-14">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 to-blue-700 text-white p-8 md:p-10">
-          <h2 className="text-3xl font-bold">{text.home.tmsTitle}</h2>
-          <p className="mt-4 text-blue-100 max-w-3xl leading-8">{text.home.tmsText}</p>
+      <section className="py-16 md:py-20">
+        <h2 className="mb-12 text-center text-3xl font-semibold">{copy.networkTitle}</h2>
+        <EurasiaMap text={text} />
+      </section>
+
+      <section className="bg-gray-50 py-16 text-center md:py-20">
+        <h2 className="mb-12 text-3xl font-semibold">{copy.processTitle}</h2>
+        <div className="mx-auto grid max-w-4xl gap-4 px-6 text-lg font-medium text-gray-700 md:grid-cols-4">
+          {copy.process.map((step, index) => (
+            <div key={step} className="p-4">
+              {index + 1}. {step}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-blue-700 py-20 text-center text-white">
+        <div className="mx-auto max-w-4xl px-6">
+          <h2 className="mb-6 text-3xl font-bold">{copy.finalTitle}</h2>
           <button
-            onClick={() => changePage("TMS")}
-            className="mt-6 px-6 py-3 rounded-2xl bg-white text-blue-700 font-semibold hover:bg-blue-50 transition"
+            type="button"
+            onClick={() => changePage("quote")}
+            className="rounded-xl bg-white px-10 py-4 text-lg font-bold text-blue-700 transition-colors hover:bg-gray-200"
           >
-            {locale === "zh" ? "进入系统原型" : "Open Prototype"}
+            {copy.finalCta}
           </button>
         </div>
       </section>
-
-      {/* Quick Quote */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-14">
-        <div className="rounded-3xl bg-white border border-gray-200 shadow-sm p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">{text.quote.title}</h2>
-
-          <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-5">
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder={text.quote.name}
-              className="w-full px-4 py-3 rounded-2xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-200"
-            />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder={text.quote.email}
-              className="w-full px-4 py-3 rounded-2xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-200"
-            />
-            <input
-              type="text"
-              name="route"
-              value={formData.route}
-              onChange={handleChange}
-              placeholder={text.quote.route}
-              className="w-full px-4 py-3 rounded-2xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-200 md:col-span-2"
-            />
-            <textarea
-              name="cargo"
-              value={formData.cargo}
-              onChange={handleChange}
-              placeholder={text.quote.cargo}
-              rows={5}
-              className="w-full px-4 py-3 rounded-2xl border border-gray-300 outline-none focus:ring-2 focus:ring-blue-200 md:col-span-2"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition w-fit"
-            >
-              {text.quote.submit}
-            </button>
-          </form>
-        </div>
-      </section>
-    </main>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿export const i18n = {
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿export const i18n = {
   zh: {
     nav: {
       home: "首页",
@@ -7,30 +7,30 @@
       about: "关于我们"
     },
     hero: {
-      title: "EurasiaGo 欧亚大陆公路运输与综合物流",
-      subtitle:
-        "专注中欧铁路拼箱、整柜、欧洲末端配送、中亚及俄罗斯方向综合物流解决方案。",
-      cta1: "获取报价",
-      cta2: "查看 Mini TMS"
+      title: "中欧铁路拼箱物流",
+      subtitle: "快速 | 稳定 | 高性价比",
+      cta: "立即获取报价",
+      props: [
+        "15–20天运输时效",
+        "门到门服务",
+        "支持清关",
+        "欧盟全境派送"
+      ]
     },
     home: {
+      servicesSubtitle: "一站式物流解决方案，简化您的亚欧供应链。",
+      finalCta: {
+        title: "准备好优化您的物流了吗？",
+        subtitle: "立即获取个性化报价，了解 EurasiaGo 如何为您的业务带来优势。",
+        cta: "申请免费报价"
+      },
       servicesTitle: "核心服务",
-      service1: {
-        title: "中欧铁路拼箱 (LCL)",
-        desc: "灵活、经济的铁路拼箱方案，适合小批量、多批次的货物运输需求，有效控制成本。"
-      },
-      service2: {
-        title: "中欧铁路整柜 (FCL)",
-        desc: "提供稳定、可靠的整柜运输服务，保障大批量货物安全、准时到达欧洲目的地。"
-      },
-      service3: {
-        title: "欧洲清关与末端配送",
-        desc: "覆盖欧洲全境的清关和门到门配送网络，简化流程，确保货物顺利交付。"
-      },
-      service4: {
-        title: "中亚 / 俄罗斯综合运输",
-        desc: "提供面向中亚及俄罗斯市场的定制化多式联运解决方案，满足多样化物流需求。"
-      },
+      services: [
+        { title: "中欧铁路拼箱 (LCL)", desc: "灵活、经济的铁路拼箱方案，适合小批量、多批次的货物运输需求，有效控制成本。" },
+        { title: "中欧铁路整柜 (FCL)", desc: "提供稳定、可靠的整柜运输服务，保障大批量货物安全、准时到达欧洲目的地。" },
+        { title: "欧洲清关与末端配送", desc: "覆盖欧洲全境的清关和门到门配送网络，简化流程，确保货物顺利交付。" },
+        { title: "中亚 / 俄罗斯综合运输", desc: "提供面向中亚及俄罗斯市场的定制化多式联运解决方案，满足多样化物流需求。" }
+      ],
       service5: {
         title: "中欧铁路网络",
         desc: "我们的铁路拼箱服务可从中国多个站点始发，网络强力覆盖华沙、汉堡、杜伊斯堡、巴黎、米兰、布达佩斯及其周边的欧盟派送区域。"
@@ -88,30 +88,30 @@
       about: "About Us"
     },
     hero: {
-      title: "EurasiaGo  Continental Road Transport & Integrated Logistics",
-      subtitle:
-        "Focused on China-Europe rail LCL, FCL, European final-mile delivery, and integrated logistics to Central Asia & Russia.",
-      cta1: "Get a Quote",
-      cta2: "View Mini TMS"
+      title: "China → Europe Rail LCL Logistics",
+      subtitle: "Fast | Stable | Cost-efficient",
+      cta: "Get Instant Quote",
+      props: [
+        "15–20 days transit",
+        "Door to Door",
+        "Customs clearance support",
+        "EU distribution"
+      ]
     },
     home: {
+      servicesSubtitle: "Comprehensive logistics solutions to streamline your supply chain from Asia to Europe.",
+      finalCta: {
+        title: "Ready to Optimize Your Logistics?",
+        subtitle: "Get a personalized quote today and see how EurasiaGo can benefit your business.",
+        cta: "Request a Free Quote"
+      },
       servicesTitle: "Core Services",
-      service1: {
-        title: "China-Europe Rail LCL",
-        desc: "Flexible and economical rail LCL solutions, ideal for small and frequent shipments to effectively control costs."
-      },
-      service2: {
-        title: "China-Europe Rail FCL",
-        desc: "Stable and reliable FCL services ensuring safe and timely delivery of large-volume shipments to European destinations."
-      },
-      service3: {
-        title: "EU Customs & Final Delivery",
-        desc: "Comprehensive customs clearance and door-to-door delivery network across Europe, simplifying processes for smooth delivery."
-      },
-      service4: {
-        title: "Central Asia / Russia Solutions",
-        desc: "Customized multimodal transport solutions for Central Asian and Russian markets to meet diverse logistics needs."
-      },
+      services: [
+        { title: "China-Europe Rail LCL", desc: "Flexible and economical rail LCL solutions, ideal for small and frequent shipments to effectively control costs." },
+        { title: "China-Europe Rail FCL", desc: "Stable and reliable FCL services ensuring safe and timely delivery of large-volume shipments to European destinations." },
+        { title: "EU Customs & Final Delivery", desc: "Comprehensive customs clearance and door-to-door delivery network across Europe, simplifying processes for smooth delivery." },
+        { title: "Central Asia / Russia Solutions", desc: "Customized multimodal transport solutions for Central Asian and Russian markets to meet diverse logistics needs." }
+      ],
       service5: {
         title: "China - Europe Rail Network",
         desc: "Multi-origin rail consolidation from China with strong coverage across Warsaw, Hamburg, Duisburg, Paris, Milan, Budapest and surrounding EU delivery zones."

@@ -11,7 +11,7 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
       route: '线路',
       service: '服务',
       status: '状态',
-      atd: '发车日期',
+      etd: '发车日期',
       eta: '预计到达',
       cargo: '货物描述',
       volume: '体积/重量',
@@ -27,7 +27,7 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
       route: 'Route',
       service: 'Service',
       status: 'Status',
-      atd: 'ATD',
+      etd: 'ETD',
       eta: 'ETA',
       cargo: 'Cargo',
       volume: 'Volume / Weight',
@@ -38,10 +38,13 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
     },
   }[locale];
 
+  const route = shipment.route || [shipment.origin, shipment.destination].filter(Boolean).join(' → ') || '-';
+  const volume = `${shipment.volume_cbm || 0} CBM / ${shipment.weight_kg || 0} KG`;
+
   const Item = ({ label, value }) => (
     <div className="py-3 border-b last:border-b-0">
       <div className="text-sm text-slate-500 mb-1">{label}</div>
-      <div className="text-slate-900 font-medium">{value}</div>
+      <div className="text-slate-900 font-medium">{value || '-'}</div>
     </div>
   );
 
@@ -53,6 +56,7 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-slate-900">{t.title}</h3>
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
           >
@@ -61,18 +65,18 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
         </div>
 
         <div className="rounded-3xl border border-slate-200 p-5">
-          <Item label={t.orderNo} value={shipment.id} />
-          <Item label={t.customer} value={shipment.customer} />
-          <Item label={t.route} value={`${shipment.pol} → ${shipment.pod}`} />
-          <Item label={t.service} value={shipment.service} />
+          <Item label={t.orderNo} value={shipment.shipment_no || shipment.id} />
+          <Item label={t.customer} value={shipment.client_name} />
+          <Item label={t.route} value={route} />
+          <Item label={t.service} value={shipment.mode} />
           <Item label={t.status} value={shipment.status} />
-          <Item label={t.atd} value={shipment.atd} />
-          <Item label={t.eta} value={shipment.eta || '2026-04-18'} />
-          <Item label={t.cargo} value={shipment.cargo || 'Auto Parts / General Cargo'} />
-          <Item label={t.volume} value={shipment.volume || '3.2 CBM / 680 KG'} />
+          <Item label={t.etd} value={shipment.etd} />
+          <Item label={t.eta} value={shipment.eta} />
+          <Item label={t.cargo} value={shipment.cargo_desc} />
+          <Item label={t.volume} value={volume} />
           <Item label={t.customs} value={shipment.customs || 'Deferred Customs Available'} />
-          <Item label={t.delivery} value={shipment.delivery || 'Hamburg + Regional Distribution'} />
-          <Item label={t.notes} value={shipment.notes || 'Priority handling for destination delivery coordination.'} />
+          <Item label={t.delivery} value={shipment.delivery || 'Destination distribution'} />
+          <Item label={t.notes} value={shipment.notes || shipment.message || '-'} />
         </div>
       </div>
     </div>

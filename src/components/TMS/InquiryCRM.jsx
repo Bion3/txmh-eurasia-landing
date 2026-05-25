@@ -4,12 +4,18 @@ import { getLeads } from "../../store/crmStore";
 export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
   const [filter, setFilter] = useState("All");
   const [leads, setLeads] = useState([]);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     async function fetchLeads() {
-      const leadsData = await getLeads();
-      if (Array.isArray(leadsData)) {
-        setLeads(leadsData);
+      try {
+        setErrorMsg("");
+        const leadsData = await getLeads();
+        if (Array.isArray(leadsData)) {
+          setLeads(leadsData);
+        }
+      } catch (err) {
+        setErrorMsg(err.message || "Failed to load leads.");
       }
     }
     fetchLeads();
@@ -105,6 +111,12 @@ export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
         </div>
       </div>
 
+      {errorMsg && (
+        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMsg}
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-[980px]">
           <thead>
@@ -123,17 +135,17 @@ export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
             {filtered.map((lead) => (
               <tr key={lead.id} className="border-b last:border-b-0">
                 <td className="py-4 font-medium text-emerald-600">{lead.id}</td>
-                <td className="py-4 text-slate-900">{lead.customer}</td>
-                <td className="py-4 text-slate-700">{lead.route}</td>
-                <td className="py-4 text-slate-700">{lead.cargo}</td>
-                <td className="py-4 text-slate-700">{lead.volume}</td>
-                <td className="py-4 text-slate-700">{lead.owner}</td>
+                <td className="py-4 text-slate-900">{lead.company_name || lead.contact_name || '-'}</td>
+                <td className="py-4 text-slate-700">{[lead.origin, lead.destination].filter(Boolean).join(' → ') || '-'}</td>
+                <td className="py-4 text-slate-700">{lead.cargo_desc || '-'}</td>
+                <td className="py-4 text-slate-700">{`${lead.volume_cbm || 0} CBM / ${lead.weight_kg || 0} KG`}</td>
+                <td className="py-4 text-slate-700">{lead.contact_name || '-'}</td>
                 <td className="py-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${badgeClass(lead.status)}`}>
                     {lead.status}
                   </span>
                 </td>
-                <td className="py-4 text-slate-500">{lead.updatedAt}</td>
+                <td className="py-4 text-slate-500">{lead.created_at ? new Date(lead.created_at).toLocaleString() : '-'}</td>
               </tr>
             ))}
           </tbody>

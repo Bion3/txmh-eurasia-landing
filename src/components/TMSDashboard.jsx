@@ -12,6 +12,7 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const [localRefreshKey, setLocalRefreshKey] = useState(0);
 
@@ -23,21 +24,21 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
     async function fetchData() {
       setLoading(true);
       setErrorMsg('');
+      setWarningMsg('');
 
       try {
-        // 1) Fetch shipments
         const { data: shipmentsData, error: shipmentsError } = await supabase
           .from('shipments')
           .select('*')
-          .order('atd', { ascending: false });
+          .order('etd', { ascending: false });
 
         if (shipmentsError) {
-          throw new Error(`Shipments load failed: ${shipmentsError.message}`);
+          setShipments([]);
+          setWarningMsg(`Shipments are not available: ${shipmentsError.message}`);
+        } else {
+          setShipments(shipmentsData || []);
         }
 
-        setShipments(shipmentsData || []);
-
-        // 2) Fetch leads count
         const { count, error: leadsError } = await supabase
           .from('leads')
           .select('*', { count: 'exact', head: true });
@@ -78,10 +79,17 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
   const handleSaveQuoteToCRM = async (quoteData) => {
     try {
       const newLead = {
-        customer_name: quoteData.name || '',
+        company_name: quoteData.company || quoteData.name || 'Individual Customer',
+        contact_name: quoteData.name || '',
         email: quoteData.email || '',
-        route: `${quoteData.pol || ''} to ${quoteData.pod || ''}`,
-        cargo_details: `${quoteData.containerType || ''}, ${quoteData.cargo || ''}`,
+        phone: quoteData.phone || null,
+        origin: quoteData.pol || '',
+        destination: quoteData.pod || '',
+        cargo_desc: quoteData.cargo || null,
+        volume_cbm: quoteData.volume ? Number(quoteData.volume) : 0,
+        weight_kg: quoteData.weight ? Number(quoteData.weight) : 0,
+        mode_preference: quoteData.containerType || 'LCL',
+        message: quoteData.notes || quoteData.incoterm || null,
         status: 'Quoted',
       };
 
@@ -130,7 +138,7 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
             <th className="py-3 pr-4">Customer</th>
             <th className="py-3 pr-4">POL</th>
             <th className="py-3 pr-4">POD</th>
-            <th className="py-3 pr-4">ATD</th>
+            <th className="py-3 pr-4">ETD</th>
             <th className="py-3 pr-4">Service</th>
             <th className="py-3 pr-4">Status</th>
           </tr>
@@ -149,12 +157,12 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
                 onClick={() => setSelectedShipment(item)}
                 className="border-b border-slate-100 last:border-b-0 cursor-pointer hover:bg-slate-50 transition"
               >
-                <td className="py-4 pr-4 font-semibold text-emerald-600">{item.id}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.customer || '-'}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.pol || '-'}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.pod || '-'}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.atd || '-'}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.service || '-'}</td>
+                <td className="py-4 pr-4 font-semibold text-emerald-600">{item.shipment_no || item.id}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.client_name || '-'}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.origin || '-'}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.destination || '-'}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.etd || '-'}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.mode || '-'}</td>
                 <td className="py-4 pr-4">
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(
@@ -216,6 +224,12 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
               </div>
             ) : (
               <>
+                {warningMsg && (
+                  <div className="bg-amber-50 rounded-3xl border border-amber-200 p-4 text-sm text-amber-800 shadow-sm">
+                    {warningMsg}
+                  </div>
+                )}
+
                 {/* DASHBOARD */}
                 {activeMenu === 'dashboard' && (
                   <>

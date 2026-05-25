@@ -76,23 +76,18 @@ export default function QuoteCalculator({
   };
 
   const buildLeadPayload = () => {
-    const route = `${formData.pol || ''} to ${formData.pod || ''}`.trim();
-
-    const cargoDetails = [
-      formData.containerType ? `Type: ${formData.containerType}` : '',
-      formData.cargo ? `Cargo: ${formData.cargo}` : '',
-      formData.volume ? `Volume: ${formData.volume} CBM` : '',
-      formData.weight ? `Weight: ${formData.weight} KG` : '',
-      formData.incoterm ? `Incoterm: ${formData.incoterm}` : '',
-    ]
-      .filter(Boolean)
-      .join(' | ');
-
     return {
-      customer_name: formData.name || '',
+      company_name: formData.company || formData.name || 'Individual Customer',
+      contact_name: formData.name || '',
       email: formData.email || '',
-      route,
-      cargo_details: cargoDetails,
+      phone: formData.phone || null,
+      origin: formData.pol || '',
+      destination: formData.pod || '',
+      cargo_desc: formData.cargo || null,
+      volume_cbm: formData.volume ? Number(formData.volume) : 0,
+      weight_kg: formData.weight ? Number(formData.weight) : 0,
+      mode_preference: formData.containerType || 'LCL',
+      message: formData.notes || formData.incoterm || null,
       status: 'New',
     };
   };

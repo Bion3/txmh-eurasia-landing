@@ -1,23 +1,15 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import HomePage from "./page/HomePage";
-import TMSPage from "./page/TMSPage";
-import AboutPage from "./page/AboutPage";
-import QuotePage from "./page/QuotePage";
 import { i18n } from "./data/i18n";
-import { addLead } from "./store/crmStore";
+
+const TMSPage = lazy(() => import("./page/TMSPage"));
+const AboutPage = lazy(() => import("./page/AboutPage"));
+const QuoteCalculator = lazy(() => import("./components/TMS/QuoteCalculator"));
 
 export default function App() {
   const [locale, setLocale] = useState(() => localStorage.getItem("txmh_locale") || "en");
   const [currentPage, setCurrentPage] = useState("home");
-  const [crmRefreshKey, setCrmRefreshKey] = useState(0);
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    route: "",
-    cargo: ""
-  });
 
   useEffect(() => {
     localStorage.setItem("txmh_locale", locale);
@@ -34,44 +26,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const newLead = {
-      customer_name: formData.name,
-      email: formData.email,
-      route: formData.route,
-      cargo_details: formData.cargo,
-      status: 'New'
-    };
-
-    await addLead(newLead);
-
-    alert(
-      locale === "zh"
-        ? "询价已提交，可在 TMS 系统查看！"
-        : "Inquiry submitted. Check it in TMS!"
-    );
-
-    setFormData({
-      name: "",
-      email: "",
-      route: "",
-      cargo: ""
-    });
-
-    setCrmRefreshKey((prev) => prev + 1);
-    setCurrentPage("TMS");
-  };
-
   const renderPage = () => {
     switch (currentPage) {
       case "home":
@@ -80,27 +34,20 @@ export default function App() {
             locale={locale}
             text={text}
             changePage={changePage}
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
           />
         );
 
       case "TMS":
-        return <TMSPage locale={locale} text={text} refreshKey={crmRefreshKey} />;
-      
+        return <TMSPage locale={locale} text={text} />;
+
       case "about":
         return <AboutPage locale={locale} text={text} />;
 
       case "quote":
         return (
-          <QuotePage
-            locale={locale}
-            text={text}
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-          />
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+            <QuoteCalculator locale={locale} mode="public" />
+          </div>
         );
 
       default:
@@ -109,9 +56,6 @@ export default function App() {
             locale={locale}
             text={text}
             changePage={changePage}
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
           />
         );
     }
@@ -127,10 +71,18 @@ export default function App() {
         toggleLocale={toggleLocale}
       />
 
-      {renderPage()}
+      <Suspense
+        fallback={
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 text-sm text-gray-500" role="status">
+            Loading...
+          </div>
+        }
+      >
+        {renderPage()}
+      </Suspense>
 
       <footer className="border-t border-gray-200 mt-10">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 text-sm text-gray-500 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 text-sm text-gray-500 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
           <span>© 2026 EurasiaGo · Rail LCL · Europe Delivery · Mini TMS Prototype</span>
           <div>
             <span>Contact: </span>
