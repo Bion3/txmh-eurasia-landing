@@ -61,14 +61,14 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
             onClick={toggleLocale}
             className="px-3 py-2 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
           >
-            {locale === "zh" ? "EN" : "����"}
+            {locale === "zh" ? "EN" : "中文"}
           </button>
 
           <button
             type="button"
             className="md:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition"
             onClick={() => setIsMenuOpen((open) => !open)}
-            aria-label={isMenuOpen ? "Close menu" : "����"}
+            aria-label={isMenuOpen ? "Close menu" : "打开菜单"}
             aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? (
