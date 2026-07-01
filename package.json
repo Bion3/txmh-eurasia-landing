@@ -6,13 +6,41 @@
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "node ./node_modules/vite/bin/vite.js build",
-    "preview": "node ./node_modules/vite/bin/vite.js preview"
+    "preview": "node ./node_modules/vite/bin/vite.js preview",
+    "check:delivery": "node scripts/check-delivery.mjs",
+    "check:delivery:build": "node scripts/check-delivery.mjs --build",
+    "check:core": "node scripts/check-core.mjs",
+    "check:release": "node scripts/check-release.mjs",
+    "check:release:strict": "node scripts/check-release.mjs --strict-remote",
+    "check:release:write": "node scripts/check-release.mjs --write",
+    "check:business-flow": "node scripts/check-business-flow.mjs",
+    "check:ai-assistant": "node scripts/check-ai-assistant.mjs",
+    "check:self-service-order": "node scripts/check-self-service-order.mjs",
+    "check:quote-pricing": "node scripts/check-quote-pricing.mjs",
+    "check:quote-governance": "node scripts/check-quote-governance.mjs",
+    "check:order-lifecycle": "node scripts/check-order-lifecycle.mjs",
+    "check:finance-aging": "node scripts/check-finance-aging.mjs",
+    "check:finance-governance": "node scripts/check-finance-governance.mjs",
+    "check:customer-health": "node scripts/check-customer-health.mjs",
+    "check:supplier-health": "node scripts/check-supplier-health.mjs",
+    "check:system-readiness": "node scripts/check-system-readiness.mjs",
+    "check:routes": "node scripts/check-acquisition-routes.mjs",
+    "check:supabase": "node scripts/check-supabase.mjs",
+    "check:supabase:schema": "node scripts/check-supabase-schema.mjs",
+    "check:supabase:write": "node scripts/check-supabase.mjs --write",
+    "build:supabase:sql": "node scripts/build-supabase-bundle.mjs",
+    "deploy:supabase:build": "node scripts/deploy-supabase-bundle.mjs --build-only",
+    "deploy:supabase": "node scripts/deploy-supabase-bundle.mjs",
+    "deploy:supabase:dry-run": "node scripts/deploy-supabase-bundle.mjs --dry-run",
+    "deploy:supabase:verify": "npm run check:supabase:schema && npm run check:supabase"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.104.1",
+    "@tanstack/react-query": "^5.90.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router": "^7.16.0"
   },
   "devDependencies": {
     "@babel/types": "^7.29.0",

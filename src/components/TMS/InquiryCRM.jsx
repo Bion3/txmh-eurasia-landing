@@ -58,20 +58,27 @@ export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
     },
   }[locale];
 
+  const statusMap = {
+    New: "new",
+    Quoted: "quoted",
+    "Follow-up": "nurturing",
+    Won: "won",
+  };
+
   const filtered = useMemo(() => {
     if (filter === 'All') return leads;
-    return leads.filter((x) => x.status === filter);
+    return leads.filter((x) => x.status === statusMap[filter]);
   }, [filter, leads]);
 
   const badgeClass = (status) => {
     switch (status) {
-      case 'New':
+      case 'new':
         return 'bg-blue-100 text-blue-700';
-      case 'Quoted':
+      case 'quoted':
         return 'bg-amber-100 text-amber-700';
-      case 'Follow-up':
+      case 'nurturing':
         return 'bg-violet-100 text-violet-700';
-      case 'Won':
+      case 'won':
         return 'bg-emerald-100 text-emerald-700';
       default:
         return 'bg-slate-100 text-slate-600';
@@ -142,7 +149,7 @@ export default function InquiryCRM({ locale = "en", refreshKey = 0 }) {
                 <td className="py-4 text-slate-700">{lead.contact_name || '-'}</td>
                 <td className="py-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${badgeClass(lead.status)}`}>
-                    {lead.status}
+                    {lead.status || "-"}
                   </span>
                 </td>
                 <td className="py-4 text-slate-500">{lead.created_at ? new Date(lead.created_at).toLocaleString() : '-'}</td>

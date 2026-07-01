@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Link, NavLink } from "react-router";
 
-export default function Navbar({ locale, text, currentPage, changePage, toggleLocale }) {
+export default function Navbar({ locale, text, currentPage, toggleLocale }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { page: "home", label: text.nav.home },
-    { page: "quote", label: text.nav.quote },
-    { page: "about", label: text.nav.about },
+    { page: "home", to: "/", label: text.nav.home },
+    { page: "route", to: "/routes", label: locale === "zh" ? "线路" : "Routes" },
+    { page: "quote", to: "/quote", label: text.nav.quote },
+    { page: "about", to: "/about", label: text.nav.about },
+    { page: "system", to: "/system/overview", label: text.nav.system || "System" },
   ];
 
   const navItemClass = (page) =>
@@ -17,18 +20,13 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
         : "text-gray-700 hover:bg-gray-100"
     }`;
 
-  const handlePageChange = (page) => {
-    changePage(page);
-    setIsMenuOpen(false);
-  };
-
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
-        <button
-          type="button"
+        <Link
+          to="/"
           className="flex items-center gap-3 text-left"
-          onClick={() => handlePageChange("home")}
+          onClick={() => setIsMenuOpen(false)}
         >
           <span className="w-10 h-10 rounded-2xl bg-blue-500 text-white flex items-center justify-center font-bold">
             EG
@@ -37,20 +35,20 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
             <span className="block font-bold text-gray-900">EurasiaGo</span>
             <span className="block text-xs text-gray-500">Rail LCL & Logistics</span>
           </span>
-        </button>
+        </Link>
 
         <div className="flex items-center gap-3">
           <nav className="hidden md:flex items-center gap-2" aria-label="Primary navigation">
             {navItems.map((item) => (
-              <button
+              <NavLink
                 key={item.page}
-                type="button"
+                to={item.to}
                 className={navItemClass(item.page)}
-                onClick={() => handlePageChange(item.page)}
+                onClick={() => setIsMenuOpen(false)}
                 aria-current={currentPage === item.page ? "page" : undefined}
               >
                 {item.label}
-              </button>
+              </NavLink>
             ))}
           </nav>
 
@@ -84,15 +82,15 @@ export default function Navbar({ locale, text, currentPage, changePage, toggleLo
         <nav className="md:hidden border-t border-gray-200 bg-white px-4 py-3 shadow-sm" aria-label="Mobile navigation">
           <div className="grid gap-2">
             {navItems.map((item) => (
-              <button
+              <NavLink
                 key={item.page}
-                type="button"
+                to={item.to}
                 className={`${navItemClass(item.page)} text-left`}
-                onClick={() => handlePageChange(item.page)}
+                onClick={() => setIsMenuOpen(false)}
                 aria-current={currentPage === item.page ? "page" : undefined}
               >
                 {item.label}
-              </button>
+              </NavLink>
             ))}
           </div>
         </nav>

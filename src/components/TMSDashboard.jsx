@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { isSupabaseConfigured, supabase } from '../lib/supabaseClient';
 import QuoteCalculator from './TMS/QuoteCalculator';
 import InquiryCRM from './TMS/InquiryCRM';
 import ShipmentDetailDrawer from './TMS/ShipmentDetailDrawer';
@@ -27,6 +27,13 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
       setWarningMsg('');
 
       try {
+        if (!isSupabaseConfigured || !supabase) {
+          setShipments([]);
+          setDashboardData({ leads: 0 });
+          setWarningMsg('Supabase is not configured. Showing the local system workspace only.');
+          return;
+        }
+
         const { data: shipmentsData, error: shipmentsError } = await supabase
           .from('shipments')
           .select('*')
@@ -64,9 +71,9 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
   // KPI stats
   const kpi = useMemo(() => {
     const totalOrders = shipments.length;
-    const inTransit = shipments.filter((s) => s.status === 'In Transit').length;
-    const booked = shipments.filter((s) => s.status === 'Booked').length;
-    const pending = shipments.filter((s) => s.status === 'Pending').length;
+    const inTransit = shipments.filter((s) => s.status === 'in_transit' || s.status === 'In Transit').length;
+    const booked = shipments.filter((s) => s.status === 'booked' || s.status === 'Booked').length;
+    const pending = shipments.filter((s) => s.status === 'pending' || s.status === 'Pending').length;
 
     return {
       totalOrders,
@@ -88,9 +95,11 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
         cargo_desc: quoteData.cargo || null,
         volume_cbm: quoteData.volume ? Number(quoteData.volume) : 0,
         weight_kg: quoteData.weight ? Number(quoteData.weight) : 0,
-        mode_preference: quoteData.containerType || 'LCL',
+        source_type: 'internal_quote_tool',
+        transport_mode_interest: 'rail',
+        shipment_type_interest: quoteData.containerType || 'LCL',
         message: quoteData.notes || quoteData.incoterm || null,
-        status: 'Quoted',
+        status: 'quoted',
       };
 
       await addLead(newLead);
@@ -114,14 +123,19 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
+      case 'in_transit':
       case 'In Transit':
         return 'bg-blue-100 text-blue-700 border border-blue-200';
+      case 'booked':
       case 'Booked':
         return 'bg-amber-100 text-amber-700 border border-amber-200';
+      case 'pending':
       case 'Pending':
         return 'bg-slate-100 text-slate-700 border border-slate-200';
+      case 'delivered':
       case 'Delivered':
         return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+      case 'exception':
       case 'Exception':
         return 'bg-red-100 text-red-700 border border-red-200';
       default:
@@ -158,11 +172,11 @@ export default function TMSDashboard({ locale = 'en', refreshKey = 0 }) {
                 className="border-b border-slate-100 last:border-b-0 cursor-pointer hover:bg-slate-50 transition"
               >
                 <td className="py-4 pr-4 font-semibold text-emerald-600">{item.shipment_no || item.id}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.client_name || '-'}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.carrier_name || item.order_id || '-'}</td>
                 <td className="py-4 pr-4 text-slate-700">{item.origin || '-'}</td>
                 <td className="py-4 pr-4 text-slate-700">{item.destination || '-'}</td>
                 <td className="py-4 pr-4 text-slate-700">{item.etd || '-'}</td>
-                <td className="py-4 pr-4 text-slate-700">{item.mode || '-'}</td>
+                <td className="py-4 pr-4 text-slate-700">{item.leg_type || item.current_node || '-'}</td>
                 <td className="py-4 pr-4">
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /system
+
+Sitemap: https://www.eurasiago.com/sitemap.xml

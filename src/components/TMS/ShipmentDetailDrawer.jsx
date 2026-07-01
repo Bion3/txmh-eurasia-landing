@@ -66,9 +66,9 @@ export default function ShipmentDetailDrawer({ shipment, onClose, locale = 'en' 
 
         <div className="rounded-3xl border border-slate-200 p-5">
           <Item label={t.orderNo} value={shipment.shipment_no || shipment.id} />
-          <Item label={t.customer} value={shipment.client_name} />
+          <Item label={t.customer} value={shipment.carrier_name || shipment.order_id} />
           <Item label={t.route} value={route} />
-          <Item label={t.service} value={shipment.mode} />
+          <Item label={t.service} value={shipment.leg_type || shipment.current_node} />
           <Item label={t.status} value={shipment.status} />
           <Item label={t.etd} value={shipment.etd} />
           <Item label={t.eta} value={shipment.eta} />
