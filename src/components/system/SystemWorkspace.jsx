@@ -85,6 +85,11 @@ export default function SystemWorkspace() {
   const { data: dashboardSummary } = useDashboardSummary();
   const navigate = useNavigate();
   const { module, "*": detailPath } = useParams();
+
+  if (!auth.session) {
+    return <AuthPanel auth={auth} />;
+  }
+
   const activeModule = moduleIds.has(module) ? module : "overview";
   const detailId = detailPath?.split("/").filter(Boolean)[0] || null;
   const activeModuleMeta = moduleNav.find(([id]) => id === activeModule) || moduleNav[0];
