@@ -272,10 +272,10 @@ export default function PublicConversionBar({ locale = "en" }) {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-3 z-40 px-3 md:px-6">
-      <div className="mx-auto max-w-6xl overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white/95 shadow-2xl shadow-slate-950/20 backdrop-blur">
+    <div className="fixed inset-x-0 bottom-2 z-40 px-3 md:bottom-3 md:px-6">
+      <div className="mx-auto max-w-6xl overflow-hidden rounded-[1.25rem] border border-slate-200 bg-white/95 shadow-xl shadow-slate-950/15 backdrop-blur">
         {isExpanded ? (
-          <form onSubmit={handleSubmit} className="border-b border-slate-200 bg-slate-950 p-4 text-white md:p-5">
+          <form onSubmit={handleSubmit} className="max-h-[65dvh] overflow-y-auto overscroll-contain border-b border-slate-200 bg-slate-950 p-4 text-white md:max-h-[70vh] md:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">{text.badge}</div>
@@ -338,7 +338,7 @@ export default function PublicConversionBar({ locale = "en" }) {
               />
             </div>
 
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-center">
               <button
                 type="submit"
                 disabled={createLeadMutation.isPending}
@@ -379,8 +379,8 @@ export default function PublicConversionBar({ locale = "en" }) {
           </form>
         ) : null}
 
-        <div className="flex flex-col gap-3 p-3 md:flex-row md:items-center md:justify-between md:p-4">
-          <div className="min-w-0">
+        <div className="flex items-center justify-between gap-3 p-2.5 md:p-4">
+          <div className="hidden min-w-0 md:block">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700">
                 {text.badge}
@@ -390,18 +390,18 @@ export default function PublicConversionBar({ locale = "en" }) {
             <div className="mt-1 truncate text-sm font-black text-slate-950 md:text-base">{context.label}</div>
           </div>
 
-          <div className="flex gap-2 md:justify-end">
+          <div className="flex w-full gap-2 md:w-auto md:justify-end">
             <button
               type="button"
               onClick={toggleExpanded}
               aria-expanded={isExpanded}
-              className="flex-1 rounded-2xl bg-slate-950 px-5 py-2.5 text-xs font-black text-white transition hover:bg-slate-800 md:flex-none"
+              className="flex-1 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 md:flex-none"
             >
               {isExpanded ? text.close : text.open}
             </button>
             <Link
               to={context.quoteHref}
-              className="flex-1 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-center text-xs font-black text-emerald-700 transition hover:bg-emerald-100 md:flex-none"
+              className="flex-1 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-center text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 md:flex-none"
             >
               {text.fullQuote}
             </Link>
