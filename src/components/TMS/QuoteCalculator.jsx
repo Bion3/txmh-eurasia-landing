@@ -38,9 +38,9 @@ const defaultQuoteForm = {
   pol: '',
   pod: '',
   cargo: '',
-  containerType: 'LCL',
-  containerSize: '40HQ',
-  quantity: '1',
+  containerType: 'FCL',
+  containerSize: '',
+  quantity: '',
   volume: '',
   weight: '',
   incoterm: 'EXW',
@@ -166,7 +166,7 @@ export default function QuoteCalculator({
       pol: '',
       pod: '',
       cargo: '',
-      containerType: 'LCL',
+      containerType: 'FCL',
       serviceScope: 'port_to_port',
       readyDate: 'this_month',
     }));
@@ -181,12 +181,6 @@ export default function QuoteCalculator({
     if (mode !== 'public' || !formData.pol.trim() || !formData.pod.trim()) {
       setEstimate(null);
       setPricingStatus('idle');
-      return undefined;
-    }
-    const needsCargo = formData.containerType !== 'FCL' && (!(Number(formData.volume) > 0) || !(Number(formData.weight) > 0));
-    if (needsCargo) {
-      setEstimate(null);
-      setPricingStatus('needs_cargo');
       return undefined;
     }
     let active = true;
@@ -318,12 +312,12 @@ export default function QuoteCalculator({
           </div>
 
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-4">
-            {mode === 'public' ? 'Request a Rail LCL Quote' : 'Rail Quote Simulator'}
+            {mode === 'public' ? 'Get a Rail Freight Estimate' : 'Rail Quote Simulator'}
           </h2>
 
           <p className="text-slate-500 mt-2">
             {mode === 'public'
-              ? 'Share the shipment details and one contact method. Our team will confirm a firm quote after checking route, schedule, and delivery scope.'
+              ? 'Start with origin and destination. Container, quantity, weight and other shipment details are optional.'
               : 'Internal quotation tool for testing, lead capture, and CRM sync.'}
           </p>
         </div>
@@ -431,19 +425,6 @@ export default function QuoteCalculator({
                 />
               </div>
 
-              <div>
-                <label className="block text-sm text-slate-600 mb-2">Preferred Contact</label>
-                <select
-                  name="preferredContact"
-                  value={formData.preferredContact}
-                  onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
-                >
-                  <option value="email">Email</option>
-                  <option value="whatsapp">WhatsApp</option>
-                  <option value="phone">Phone call</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -476,6 +457,25 @@ export default function QuoteCalculator({
                 />
               </div>
 
+              <div className="md:col-span-2">
+                <label className="block text-sm text-slate-600 mb-2">Service Type</label>
+                <select
+                  name="containerType"
+                  value={formData.containerType}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                >
+                  <option value="FCL">Rail FCL</option>
+                  <option value="LCL">Rail LCL</option>
+                  <option value="FBA">Amazon FBA</option>
+                  <option value="DDP">DDP</option>
+                </select>
+              </div>
+
+              <details className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <summary className="cursor-pointer text-sm font-bold text-slate-700">Optional shipment details</summary>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+
               <div>
                 <label className="block text-sm text-slate-600 mb-2">Cargo Type</label>
                 <input
@@ -487,27 +487,12 @@ export default function QuoteCalculator({
                 />
               </div>
 
-              <div>
-                <label className="block text-sm text-slate-600 mb-2">Service Type</label>
-                <select
-                  name="containerType"
-                  value={formData.containerType}
-                  onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
-                >
-                  <option value="LCL">LCL</option>
-                  <option value="FCL">FCL</option>
-                  <option value="FBA">FBA</option>
-                  <option value="DDP">DDP</option>
-                </select>
-              </div>
-
               {formData.containerType === 'FCL' ? (
                 <>
                   <div>
                     <label className="block text-sm text-slate-600 mb-2">Container Size</label>
                     <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-200 bg-white">
-                      <option>40HQ</option><option>40GP</option><option>20GP</option><option>45HQ</option>
+                      <option value="">Auto match</option><option>40HQ</option><option>40GP</option><option>20GP</option><option>45HQ</option>
                     </select>
                   </div>
                   <div>
@@ -599,6 +584,8 @@ export default function QuoteCalculator({
                   placeholder="Any special requirements, delivery needs, customs notes, or Amazon FBA details"
                 />
               </div>
+                </div>
+              </details>
             </div>
           </div>
 
@@ -676,13 +663,17 @@ export default function QuoteCalculator({
                   {estimate.currency} {Math.round(estimate.low).toLocaleString()}–{Math.round(estimate.high).toLocaleString()}
                 </div>
                 <div className="mt-2 text-xs leading-5 text-emerald-700">
-                  Based on {estimate.quantity.toFixed(2)} {estimate.unit}{estimate.validUntil ? ` · valid to ${estimate.validUntil}` : ''}
+                  {estimate.rateOnly
+                    ? `Rate per ${estimate.unit}; add CBM or KG for a shipment total`
+                    : `Based on ${estimate.quantity.toFixed(2)} ${estimate.unit}`}
+                  {estimate.container ? ` · auto-matched ${estimate.container}` : ''}
+                  {estimate.validUntil ? ` · valid to ${estimate.validUntil}` : ''}
                 </div>
               </div>
             ) : (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <div className="text-sm font-bold text-slate-800">
-                  {pricingStatus === 'loading' ? 'Checking the latest published rate…' : pricingStatus === 'needs_cargo' ? 'Add CBM and KG to check an indicative price.' : 'No public rate is published for this exact request yet.'}
+                  {pricingStatus === 'loading' ? 'Checking the latest published rate…' : 'No public rate is published for this origin and destination yet.'}
                 </div>
                 <div className="mt-2 text-sm leading-6 text-slate-500">Submit the inquiry and sales will calculate it from the current procurement cost and approved profit rule.</div>
               </div>
