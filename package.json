@@ -17,6 +17,7 @@
     "check:ai-assistant": "node scripts/check-ai-assistant.mjs",
     "check:self-service-order": "node scripts/check-self-service-order.mjs",
     "check:quote-pricing": "node scripts/check-quote-pricing.mjs",
+    "check:cost-estimate": "node scripts/check-cost-estimate.mjs",
     "check:quote-governance": "node scripts/check-quote-governance.mjs",
     "check:order-lifecycle": "node scripts/check-order-lifecycle.mjs",
     "check:finance-aging": "node scripts/check-finance-aging.mjs",

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import AuthPanel from "./AuthPanel";
 import CostCenterWorkspace from "./CostCenterWorkspace";
+import CostEstimateWorkspace from "./CostEstimateWorkspace";
 import CustomerWorkspace from "./CustomerWorkspace";
 import FinanceWorkspace from "./FinanceWorkspace";
 import LeadPoolWorkspace from "./LeadPoolWorkspace";
@@ -24,14 +25,15 @@ const moduleNav = [
   ["customers", "客户管理", "客户/联系人/分层", "03"],
   ["quotes", "报价中心", "成本核价/毛利", "04"],
   ["cost-center", "成本中心", "供应商/费率/自动核价", "05"],
-  ["orders", "订单管理", "录单/执行/节点", "06"],
-  ["finance", "财务结算", "应收/应付/利润", "07"],
+  ["cost-estimate", "成本测算", "拼箱/整箱组合核算", "06"],
+  ["orders", "订单管理", "录单/执行/节点", "07"],
+  ["finance", "财务结算", "应收/应付/利润", "08"],
 ];
 
 const quickActions = [
   { label: "新建线索", module: "leads", tone: "bg-sky-600 text-white" },
   { label: "创建报价", module: "quotes", tone: "bg-emerald-600 text-white" },
-  { label: "维护费率", module: "cost-center", tone: "bg-amber-500 text-slate-950" },
+  { label: "成本测算", module: "cost-estimate", tone: "bg-amber-500 text-slate-950" },
   { label: "手工录单", module: "orders", tone: "bg-violet-600 text-white" },
 ];
 
@@ -344,6 +346,8 @@ export default function SystemWorkspace() {
             onNavigateQuotes={() => setActiveModule("quotes")}
             onNotify={handleNotify}
           />
+        ) : activeModule === "cost-estimate" ? (
+          <CostEstimateWorkspace onNotify={handleNotify} />
         ) : activeModule === "orders" ? (
           <OrderWorkspace
             orderDraft={orderDraft}
