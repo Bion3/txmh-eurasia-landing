@@ -20,7 +20,8 @@ const copyByLocale = {
     contact: "Email or WhatsApp",
     origin: "Origin",
     destination: "Destination",
-    cargo: "Cargo / CBM / KG (optional)",
+    cargo: "Cargo description (optional)",
+    optional: "Optional cargo details",
     service: "Service",
     volume: "CBM",
     weight: "KG",
@@ -47,7 +48,8 @@ const copyByLocale = {
     contact: "邮箱或 WhatsApp",
     origin: "起运地",
     destination: "目的地",
-    cargo: "货物 / CBM / KG（选填）",
+    cargo: "货物说明（选填）",
+    optional: "选填货物信息",
     service: "服务类型",
     volume: "体积 CBM",
     weight: "毛重 KG",
@@ -142,7 +144,7 @@ function initialStickyForm(context) {
     origin: context.origin || "",
     destination: context.destination || "",
     cargo: context.cargo || "",
-    service: "LCL",
+    service: "FCL",
     volume: "",
     weight: "",
   };
@@ -356,18 +358,17 @@ export default function PublicConversionBar({ locale = "en" }) {
                 placeholder={text.destination}
                 className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300"
               />
-              <input
-                value={form.cargo}
-                onChange={(event) => updateForm("cargo", event.target.value)}
-                aria-label={text.cargo}
-                placeholder={text.cargo}
-                className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300"
-              />
               <select value={form.service} onChange={(event) => updateForm("service", event.target.value)} aria-label={text.service} className="rounded-xl border border-white/10 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300">
-                <option value="LCL">Rail LCL</option><option value="FCL">Rail FCL</option><option value="FBA">Amazon FBA</option><option value="DDP">DDP</option>
+                <option value="FCL">Rail FCL</option><option value="LCL">Rail LCL</option><option value="FBA">Amazon FBA</option><option value="DDP">DDP</option>
               </select>
-              <input type="number" min="0" step="any" value={form.volume} onChange={(event) => updateForm("volume", event.target.value)} aria-label={text.volume} placeholder={text.volume} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
-              <input type="number" min="0" step="any" value={form.weight} onChange={(event) => updateForm("weight", event.target.value)} aria-label={text.weight} placeholder={text.weight} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
+              <details className="md:col-span-4 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
+                <summary className="cursor-pointer text-xs font-bold text-slate-300">{text.optional}</summary>
+                <div className="mt-3 grid gap-2 md:grid-cols-3">
+                  <input value={form.cargo} onChange={(event) => updateForm("cargo", event.target.value)} aria-label={text.cargo} placeholder={text.cargo} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
+                  <input type="number" min="0" step="any" value={form.volume} onChange={(event) => updateForm("volume", event.target.value)} aria-label={text.volume} placeholder={text.volume} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
+                  <input type="number" min="0" step="any" value={form.weight} onChange={(event) => updateForm("weight", event.target.value)} aria-label={text.weight} placeholder={text.weight} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
+                </div>
+              </details>
             </div>
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
