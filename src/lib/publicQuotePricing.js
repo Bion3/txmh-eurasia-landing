@@ -27,8 +27,18 @@ export function estimatePublishedQuote(form, rows) {
   if (!quote) return null;
   if (transport === 'lcl') {
     const volume = Number(form.volume), weight = Number(form.weight), ratio = Number(quote.ratio || 500);
-    if (!(volume > 0) || !(weight > 0)) return null;
-    const quantity = Math.max(volume, weight / ratio);
+    const quantity = Math.max(volume > 0 ? volume : 0, weight > 0 ? weight / ratio : 0);
+    if (!(quantity > 0)) return {
+      quoteId: quote.id,
+      currency: quote.currency,
+      low: Number(quote.unit_price_low),
+      high: Number(quote.unit_price_high),
+      quantity: null,
+      unit: 'chargeable CBM',
+      rateOnly: true,
+      validUntil: quote.valid_until,
+      note: quote.public_note,
+    };
     return {
       quoteId: quote.id,
       currency: quote.currency,
@@ -36,6 +46,7 @@ export function estimatePublishedQuote(form, rows) {
       high: Math.max(quantity * Number(quote.unit_price_high), Number(quote.minimum_charge || 0)),
       quantity,
       unit: 'chargeable CBM',
+      rateOnly: false,
       validUntil: quote.valid_until,
       note: quote.public_note,
     };
@@ -48,6 +59,8 @@ export function estimatePublishedQuote(form, rows) {
     high: Math.max(quantity * Number(quote.unit_price_high), Number(quote.minimum_charge || 0)),
     quantity,
     unit: 'container',
+    container: quote.container || null,
+    rateOnly: false,
     validUntil: quote.valid_until,
     note: quote.public_note,
   };
