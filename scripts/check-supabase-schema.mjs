@@ -56,6 +56,7 @@ const requiredTables = [
   ["vendors", "id, vendor_name, vendor_type"],
   ["rate_sheets", "id, rate_sheet_no, name, mode, shipment_type, status"],
   ["rate_sheet_items", "id, rate_sheet_id, fee_code, calc_method, unit_price"],
+  ["freight_public_quotes", "id, origin, destination, transport, currency, unit_price_low, unit_price_high, minimum_charge, ratio, valid_until, status, public_note"],
   ["quotes", "id, quote_no, customer_id, transport_mode, estimated_revenue_total"],
   ["quote_items", "id, quote_id, fee_code, revenue_amount, estimated_cost_amount"],
   ["quote_cost_snapshots", "id, quote_id, fee_code, estimated_cost_amount"],
@@ -86,7 +87,7 @@ const requiredTables = [
   ["email_tasks", "id, lead_id, scheduled_at, status, template_code, priority"],
 ];
 
-const anonReadableTables = new Set(["lead_sources", "campaigns"]);
+const anonReadableTables = new Set(["lead_sources", "campaigns", "freight_public_quotes"]);
 const migrationPendingTables = new Set(["quote_versions", "quote_approval_events", "quote_output_documents", "financial_rules", "finance_export_jobs", "finance_export_events"]);
 
 const authenticatedRpcChecks = [

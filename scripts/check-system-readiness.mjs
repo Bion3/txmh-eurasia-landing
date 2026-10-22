@@ -234,7 +234,7 @@ const routeContent = hasFile("src/App.jsx") ? read("src/App.jsx") : "";
 const routeChecks = [
   ["/quote route", /path="\/quote"/.test(routeContent)],
   ["/order route", /path="\/order"/.test(routeContent)],
-  ["/system route", /path="\/system\/:module\/\*"/.test(routeContent)],
+  ["/system redirects to public quote", /path="\/system\/\*"[^>]+Navigate to="\/quote"/.test(routeContent)],
   ["/routes route", /path="\/routes\/:slug"/.test(routeContent)],
 ];
 

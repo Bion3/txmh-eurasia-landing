@@ -4,6 +4,7 @@ import { leadsApi } from '../../api';
 import { usePersistentFormDraft } from '../../hooks/usePersistentFormDraft';
 import { captureAcquisitionAttribution } from '../../lib/acquisitionAttribution';
 import { buildFallbackInquiry } from '../../lib/publicInquiryFallback';
+import { getPublicQuoteEstimate } from '../../api/publicQuotes';
 
 function resolveShipmentType(serviceType) {
   if (serviceType === 'FCL') return 'FCL';
@@ -38,6 +39,8 @@ const defaultQuoteForm = {
   pod: '',
   cargo: '',
   containerType: 'LCL',
+  containerSize: '40HQ',
+  quantity: '1',
   volume: '',
   weight: '',
   incoterm: 'EXW',
@@ -52,6 +55,8 @@ function prefillFromSearchParams(searchParams) {
     pol: searchParams.get('pol') || searchParams.get('origin') || '',
     pod: searchParams.get('pod') || searchParams.get('destination') || '',
     cargo: searchParams.get('cargo') || '',
+    volume: searchParams.get('volume') || '',
+    weight: searchParams.get('weight') || '',
     containerType: searchParams.get('containerType') || searchParams.get('shipment_type') || '',
     serviceScope: searchParams.get('serviceScope') || '',
     readyDate: searchParams.get('readyDate') || '',
@@ -134,29 +139,8 @@ export default function QuoteCalculator({
   const [submitError, setSubmitError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [fallbackQuoteText, setFallbackQuoteText] = useState('');
-
-  const estimate = useMemo(() => {
-    const volume = parseFloat(formData.volume || '0');
-    const weight = parseFloat(formData.weight || '0');
-
-    // Public-facing quick estimate; the firm quote is confirmed by sales.
-    const baseRate = 180; // USD / CBM
-    const minCharge = 320; // minimum
-    const fuelSecurity = 65;
-    const docFee = 35;
-
-    const freight = Math.max(volume * baseRate, minCharge);
-    const weightFactor = weight > 0 ? Math.min(weight * 0.02, 120) : 0;
-    const total = Math.round(freight + fuelSecurity + docFee + weightFactor);
-
-    return {
-      freight: Math.round(freight),
-      surcharge: Math.round(fuelSecurity + docFee + weightFactor),
-      total,
-      currency: 'USD',
-      transitDays: '18-25 days',
-    };
-  }, [formData.volume, formData.weight]);
+  const [estimate, setEstimate] = useState(null);
+  const [pricingStatus, setPricingStatus] = useState('idle');
 
   const leadScorePreview = useMemo(() => estimateQuoteLeadScore(formData), [formData]);
 
@@ -192,6 +176,35 @@ export default function QuoteCalculator({
     if (!Object.values(routePrefill).some(Boolean)) return;
     setFormData((prev) => mergeQuotePrefill(prev, routePrefill));
   }, [routePrefill]);
+
+  useEffect(() => {
+    if (mode !== 'public' || !formData.pol.trim() || !formData.pod.trim()) {
+      setEstimate(null);
+      setPricingStatus('idle');
+      return undefined;
+    }
+    const needsCargo = formData.containerType !== 'FCL' && (!(Number(formData.volume) > 0) || !(Number(formData.weight) > 0));
+    if (needsCargo) {
+      setEstimate(null);
+      setPricingStatus('needs_cargo');
+      return undefined;
+    }
+    let active = true;
+    const timer = window.setTimeout(async () => {
+      setPricingStatus('loading');
+      try {
+        const result = await getPublicQuoteEstimate(formData);
+        if (!active) return;
+        setEstimate(result);
+        setPricingStatus(result ? 'matched' : 'unmatched');
+      } catch {
+        if (!active) return;
+        setEstimate(null);
+        setPricingStatus('unmatched');
+      }
+    }, 350);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [mode, formData.pol, formData.pod, formData.containerType, formData.containerSize, formData.quantity, formData.volume, formData.weight]);
 
   const buildLeadPayload = () => {
     const attribution = captureAcquisitionAttribution({
@@ -489,6 +502,21 @@ export default function QuoteCalculator({
                 </select>
               </div>
 
+              {formData.containerType === 'FCL' ? (
+                <>
+                  <div>
+                    <label className="block text-sm text-slate-600 mb-2">Container Size</label>
+                    <select name="containerSize" value={formData.containerSize} onChange={handleChange} className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-200 bg-white">
+                      <option>40HQ</option><option>40GP</option><option>20GP</option><option>45HQ</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-slate-600 mb-2">Container Quantity</label>
+                    <input type="number" min="1" step="1" name="quantity" value={formData.quantity} onChange={handleChange} className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-200" />
+                  </div>
+                </>
+              ) : null}
+
               <div>
                 <label className="block text-sm text-slate-600 mb-2">Volume (CBM)</label>
                 <input
@@ -641,33 +669,24 @@ export default function QuoteCalculator({
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-              <div className="text-sm text-slate-500">Estimated Freight</div>
-              <div className="text-3xl font-bold text-slate-900 mt-1">
-                {estimate.currency} {estimate.freight}
+            {estimate ? (
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-5">
+                <div className="text-sm font-semibold text-emerald-700">Published indicative sales range</div>
+                <div className="mt-2 text-3xl font-black text-emerald-800">
+                  {estimate.currency} {Math.round(estimate.low).toLocaleString()}–{Math.round(estimate.high).toLocaleString()}
+                </div>
+                <div className="mt-2 text-xs leading-5 text-emerald-700">
+                  Based on {estimate.quantity.toFixed(2)} {estimate.unit}{estimate.validUntil ? ` · valid to ${estimate.validUntil}` : ''}
+                </div>
               </div>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-              <div className="text-sm text-slate-500">Estimated Surcharges</div>
-              <div className="text-2xl font-bold text-slate-900 mt-1">
-                {estimate.currency} {estimate.surcharge}
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="text-sm font-bold text-slate-800">
+                  {pricingStatus === 'loading' ? 'Checking the latest published rate…' : pricingStatus === 'needs_cargo' ? 'Add CBM and KG to check an indicative price.' : 'No public rate is published for this exact request yet.'}
+                </div>
+                <div className="mt-2 text-sm leading-6 text-slate-500">Submit the inquiry and sales will calculate it from the current procurement cost and approved profit rule.</div>
               </div>
-            </div>
-
-            <div className="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
-              <div className="text-sm text-emerald-700">Indicative Total</div>
-              <div className="text-4xl font-bold text-emerald-700 mt-1">
-                {estimate.currency} {estimate.total}
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4">
-              <div className="text-sm text-slate-500">Estimated Transit</div>
-              <div className="text-xl font-semibold text-slate-900 mt-1">
-                {estimate.transitDays}
-              </div>
-            </div>
+            )}
 
             <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4">
               <div className="text-sm font-semibold text-amber-800">What happens next</div>

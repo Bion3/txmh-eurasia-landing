@@ -13,13 +13,11 @@ const QuoteCalculator = lazy(() => import("./components/TMS/QuoteCalculator"));
 const RouteIndexPage = lazy(() => import("./page/RouteIndexPage"));
 const RouteLandingPage = lazy(() => import("./page/RouteLandingPage"));
 const SelfServiceOrderPage = lazy(() => import("./page/SelfServiceOrderPage"));
-const SystemPage = lazy(() => import("./page/SystemPage"));
 
 const pagePaths = {
   home: "/",
   about: "/about",
   quote: "/quote",
-  system: "/system/overview",
 };
 
 const siteUrl = "https://www.eurasiago.com";
@@ -55,17 +53,9 @@ const seoProfiles = {
       "EurasiaGo connects China and Europe with rail freight, LCL consolidation, customs coordination and final-mile delivery services.",
     path: "/about",
   },
-  system: {
-    title: "EurasiaGo CRM + TMS Workspace",
-    description:
-      "Internal logistics workspace for leads, customers, quotes, orders, cost control and financial settlement.",
-    path: "/system/overview",
-    robots: "noindex, nofollow",
-  },
 };
 
 function currentPageFromPath(pathname) {
-  if (pathname.startsWith("/system")) return "system";
   if (pathname.startsWith("/routes")) return "route";
   if (pathname.startsWith("/order")) return "order";
   if (pathname.startsWith("/quote")) return "quote";
@@ -123,12 +113,6 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (currentPage === "system") {
-      delete document.documentElement.dataset.acquisitionPageViewStatus;
-      delete document.documentElement.dataset.acquisitionPageViewId;
-      return;
-    }
-
     void trackAcquisitionPageView({
       defaultSourceType: currentPage === "quote" ? "website_form" : currentPage === "route" ? "google_seo" : "website",
       touchpoint: `${currentPage}_page_view`,
@@ -193,22 +177,17 @@ export default function App() {
             }
           />
           <Route path="/order" element={<SelfServiceOrderPage />} />
-          <Route path="/system" element={<Navigate to="/system/overview" replace />} />
-          <Route path="/system/:module/*" element={<SystemPage />} />
+          <Route path="/system/*" element={<Navigate to="/quote" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
 
-      {currentPage !== "system" ? (
-        <>
-          <PublicAiAssistant locale={locale} />
-          <PublicConversionBar locale={locale} />
-        </>
-      ) : null}
+      <PublicAiAssistant locale={locale} />
+      <PublicConversionBar locale={locale} />
 
-      <footer className={`border-t border-gray-200 mt-10 bg-white ${currentPage !== "system" ? "mb-32 md:mb-28" : ""}`}>
+      <footer className="mb-32 mt-10 border-t border-gray-200 bg-white md:mb-28">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 text-sm text-gray-500 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-          <span>© 2026 EurasiaGo · Rail LCL · Europe Delivery · CRM + TMS Workspace</span>
+          <span>© 2026 EurasiaGo · Rail LCL · Europe Delivery</span>
           <div>
             <span>Contact: </span>
             <a href="mailto:Benjamin@eurasiago.com" className="hover:text-blue-600">

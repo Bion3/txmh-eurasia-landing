@@ -21,6 +21,9 @@ const copyByLocale = {
     origin: "Origin",
     destination: "Destination",
     cargo: "Cargo / CBM / KG (optional)",
+    service: "Service",
+    volume: "CBM",
+    weight: "KG",
     submit: "Send inquiry",
     submitting: "Sending...",
     required: "Add a name/company, one contact method, origin, and destination.",
@@ -45,6 +48,9 @@ const copyByLocale = {
     origin: "起运地",
     destination: "目的地",
     cargo: "货物 / CBM / KG（选填）",
+    service: "服务类型",
+    volume: "体积 CBM",
+    weight: "毛重 KG",
     submit: "提交询盘",
     submitting: "提交中...",
     required: "请填写姓名或公司、一个联系方式、起运地和目的地。",
@@ -136,6 +142,9 @@ function initialStickyForm(context) {
     origin: context.origin || "",
     destination: context.destination || "",
     cargo: context.cargo || "",
+    service: "LCL",
+    volume: "",
+    weight: "",
   };
 }
 
@@ -153,6 +162,7 @@ function estimateStickyLeadScore(form, context) {
   if (form.name.trim()) score += 8;
   if (form.origin.trim() && form.destination.trim()) score += 18;
   if (form.cargo.trim()) score += 8;
+  if (Number(form.volume) > 0 && Number(form.weight) > 0) score += 10;
   if (context.origin && context.destination) score += 4;
   return Math.min(score, 96);
 }
@@ -171,6 +181,9 @@ function buildStickyInquiry(context, form = {}) {
       `Origin: ${form.origin || context.origin || "-"}`,
       `Destination: ${form.destination || context.destination || "-"}`,
       `Cargo / CBM / KG: ${form.cargo || context.cargo || "-"}`,
+      `Service: ${form.service || "LCL"}`,
+      `Volume CBM: ${form.volume || "-"}`,
+      `Weight KG: ${form.weight || "-"}`,
       "",
       "Please confirm available route, schedule, customs/delivery scope and firm quote.",
     ],
@@ -195,6 +208,17 @@ export default function PublicConversionBar({ locale = "en" }) {
     initialForm,
   );
   const inquiry = useMemo(() => buildStickyInquiry(context, form), [context, form]);
+  const detailedQuoteHref = useMemo(() => {
+    const [path, query = ""] = context.quoteHref.split("?");
+    const params = new URLSearchParams(query);
+    if (form.origin) params.set("pol", form.origin);
+    if (form.destination) params.set("pod", form.destination);
+    if (form.cargo) params.set("cargo", form.cargo);
+    if (form.service) params.set("containerType", form.service);
+    if (form.volume) params.set("volume", form.volume);
+    if (form.weight) params.set("weight", form.weight);
+    return `${path}?${params.toString()}`;
+  }, [context.quoteHref, form]);
 
   const updateForm = (field, value) => {
     setMessage("");
@@ -240,17 +264,20 @@ export default function PublicConversionBar({ locale = "en" }) {
         origin: form.origin.trim(),
         destination: form.destination.trim(),
         cargo_desc: form.cargo.trim() || null,
+        volume_cbm: Number(form.volume || 0),
+        weight_kg: Number(form.weight || 0),
         ...attribution.leadFields,
         website_visit: attribution.websiteVisit,
         intent_level: leadScore >= 80 ? "hot" : "warm",
         lead_score: leadScore,
         transport_mode_interest: "rail",
-        shipment_type_interest: "LCL",
+        shipment_type_interest: form.service === "FCL" ? "FCL" : "LCL",
         message: [
           `Sticky inquiry context: ${context.label}`,
           `Page: ${context.source}`,
           `Context note: ${context.detail}`,
           form.cargo ? `Cargo: ${form.cargo}` : "",
+          `Service: ${form.service}`,
           ...attribution.messageLines,
         ].filter(Boolean).join(" | "),
         status: "new",
@@ -300,7 +327,7 @@ export default function PublicConversionBar({ locale = "en" }) {
               </div>
             ) : null}
 
-            <div className="mt-4 grid gap-2 md:grid-cols-5">
+            <div className="mt-4 grid gap-2 md:grid-cols-4">
               <input
                 value={form.name}
                 onChange={(event) => updateForm("name", event.target.value)}
@@ -336,6 +363,11 @@ export default function PublicConversionBar({ locale = "en" }) {
                 placeholder={text.cargo}
                 className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300"
               />
+              <select value={form.service} onChange={(event) => updateForm("service", event.target.value)} aria-label={text.service} className="rounded-xl border border-white/10 bg-slate-800 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-300">
+                <option value="LCL">Rail LCL</option><option value="FCL">Rail FCL</option><option value="FBA">Amazon FBA</option><option value="DDP">DDP</option>
+              </select>
+              <input type="number" min="0" step="any" value={form.volume} onChange={(event) => updateForm("volume", event.target.value)} aria-label={text.volume} placeholder={text.volume} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
+              <input type="number" min="0" step="any" value={form.weight} onChange={(event) => updateForm("weight", event.target.value)} aria-label={text.weight} placeholder={text.weight} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-400 focus:border-emerald-300" />
             </div>
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -346,7 +378,7 @@ export default function PublicConversionBar({ locale = "en" }) {
               >
                 {createLeadMutation.isPending ? text.submitting : text.submit}
               </button>
-              <Link to={context.quoteHref} className="rounded-xl border border-white/15 px-4 py-2.5 text-center text-xs font-bold text-white">
+              <Link to={detailedQuoteHref} className="rounded-xl border border-white/15 px-4 py-2.5 text-center text-xs font-bold text-white">
                 {text.fullQuote}
               </Link>
               <a href={inquiry.mailto} className="rounded-xl border border-white/15 px-4 py-2.5 text-center text-xs font-bold text-white">
@@ -400,7 +432,7 @@ export default function PublicConversionBar({ locale = "en" }) {
               {isExpanded ? text.close : text.open}
             </button>
             <Link
-              to={context.quoteHref}
+              to={detailedQuoteHref}
               className="flex-1 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-center text-xs font-black text-emerald-700 transition hover:bg-emerald-100 md:flex-none"
             >
               {text.fullQuote}

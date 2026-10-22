@@ -10,7 +10,6 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
     { page: "route", to: "/routes", label: locale === "zh" ? "线路" : "Routes" },
     { page: "quote", to: "/quote", label: text.nav.quote },
     { page: "about", to: "/about", label: text.nav.about },
-    { page: "system", to: "/system/overview", label: text.nav.system || "System" },
   ];
 
   const navItemClass = (page) =>

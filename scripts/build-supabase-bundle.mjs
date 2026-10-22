@@ -23,6 +23,7 @@ const orderedSqlFiles = [
   "supabase/migrations/20260602075118_auto_lead_followup_trigger.sql",
   "supabase/migrations/20260701012623_quote_version_approval_output_audit.sql",
   "supabase/migrations/20260701090155_finance_rules_export_audit.sql",
+  "supabase/migrations/20261022194500_public_sales_quotes.sql",
   "supabase/seed.sql",
 ];
 

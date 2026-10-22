@@ -4,8 +4,7 @@
       home: "首页",
       tms: "TMS 系统",
       quote: "获取报价",
-      about: "关于我们",
-      system: "系统工作台"
+      about: "关于我们"
     },
     hero: {
       title: "中欧铁路拼箱物流",
@@ -86,8 +85,7 @@
       home: "Home",
       tms: "TMS System",
       quote: "Get a Quote",
-      about: "About Us",
-      system: "System"
+      about: "About Us"
     },
     hero: {
       title: "China → Europe Rail LCL Logistics",
