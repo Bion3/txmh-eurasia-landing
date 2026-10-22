@@ -372,14 +372,11 @@ export default function QuoteCalculator({
           </div>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {/* Contact */}
-          <div>
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
-              Contact Information
-            </h3>
-
-            <div className="grid md:grid-cols-2 gap-4">
+          <details className="order-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <summary className="cursor-pointer text-sm font-bold text-slate-700">Contact information for a firm quote</summary>
+            <div className="mt-4 grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-slate-600 mb-2">Name *</label>
                 <input
@@ -426,10 +423,10 @@ export default function QuoteCalculator({
               </div>
 
             </div>
-          </div>
+          </details>
 
           {/* Shipment */}
-          <div>
+          <div className="order-1">
             <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
               Shipment Details
             </h3>
@@ -589,7 +586,7 @@ export default function QuoteCalculator({
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="order-3 pt-2">
             <button
               type="submit"
               disabled={submitting}
@@ -603,7 +600,7 @@ export default function QuoteCalculator({
             </button>
           </div>
           {mode === 'public' ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="order-4 flex flex-wrap gap-2">
               <a
                 href={buildQuoteInquiryEmail(formData, selectedLane).mailto}
                 className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
@@ -626,7 +623,7 @@ export default function QuoteCalculator({
             </div>
           ) : null}
           {fallbackQuoteText ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
+            <div className="order-5 rounded-2xl border border-amber-200 bg-amber-50 p-3">
               <div className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">
                 Email fallback content
               </div>
