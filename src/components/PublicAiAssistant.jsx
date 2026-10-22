@@ -256,9 +256,9 @@ export default function PublicAiAssistant({ locale = "en" }) {
   };
 
   return (
-    <div className="fixed bottom-28 right-3 z-50 md:bottom-28 md:right-6">
+    <div className="fixed bottom-20 right-3 z-50 md:bottom-28 md:right-6">
       {isOpen ? (
-        <section className="flex max-h-[72vh] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/20">
+        <section className="flex max-h-[min(65dvh,600px)] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/20">
           <header className="bg-slate-950 px-4 py-4 text-white">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -364,7 +364,7 @@ export default function PublicAiAssistant({ locale = "en" }) {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-2xl shadow-slate-950/25 transition hover:bg-slate-800"
+          className="rounded-full bg-slate-950 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-slate-950/20 transition hover:bg-slate-800 md:px-5 md:py-3 md:text-sm"
         >
           {text.launcher}
         </button>
