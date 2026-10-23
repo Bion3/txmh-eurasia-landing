@@ -91,16 +91,9 @@ const forbiddenSqlPatterns = [
 
 const requiredContentChecks = [
   {
-    file: "src/components/PublicConversionBar.jsx",
-    label: "public sticky direct lead capture",
-    patterns: [
-      /30-second inquiry/,
-      /handleSubmit/,
-      /useCreateLead/,
-      /captureAcquisitionAttribution/,
-      /sticky_quick_form/,
-      /buildStickyInquiry/,
-    ],
+    file: "src/components/PublicQuoteFlow.jsx",
+    label: "unified public price and inquiry flow",
+    patterns: [/getPublicQuoteEstimate/, /createPublic/, /contactOpen/, /usePersistentFormDraft/],
   },
   {
     file: "src/lib/acquisitionAttribution.js",
