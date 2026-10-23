@@ -135,7 +135,7 @@ export default function HomePage({ locale = "en", text, changePage }) {
   return (
     <div className="bg-white text-gray-900">
       <section
-        className="relative min-h-[calc(100vh-65px)] flex flex-col justify-center items-center text-center px-5 py-16 bg-cover bg-center bg-gray-800 text-white"
+        className="relative min-h-[430px] md:min-h-[560px] flex flex-col justify-center items-center text-center px-5 py-16 bg-cover bg-center bg-gray-800 text-white"
         style={{ backgroundImage: "url('/hero-background.jpg')" }}
       >
         <div className="absolute inset-0 bg-slate-950/55" aria-hidden="true" />
@@ -165,7 +165,12 @@ export default function HomePage({ locale = "en", text, changePage }) {
         </div>
       </section>
 
-      <section className="relative z-20 -mt-10 px-4 pb-10"><PublicQuoteFlow locale={locale}/></section>
+      <section className="relative z-20 -mt-12 px-4 pb-8 md:-mt-16"><PublicQuoteFlow locale={locale}/></section>
+
+      <section className="bg-white py-8 md:py-12">
+        <h2 className="mb-6 text-center text-2xl font-semibold md:mb-8 md:text-3xl">{copy.networkTitle}</h2>
+        <EurasiaMap text={text} />
+      </section>
 
       <section className="py-16 text-center md:py-20">
         <h2 className="mb-12 text-3xl font-semibold">{copy.whyTitle}</h2>
@@ -191,11 +196,6 @@ export default function HomePage({ locale = "en", text, changePage }) {
             ))}
           </div>
         </div>
-      </section>
-
-      <section className="py-16 md:py-20">
-        <h2 className="mb-12 text-center text-3xl font-semibold">{copy.networkTitle}</h2>
-        <EurasiaMap text={text} />
       </section>
 
       <section id="rail-lanes" className="bg-slate-950 py-16 text-white md:py-20">
