@@ -46,11 +46,11 @@ export default function PublicQuoteFlow({locale='en'}) {
  }
  const fields=(key,label,props={})=><label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{label}</span><input className={inputClass} value={form[key]} onChange={e=>change(key,e.target.value)} {...props}/></label>;
  const scopes={door_to_station:t('国内提货 + 铁路至目的站','Origin pickup + rail to terminal'),port_to_port:t('铁路站到站','Rail terminal to terminal'),door_to_door:t('门到门（含目的地派送）','Door to door'),fba_delivery:t('FBA 仓库派送','FBA delivery'),ddp:t('DDP 服务','DDP service')};
- return <section id="public-quote" className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+ return <section id="public-quote" className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/10 sm:p-7 lg:p-8">
   <h1 className="text-2xl font-bold text-slate-950">{t('获取运费报价','Get a freight quote')}</h1>
   <p className="mt-2 text-sm text-slate-500">{t('先查价格，缺价由人工跟进。无需先留联系方式。','Check rates first. Our team handles routes without a published price.')}</p>
-  <form onSubmit={calculate} className="mt-6 space-y-4">
-   <fieldset disabled={sending} className="grid gap-4 sm:grid-cols-2">
+  <form onSubmit={calculate} className="mt-5 space-y-4">
+   <fieldset disabled={sending} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {fields('pol',t('起始地','Origin'),{required:true,placeholder:t('例如：上海','e.g. Shanghai')})}
     {fields('pod',t('目的地','Destination'),{required:true,placeholder:t('例如：汉堡','e.g. Hamburg')})}
     <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('运输方式','Shipment')}</span><select className={inputClass} value={form.containerType} onChange={e=>change('containerType',e.target.value)}><option value="FCL">{t('铁路整箱','Rail FCL')}</option><option value="LCL">{t('铁路拼箱','Rail LCL')}</option></select></label>
