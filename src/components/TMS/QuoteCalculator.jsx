@@ -184,6 +184,8 @@ export default function QuoteCalculator({
       return undefined;
     }
     let active = true;
+    setEstimate(null);
+    setPricingStatus('loading');
     const timer = window.setTimeout(async () => {
       setPricingStatus('loading');
       try {
@@ -194,7 +196,7 @@ export default function QuoteCalculator({
       } catch {
         if (!active) return;
         setEstimate(null);
-        setPricingStatus('unmatched');
+        setPricingStatus('error');
       }
     }, 350);
     return () => { active = false; window.clearTimeout(timer); };
@@ -647,9 +649,6 @@ export default function QuoteCalculator({
               <p className="text-sm text-slate-500 mt-1">Indicative only, not a final quotation</p>
             </div>
 
-            <div className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
-              Lead score {leadScorePreview}
-            </div>
           </div>
 
           <div className="space-y-4">
@@ -670,9 +669,15 @@ export default function QuoteCalculator({
             ) : (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <div className="text-sm font-bold text-slate-800">
-                  {pricingStatus === 'loading' ? 'Checking the latest published rate…' : 'No public rate is published for this origin and destination yet.'}
+                  {pricingStatus === 'loading'
+                    ? (locale === 'zh' ? '正在查询报价…' : 'Checking available rates…')
+                    : pricingStatus === 'error'
+                      ? (locale === 'zh' ? '报价服务暂时无法连接，请稍后再试。' : 'Unable to connect to the quote service. Please try again later.')
+                      : pricingStatus === 'idle'
+                        ? (locale === 'zh' ? '填写起始地和目的地查看报价。' : 'Enter origin and destination to check rates.')
+                        : (locale === 'zh' ? '该线路暂无公开报价，请提交询盘。' : 'No published rate for this route. Please request a quote.')}
                 </div>
-                <div className="mt-2 text-sm leading-6 text-slate-500">Submit the inquiry and sales will calculate it from the current procurement cost and approved profit rule.</div>
+                <div className="mt-2 text-sm leading-6 text-slate-500">{locale === 'zh' ? '销售将确认服务范围并提供正式报价。' : 'Our team will confirm the service scope and provide a firm quote.'}</div>
               </div>
             )}
 
