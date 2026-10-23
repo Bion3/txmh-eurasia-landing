@@ -1,0 +1,75 @@
+import {useEffect, useRef, useState} from 'react';
+import {useLocation} from 'react-router';
+import {getPublicQuoteEstimate} from '../api/publicQuotes';
+import {leadsApi} from '../api/leads';
+import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
+import {captureAcquisitionAttribution} from '../lib/acquisitionAttribution';
+
+const empty = {pol:'',pod:'',containerType:'FCL',containerSize:'',quantity:'',volume:'',weight:'',serviceScope:'door_to_station',cargo:'',notes:'',name:'',contact:''};
+const inputClass='w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+export default function PublicQuoteFlow({locale='en'}) {
+ const zh=locale==='zh', t=(a,b)=>zh?a:b;
+ const location=useLocation();
+ const [form,setForm,draft]=usePersistentFormDraft('eurasiago:unified-quote',empty);
+ const [status,setStatus]=useState('idle'),[estimate,setEstimate]=useState(null),[contactOpen,setContactOpen]=useState(false),[sending,setSending]=useState(false),[message,setMessage]=useState('');
+ const revision=useRef(0);
+ useEffect(()=>{
+  const params=new URLSearchParams(location.search), values={};
+  for(const key of Object.keys(empty))if(params.has(key))values[key]=params.get(key);
+  if(params.has('origin'))values.pol=params.get('origin');
+  if(params.has('destination'))values.pod=params.get('destination');
+  if(['FBA','DDP'].includes(values.containerType)){values.serviceScope=values.containerType==='FBA'?'fba_delivery':'ddp';values.containerType='LCL';}
+  if(values.serviceScope==='amazon_fba')values.serviceScope='fba_delivery';
+  if(Object.keys(values).length)setForm(old=>({...old,...values}));
+  revision.current++;setStatus('idle');setEstimate(null);setContactOpen(false);
+ },[location.search]);
+ function change(key,value){setForm(old=>({...old,[key]:value}));setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);}}
+ async function calculate(event){
+  event.preventDefault();const current=++revision.current;setMessage('');setEstimate(null);setContactOpen(false);
+  if(!form.pol.trim()||!form.pod.trim())return setMessage(t('请填写起始地和目的地。','Enter origin and destination.'));
+  if(form.containerType==='FCL'&&form.quantity!==''&&(!Number.isInteger(Number(form.quantity))||Number(form.quantity)<1))return setMessage(t('箱量须为正整数。','Container quantity must be a positive integer.'));
+  setStatus('loading');
+  try{const result=await getPublicQuoteEstimate(form);if(current!==revision.current)return;setEstimate(result);setStatus(result?'matched':'unmatched');if(!result)setContactOpen(true);}
+  catch{if(current!==revision.current)return;setStatus('error');setContactOpen(true);}
+ }
+ async function submit(event){
+  event.preventDefault();if(sending)return;
+  const contact=form.contact.trim(), email=contact.includes('@');
+  if(!form.name.trim()||!(email?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact):contact.replace(/\D/g,'').length>=5))return setMessage(t('请填写姓名和有效邮箱或电话。','Enter your name and a valid email or phone number.'));
+  setSending(true);setMessage('');
+  try{
+   const result=await leadsApi.createPublic({...captureAcquisitionAttribution({defaultSourceType:'website_form',touchpoint:'unified_quote'}).leadFields,contact_name:form.name.trim(),company_name:form.name.trim(),email:email?contact:null,phone:email?null:contact,origin:form.pol,destination:form.pod,cargo_desc:form.cargo||null,volume_cbm:Number(form.volume)||0,weight_kg:Number(form.weight)||0,source_type:'website_form',transport_mode_interest:'rail',shipment_type_interest:form.containerType==='FCL'?'FCL':'LCL',status:'new',message:JSON.stringify({source:location.pathname,service:form.containerType,scope:form.serviceScope,container:form.containerSize||'auto',quantity:form.quantity||1,notes:form.notes,estimate:estimate?{quoteId:estimate.quoteId,currency:estimate.currency,low:estimate.low,high:estimate.high,rateOnly:estimate.rateOnly}:null})});
+   setMessage(result.data.notificationStatus==='sent'?t('询盘已保存，已通知销售。','Inquiry saved and sales notified.'):t('询盘已保存，邮件通知待确认，无需重复提交。','Inquiry saved. Email notification is unconfirmed; please do not resubmit.'));
+   setStatus('submitted');setContactOpen(false);draft.clearDraft({...form,name:'',contact:''});
+  }catch{setMessage(t('提交结果未确认，信息已保留。请稍后重试或联系销售。','Submission is unconfirmed. Your details are preserved; retry later or contact sales.'));}
+  finally{setSending(false);}
+ }
+ const fields=(key,label,props={})=><label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{label}</span><input className={inputClass} value={form[key]} onChange={e=>change(key,e.target.value)} {...props}/></label>;
+ const scopes={door_to_station:t('国内提货 + 铁路至目的站','Origin pickup + rail to terminal'),port_to_port:t('铁路站到站','Rail terminal to terminal'),door_to_door:t('门到门（含目的地派送）','Door to door'),fba_delivery:t('FBA 仓库派送','FBA delivery'),ddp:t('DDP 服务','DDP service')};
+ return <section id="public-quote" className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+  <h1 className="text-2xl font-bold text-slate-950">{t('获取运费报价','Get a freight quote')}</h1>
+  <p className="mt-2 text-sm text-slate-500">{t('先查价格，缺价由人工跟进。无需先留联系方式。','Check rates first. Our team handles routes without a published price.')}</p>
+  <form onSubmit={calculate} className="mt-6 space-y-4">
+   <fieldset disabled={sending} className="grid gap-4 sm:grid-cols-2">
+    {fields('pol',t('起始地','Origin'),{required:true,placeholder:t('例如：上海','e.g. Shanghai')})}
+    {fields('pod',t('目的地','Destination'),{required:true,placeholder:t('例如：汉堡','e.g. Hamburg')})}
+    <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('运输方式','Shipment')}</span><select className={inputClass} value={form.containerType} onChange={e=>change('containerType',e.target.value)}><option value="FCL">{t('铁路整箱','Rail FCL')}</option><option value="LCL">{t('铁路拼箱','Rail LCL')}</option></select></label>
+    <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('服务范围','Service scope')}</span><select className={inputClass} value={form.serviceScope} onChange={e=>change('serviceScope',e.target.value)}>{Object.entries(scopes).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
+    {form.containerType==='LCL'&&<>{fields('volume',t('体积（CBM，选填）','Volume (CBM, optional)'),{type:'number',min:'0.001',step:'any'})}{fields('weight',t('毛重（KG，选填）','Weight (KG, optional)'),{type:'number',min:'0.001',step:'any'})}</>}
+   </fieldset>
+   <details className="rounded-xl bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm text-slate-600">{t('更多信息（选填）','More details (optional)')}</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
+    {form.containerType==='FCL'&&<><label className="grid gap-1.5 text-sm"><span>{t('箱型','Container')}</span><select className={inputClass} value={form.containerSize} onChange={e=>change('containerSize',e.target.value)}><option value="">{t('自动匹配','Auto match')}</option>{['40HQ','40GP','20GP','45HQ'].map(value=><option key={value}>{value}</option>)}</select></label>{fields('quantity',t('箱量（默认 1 箱）','Quantity (default 1)'),{type:'number',min:1,step:1})}</>}
+    {fields('cargo',t('货物名称','Cargo'))}{fields('notes',t('补充要求','Additional requirements'))}
+   </div></details>
+   <button disabled={status==='loading'||sending} className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50">{status==='loading'?t('正在查询…','Checking…'):t('查看价格','Check price')}</button>
+  </form>
+  <div aria-live="polite" className="mt-4">
+   {estimate&&<div className="rounded-xl bg-blue-50 p-5"><div className="text-sm text-blue-800">{estimate.rateOnly?t('参考单价','Indicative unit rate'):t('参考总价','Indicative total')}</div><div className="mt-1 text-3xl font-bold text-blue-950">{estimate.currency} {estimate.low.toLocaleString(undefined,{maximumFractionDigits:2})}–{estimate.high.toLocaleString(undefined,{maximumFractionDigits:2})}</div><p className="mt-2 text-sm text-blue-800">{estimate.rateOnly?t('每计费方；补充体积和毛重后可核算总价。','Per chargeable CBM. Add both volume and weight for a total.'):t(`按 ${estimate.quantity} ${estimate.unit==='container'?'箱':'计费方'}计算`,`Based on ${estimate.quantity} ${estimate.unit}`)}{estimate.container?` · ${estimate.container}`:''}</p><p className="mt-2 text-xs text-blue-800">{scopes[form.serviceScope]}{estimate.validUntil?` · ${t('有效至','Valid to')} ${estimate.validUntil}`:''}</p></div>}
+   {(status==='unmatched'||status==='error')&&<p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">{status==='error'?t('暂时无法连接报价服务，可留下联系方式由人工报价。','The rate service is unavailable. Leave your contact for a manual quote.'):t('当前条件暂无可用报价，已保留货物信息，请转人工核价。','No published rate matches these details. Your shipment information is ready for a manual quote.')}</p>}
+   {estimate&&!contactOpen&&status!=='submitted'&&<button onClick={()=>setContactOpen(true)} className="mt-3 w-full rounded-xl border border-blue-200 px-4 py-3 font-semibold text-blue-700">{t('请人工确认报价','Request a firm quote')}</button>}
+   {message&&<p role="status" className="mt-3 rounded-xl bg-slate-50 p-4 text-sm">{message}</p>}
+  </div>
+  {contactOpen&&<form onSubmit={submit} className="mt-4 space-y-4 border-t border-slate-100 pt-4"><div className="grid gap-4 sm:grid-cols-2">{fields('name',t('联系人','Name'),{required:true,disabled:sending})}{fields('contact',t('邮箱 / 电话 / WhatsApp','Email / phone / WhatsApp'),{required:true,disabled:sending})}</div><button disabled={sending} className="w-full rounded-xl bg-slate-950 px-4 py-3 font-semibold text-white disabled:opacity-50">{sending?t('正在提交…','Submitting…'):t('提交人工询盘','Send inquiry')}</button></form>}
+  <p className="mt-4 text-xs text-slate-400">{t('预估价仅供参考，最终以确认的服务范围和正式报价为准。','Indicative pricing; final scope and quotation require confirmation.')}</p>
+ </section>;
+}
