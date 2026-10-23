@@ -25,17 +25,15 @@ if (!app.includes('path="/routes"') || !app.includes("RouteIndexPage")) {
   failures.push("Missing /routes route index registration");
 }
 
-if (!app.includes("PublicConversionBar") || !publicConversionBar.includes("30-second inquiry")) {
-  failures.push("Missing public sticky direct lead capture");
+if (!app.includes("PublicConversionBar") || !homePage.includes("PublicQuoteFlow")) {
+  failures.push("Missing shared public quote flow");
 }
 
 if (
   !publicConversionBar.includes("routeQuoteSearch")
-  || !publicConversionBar.includes("useCreateLead")
-  || !publicConversionBar.includes("captureAcquisitionAttribution")
-  || !publicConversionBar.includes("buildStickyInquiry")
+  || !publicConversionBar.includes("pathname==='/quote'")
 ) {
-  failures.push("Public sticky lead capture is missing route prefill, direct submission, attribution, or fallback support");
+  failures.push("Unified quote flow is missing route prefill or duplicate-entry suppression");
 }
 
 if (!navbar.includes('to: "/routes"')) {
