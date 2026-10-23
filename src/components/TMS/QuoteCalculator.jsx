@@ -5,6 +5,7 @@ import { usePersistentFormDraft } from '../../hooks/usePersistentFormDraft';
 import { captureAcquisitionAttribution } from '../../lib/acquisitionAttribution';
 import { buildFallbackInquiry } from '../../lib/publicInquiryFallback';
 import { getPublicQuoteEstimate } from '../../api/publicQuotes';
+import PublicQuoteFlow from '../PublicQuoteFlow';
 
 function resolveShipmentType(serviceType) {
   if (serviceType === 'FCL') return 'FCL';
@@ -119,7 +120,7 @@ function buildOrderDraftHref(formData, selectedLane) {
   return query ? `/order?${query}` : '/order';
 }
 
-export default function QuoteCalculator({
+function LegacyQuoteCalculator({
   locale = 'en',
   mode = 'public', // 'public' | 'admin'
   onSaveToCRM,
@@ -702,4 +703,8 @@ export default function QuoteCalculator({
       </div>
     </section>
   );
+}
+
+export default function QuoteCalculator(props) {
+  return props.mode === 'admin' ? <LegacyQuoteCalculator {...props}/> : <PublicQuoteFlow locale={props.locale}/>;
 }
