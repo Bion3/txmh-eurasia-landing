@@ -29,11 +29,22 @@ export function estimatePublishedQuote(form, rows) {
     placeMatches(row.destination, form.pod) &&
     (transport !== 'fcl' || !form.containerSize || row.container === form.containerSize)
   );
-  const quote = candidates[0];
+  const today = new Date().toISOString().slice(0, 10);
+  const quote = candidates.find((row) => {
+    const low = Number(row.unit_price_low), high = Number(row.unit_price_high);
+    return row.status === 'active' &&
+      (!row.valid_from || row.valid_from <= today) &&
+      (!row.valid_until || row.valid_until >= today) &&
+      Number.isFinite(low) && low > 0 && Number.isFinite(high) && high >= low &&
+      Number.isFinite(Number(row.minimum_charge ?? 0)) && Number(row.minimum_charge ?? 0) >= 0 &&
+      (transport !== 'lcl' || (Number.isFinite(Number(row.ratio)) && Number(row.ratio) > 0));
+  });
   if (!quote) return null;
   if (transport === 'lcl') {
-    const volume = Number(form.volume), weight = Number(form.weight), ratio = Number(quote.ratio || 500);
+    const volume = Number(form.volume), weight = Number(form.weight), ratio = Number(quote.ratio);
     const quantity = Math.max(volume > 0 ? volume : 0, weight > 0 ? weight / ratio : 0);
+    if ((form.volume !== '' && form.volume != null && (!Number.isFinite(volume) || volume <= 0)) ||
+        (form.weight !== '' && form.weight != null && (!Number.isFinite(weight) || weight <= 0))) return null;
     if (!(Number.isFinite(volume) && volume > 0 && Number.isFinite(weight) && weight > 0)) return {
       quoteId: quote.id,
       currency: quote.currency,
