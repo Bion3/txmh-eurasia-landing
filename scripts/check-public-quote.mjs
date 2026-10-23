@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { estimatePublishedQuote } from '../src/lib/publicQuotePricing.js';
 
-const rows = [{id:'sale',origin:'上海',destination:'汉堡',transport:'lcl',service_scope:'station',currency:'USD',unit_price_low:100,unit_price_high:120,minimum_charge:300,ratio:500,valid_until:'2026-11-30',public_note:'Indicative'}];
+const rows = [{id:'sale',status:'active',origin:'上海',destination:'汉堡',transport:'lcl',service_scope:'station',currency:'USD',unit_price_low:100,unit_price_high:120,minimum_charge:300,ratio:500,valid_until:'2026-11-30',public_note:'Indicative'}];
 const result = estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:'5',weight:'1000'}, rows);
 assert.equal(result.low, 500);
 assert.equal(result.high, 600);
@@ -13,7 +13,7 @@ assert.equal(unitOnly.rateOnly, true);
 const volumeOnly = estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:'5',weight:''}, rows);
 assert.equal(volumeOnly.low, 100);
 assert.equal(volumeOnly.rateOnly,true);
-const fclRows=[{id:'fcl',origin:'宁波',destination:'汉堡',transport:'fcl',service_scope:'station',container:'40HQ',currency:'USD',unit_price_low:9000,unit_price_high:9600,minimum_charge:0}];
+const fclRows=[{id:'fcl',status:'active',origin:'宁波',destination:'汉堡',transport:'fcl',service_scope:'station',container:'40HQ',currency:'USD',unit_price_low:9000,unit_price_high:9600,minimum_charge:0}];
 const fcl=estimatePublishedQuote({containerType:'FCL',pol:'Ningbo',pod:'Hamburg',containerSize:'',quantity:''},fclRows);
 assert.equal(fcl.low,9000);
 assert.equal(fcl.container,'40HQ');
