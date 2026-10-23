@@ -1,14 +1,14 @@
 import { http } from "./http";
 import { buildQuery } from "./query";
 import { applyPagination, canUseSupabase, requireData, success } from "./supabaseAdapter";
-import { supabase } from "../lib/supabaseClient";
+import { supabase, publicSupabase } from "../lib/supabaseClient";
 import { withRequestDeadline } from "../lib/requestDeadline";
 
 function fallbackLead(payload) {
   return {
     ...payload,
     website_visit: undefined,
-    id: globalThis.crypto?.randomUUID?.() || `lead-${Date.now()}`,
+    id: payload.id || globalThis.crypto?.randomUUID?.() || `lead-${Date.now()}`,
     lead_no: payload.lead_no || "PUBLIC-LEAD",
     created_at: new Date().toISOString(),
   };
@@ -101,7 +101,33 @@ async function resolveAcquisitionRefs(leadPayload, websiteVisit, signal) {
   return resolved;
 }
 
+const publicRequestIds = new Map();
 export const leadsApi = {
+  async createPublic(payload) {
+    if (!publicSupabase) throw new Error('Inquiry service unavailable.');
+    const { website_visit: _visit, ...fields } = payload;
+    const signature = JSON.stringify(fields);
+    if (!publicRequestIds.has(signature)) publicRequestIds.set(signature, crypto.randomUUID());
+    const id = publicRequestIds.get(signature);
+    const lead = { ...fields, id, assigned_to: null, status: 'new' };
+    await withRequestDeadline(async signal => {
+      const { error } = await publicSupabase.from('leads').insert([lead]).abortSignal(signal);
+      // The same UUID is reused after an uncertain response; never create a second lead.
+      if (error && !(error.code === '23505' && error.message?.includes('leads_pkey'))) throw error;
+    }, 20000);
+    let notificationStatus = 'unconfirmed';
+    try {
+      notificationStatus = await withRequestDeadline(async signal => {
+        const response = await fetch('https://crm.eurasiago.com/api/mail?_inquiry=1', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }), signal,
+        });
+        if (!response.ok) return 'unconfirmed';
+        return (await response.json()).status || 'unconfirmed';
+      }, 15000);
+    } catch { /* The inquiry is saved even if its email notice is unavailable. */ }
+    return success({ ...fallbackLead(lead), notificationStatus });
+  },
   async create(payload) {
     return withRequestDeadline(async (signal) => {
     const { website_visit: websiteVisit, ...leadPayload } = payload;
