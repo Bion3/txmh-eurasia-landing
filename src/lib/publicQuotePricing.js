@@ -1,6 +1,7 @@
 const aliases = new Map([
   ['shanghai', '上海'], ['ningbo', '宁波'], ['xian', '西安'], ["xi'an", '西安'],
   ['hamburg', '汉堡'], ['duisburg', '杜伊斯堡'], ['warsaw', '华沙'],
+  ['chengdu', '成都'], ['chongqing', '重庆'], ['zhengzhou', '郑州'], ['wuhan', '武汉'], ['shenzhen', '深圳'], ['yiwu','义乌'], ['budapest','布达佩斯'], ['prague','布拉格'], ['milan','米兰'], ['paris','巴黎'],
 ]);
 
 function normalizePlace(value) {
@@ -15,10 +16,15 @@ function placeMatches(quoted, requested) {
 }
 
 export function estimatePublishedQuote(form, rows) {
+  if (!['FCL', 'LCL'].includes(form.containerType)) return null;
+  const scope = value => ({station:'port_to_port',door:'door_to_station'}[value] || value);
+  const requestedScope = scope(form.serviceScope || 'port_to_port');
+  if (!['port_to_port','door_to_station'].includes(requestedScope)) return null;
   const shipmentType = ['FBA', 'DDP'].includes(form.containerType) ? 'LCL' : form.containerType;
   const transport = shipmentType === 'FCL' ? 'fcl' : 'lcl';
   const candidates = (rows || []).filter((row) =>
     row.transport === transport &&
+    scope(row.service_scope) === requestedScope &&
     placeMatches(row.origin, form.pol) &&
     placeMatches(row.destination, form.pod) &&
     (transport !== 'fcl' || !form.containerSize || row.container === form.containerSize)
@@ -28,7 +34,7 @@ export function estimatePublishedQuote(form, rows) {
   if (transport === 'lcl') {
     const volume = Number(form.volume), weight = Number(form.weight), ratio = Number(quote.ratio || 500);
     const quantity = Math.max(volume > 0 ? volume : 0, weight > 0 ? weight / ratio : 0);
-    if (!(quantity > 0)) return {
+    if (!(Number.isFinite(volume) && volume > 0 && Number.isFinite(weight) && weight > 0)) return {
       quoteId: quote.id,
       currency: quote.currency,
       low: Number(quote.unit_price_low),
@@ -51,7 +57,8 @@ export function estimatePublishedQuote(form, rows) {
       note: quote.public_note,
     };
   }
-  const quantity = Math.max(1, Number(form.quantity || 1));
+  const quantity = Number(form.quantity || 1);
+  if (!Number.isInteger(quantity) || quantity < 1) return null;
   return {
     quoteId: quote.id,
     currency: quote.currency,
