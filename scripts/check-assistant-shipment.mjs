@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {extractShipment,shipmentQuoteHref} from '../src/lib/assistantShipment.js';
+const a=extractShipment('上海到汉堡 拼箱 8cbm 5000kg');
+assert.equal(a.pol,'上海');assert.equal(a.pod,'汉堡');assert.equal(a.containerType,'LCL');assert.equal(a.weight,5000);
+const b=extractShipment('改成 2.5 吨',a);assert.equal(b.weight,2500);assert.equal(b.volume,8);assert.equal(b.pod,'汉堡');
+const c=extractShipment('Ningbo to Duisburg FCL 40HQ 2 containers');assert.equal(c.quantity,2);assert.equal(c.containerSize,'40HQ');
+assert.equal(extractShipment('door to door',c).serviceScope,'door_to_door');
+assert.equal(extractShipment('DDP',a).serviceScope,'ddp');
+assert.equal(extractShipment('-5kg',a).weight,-5);
+const url=new URL(shipmentQuoteHref(b,'test handoff'),'https://www.eurasiago.com');assert.equal(url.searchParams.get('weight'),'2500');assert.equal(url.searchParams.get('notes'),'test handoff');
+console.log('Assistant extraction and handoff checks passed.');
