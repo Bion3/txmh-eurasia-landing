@@ -242,7 +242,7 @@ export default function QuoteCalculator({
   };
 
   const insertLeadDirectly = async () => {
-    await leadsApi.create(buildLeadPayload());
+    await (mode === 'public' ? leadsApi.createPublic(buildLeadPayload()) : leadsApi.create(buildLeadPayload()));
   };
 
   const handleCopyQuoteInquiry = async () => {
