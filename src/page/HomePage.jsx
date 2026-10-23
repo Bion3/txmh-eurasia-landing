@@ -182,7 +182,7 @@ function laneQuoteSearch(lane) {
 export default function HomePage({ locale = "en", text, changePage }) {
   const copy = pageCopy[locale] || pageCopy.en;
   const services = text.home.services || [];
-  const createLeadMutation = useCreateLead();
+  const createLeadMutation = useCreateLead({ publicIntake: true });
   const [quickLead, setQuickLead, quickDraft] = usePersistentFormDraft("eurasiago:homepage-quick-inquiry", emptyQuickLead);
   const [quickMessage, setQuickMessage] = useState("");
   const [quickFallbackText, setQuickFallbackText] = useState("");
