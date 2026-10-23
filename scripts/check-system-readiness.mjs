@@ -31,8 +31,8 @@ const requirements = [
         patterns: [/trackAcquisitionPageView/, /PublicConversionBar/, /PublicAiAssistant/, /\/routes\/:slug/],
       },
       {
-        file: "src/components/PublicConversionBar.jsx",
-        patterns: [/captureAcquisitionAttribution/, /useCreateLead/, /sticky_quick_form/, /buildStickyInquiry/],
+        file: "src/components/PublicQuoteFlow.jsx",
+        patterns: [/getPublicQuoteEstimate/, /createPublic/, /usePersistentFormDraft/, /contactOpen/],
       },
       {
         file: "src/components/system/LeadPoolWorkspace.jsx",
@@ -40,7 +40,7 @@ const requirements = [
       },
       {
         file: "scripts/check-acquisition-routes.mjs",
-        patterns: [/Acquisition route check passed/, /Public sticky lead capture/, /routeLandingPages/],
+        patterns: [/Acquisition route check passed/, /Unified quote flow/, /routeLandingPages/],
       },
     ],
   },
@@ -82,11 +82,11 @@ const requirements = [
     evidence: [
       {
         file: "src/components/PublicAiAssistant.jsx",
-        patterns: [/detectIntent/, /tracking/, /ddp/, /fba/, /quote/, /requirements/],
+        patterns: [/extractShipment/, /getPublicQuoteEstimate/, /shipmentQuoteHref/, /messages/],
       },
       {
         file: "scripts/check-ai-assistant.mjs",
-        patterns: [/China to Germany DDP/, /Amazon FBA/, /Track order/, /报价需要什么资料/],
+        patterns: [/check-assistant-shipment/, /check-public-quote/],
       },
     ],
   },
