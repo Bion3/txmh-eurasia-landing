@@ -165,7 +165,7 @@ export default function HomePage({ locale = "en", text, changePage }) {
         </div>
       </section>
 
-      <section className="relative z-20 -mt-12 px-4 pb-8 md:-mt-16"><PublicQuoteFlow locale={locale}/></section>
+      <section className="relative z-20 -mt-8 px-4 pb-8 md:-mt-10 lg:-mt-12"><PublicQuoteFlow locale={locale}/></section>
 
       <section className="bg-white py-8 md:py-12">
         <h2 className="mb-6 text-center text-2xl font-semibold md:mb-8 md:text-3xl">{copy.networkTitle}</h2>
