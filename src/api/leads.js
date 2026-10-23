@@ -2,6 +2,7 @@ import { http } from "./http";
 import { buildQuery } from "./query";
 import { applyPagination, canUseSupabase, requireData, success } from "./supabaseAdapter";
 import { supabase } from "../lib/supabaseClient";
+import { withRequestDeadline } from "../lib/requestDeadline";
 
 function fallbackLead(payload) {
   return {
@@ -57,7 +58,7 @@ function parseChannelDetail(detail) {
   return entries;
 }
 
-async function resolveAcquisitionRefs(leadPayload, websiteVisit) {
+async function resolveAcquisitionRefs(leadPayload, websiteVisit, signal) {
   const channel = parseChannelDetail(leadPayload.channel_detail);
   const utmSource = websiteVisit?.utm_source || channel.utm_source;
   const utmMedium = websiteVisit?.utm_medium || channel.utm_medium;
@@ -68,7 +69,7 @@ async function resolveAcquisitionRefs(leadPayload, websiteVisit) {
     let request = supabase
       .from("campaigns")
       .select("id, lead_source_id, campaign_name, utm_source, utm_medium, utm_campaign, landing_page")
-      .limit(1);
+      .limit(1).abortSignal(signal);
 
     if (utmCampaign) request = request.eq("utm_campaign", utmCampaign);
     if (utmSource) request = request.eq("utm_source", utmSource);
@@ -82,13 +83,14 @@ async function resolveAcquisitionRefs(leadPayload, websiteVisit) {
   }
 
   if (!leadPayload.lead_source_id && !resolved.lead_source_id) {
+    signal.throwIfAborted();
     const sourceCode = normalizeToken(leadPayload.source_type || utmSource);
     if (sourceCode) {
       const { data, error } = await supabase
         .from("lead_sources")
         .select("id, code")
         .eq("code", sourceCode)
-        .limit(1);
+        .limit(1).abortSignal(signal);
 
       if (!error && data?.[0]?.id) {
         resolved.lead_source_id = data[0].id;
@@ -101,12 +103,15 @@ async function resolveAcquisitionRefs(leadPayload, websiteVisit) {
 
 export const leadsApi = {
   async create(payload) {
+    return withRequestDeadline(async (signal) => {
     const { website_visit: websiteVisit, ...leadPayload } = payload;
 
     if (canUseSupabase()) {
       const { data: userResult } = await supabase.auth.getUser();
+      signal.throwIfAborted();
       const isSignedIn = Boolean(userResult?.user);
-      const acquisitionRefs = await resolveAcquisitionRefs(leadPayload, websiteVisit).catch(() => ({}));
+      const acquisitionRefs = await resolveAcquisitionRefs(leadPayload, websiteVisit, signal).catch(() => ({}));
+      signal.throwIfAborted();
       const nextLeadPayload = {
         ...leadPayload,
         ...Object.fromEntries(Object.entries(acquisitionRefs).filter(([, value]) => Boolean(value))),
@@ -127,7 +132,7 @@ export const leadsApi = {
               lead_source_id: nextLeadPayload.lead_source_id || websiteVisitPayload.lead_source_id || null,
               campaign_id: nextLeadPayload.campaign_id || websiteVisitPayload.campaign_id || null,
               id: visitId,
-            }]);
+            }]).abortSignal(signal);
             if (!visitError || visitError.code === "23505") {
               nextLeadPayload.website_visit_id = visitId;
             }
@@ -135,19 +140,21 @@ export const leadsApi = {
         }
       }
 
+      signal.throwIfAborted();
       if (isSignedIn) {
         const { data } = await requireData(
-          supabase.from("leads").insert([nextLeadPayload]).select("*").single()
+          supabase.from("leads").insert([nextLeadPayload]).select("*").single().abortSignal(signal)
         );
         return success(data);
       }
 
-      const { error } = await supabase.from("leads").insert([nextLeadPayload]);
+      const { error } = await supabase.from("leads").insert([nextLeadPayload]).abortSignal(signal);
       if (error) throw error;
       return success(fallbackLead(nextLeadPayload));
     }
 
-    return http.post("/leads", leadPayload);
+    return http.post("/leads", leadPayload, signal);
+    }, 20000);
   },
   async list(query, signal) {
     if (canUseSupabase()) {
