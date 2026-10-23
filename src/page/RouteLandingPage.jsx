@@ -150,7 +150,7 @@ function buildRouteStructuredData(page) {
 export default function RouteLandingPage({ changePage }) {
   const { slug } = useParams();
   const page = getRouteLandingPage(slug);
-  const createLeadMutation = useCreateLead();
+  const createLeadMutation = useCreateLead({ publicIntake: true });
   const [inquiry, setInquiry, routeDraft] = usePersistentFormDraft(
     `eurasiago:route-inquiry:${slug || "unknown"}`,
     emptyRouteInquiry
