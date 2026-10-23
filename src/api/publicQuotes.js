@@ -1,4 +1,4 @@
-import { isSupabaseConfigured, supabase } from '../lib/supabaseClient';
+import { isSupabaseConfigured, publicSupabase as supabase } from '../lib/supabaseClient';
 import { estimatePublishedQuote } from '../lib/publicQuotePricing';
 import { withRequestDeadline } from '../lib/requestDeadline';
 
