@@ -194,7 +194,7 @@ function buildStickyInquiry(context, form = {}) {
 
 export default function PublicConversionBar({ locale = "en" }) {
   const location = useLocation();
-  const createLeadMutation = useCreateLead();
+  const createLeadMutation = useCreateLead({ publicIntake: true });
   const [isExpanded, setIsExpanded] = useState(false);
   const [fallbackText, setFallbackText] = useState("");
   const [message, setMessage] = useState("");
