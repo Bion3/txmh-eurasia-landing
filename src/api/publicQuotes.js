@@ -12,7 +12,7 @@ export async function getPublicQuoteEstimate(form) {
     .select(publicColumns)
     .eq('status', 'active')
     .order('updated_at', { ascending: false })
-    .limit(100)
+    .limit(1000)
     .abortSignal(signal);
   if (error) throw error;
   return estimatePublishedQuote(form, data || []);
