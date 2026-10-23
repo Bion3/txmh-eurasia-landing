@@ -28,11 +28,11 @@ export function useLeadActivities(leadId) {
   });
 }
 
-export function useCreateLead() {
+export function useCreateLead({ publicIntake = false } = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => leadsApi.create(payload).then((res) => res.data),
+    mutationFn: (payload) => (publicIntake ? leadsApi.createPublic(payload) : leadsApi.create(payload)).then((res) => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.leads.all });
     },
