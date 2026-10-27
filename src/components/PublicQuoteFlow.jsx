@@ -5,7 +5,7 @@ import {leadsApi} from '../api/leads';
 import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
 import {captureAcquisitionAttribution} from '../lib/acquisitionAttribution';
 
-const empty = {pol:'',pod:'',containerType:'FCL',containerSize:'',quantity:'',volume:'',weight:'',serviceScope:'door_to_station',cargo:'',notes:'',name:'',contact:''};
+const empty = {pol:'',pod:'',containerType:'FCL',containerSize:'',quantity:'',volume:'',weight:'',serviceScope:'port_to_port',cargo:'',notes:'',name:'',contact:''};
 const inputClass='w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 export default function PublicQuoteFlow({locale='en'}) {
  const zh=locale==='zh', t=(a,b)=>zh?a:b;
@@ -48,7 +48,7 @@ export default function PublicQuoteFlow({locale='en'}) {
  const scopes={door_to_station:t('国内提货 + 铁路至目的站','Origin pickup + rail to terminal'),port_to_port:t('铁路站到站','Rail terminal to terminal'),door_to_door:t('门到门（含目的地派送）','Door to door'),fba_delivery:t('FBA 仓库派送','FBA delivery'),ddp:t('DDP 服务','DDP service')};
  return <section id="public-quote" className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/10 sm:p-7 lg:p-8">
   <h1 className="text-2xl font-bold text-slate-950">{t('获取运费报价','Get a freight quote')}</h1>
-  <p className="mt-2 text-sm text-slate-500">{t('先查价格，缺价由人工跟进。无需先留联系方式。','Check rates first. Our team handles routes without a published price.')}</p>
+  <p className="mt-2 text-sm text-slate-500">{t('默认查询铁路站到站价格；需国内提货或送货，可切换服务范围。暂无公开价可提交人工询盘。','Rail terminal-to-terminal rates are the default. Change the service scope for pickup or delivery; request a manual quote when no rate is published.')}</p>
   <form onSubmit={calculate} className="mt-5 space-y-4">
    <fieldset disabled={sending} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {fields('pol',t('起始地','Origin'),{required:true,placeholder:t('例如：上海','e.g. Shanghai')})}
@@ -65,7 +65,7 @@ export default function PublicQuoteFlow({locale='en'}) {
   </form>
   <div aria-live="polite" className="mt-4">
    {estimate&&<div className="rounded-xl bg-blue-50 p-5"><div className="text-sm text-blue-800">{estimate.rateOnly?t('参考单价','Indicative unit rate'):t('参考总价','Indicative total')}</div><div className="mt-1 text-3xl font-bold text-blue-950">{estimate.currency} {estimate.low.toLocaleString(undefined,{maximumFractionDigits:2})}–{estimate.high.toLocaleString(undefined,{maximumFractionDigits:2})}</div><p className="mt-2 text-sm text-blue-800">{estimate.rateOnly?t('每计费方；补充体积和毛重后可核算总价。','Per chargeable CBM. Add both volume and weight for a total.'):t(`按 ${estimate.quantity} ${estimate.unit==='container'?'箱':'计费方'}计算`,`Based on ${estimate.quantity} ${estimate.unit}`)}{estimate.container?` · ${estimate.container}`:''}</p><p className="mt-2 text-xs text-blue-800">{scopes[form.serviceScope]}{estimate.validUntil?` · ${t('有效至','Valid to')} ${estimate.validUntil}`:''}</p></div>}
-   {(status==='unmatched'||status==='error')&&<p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">{status==='error'?t('暂时无法连接报价服务，可留下联系方式由人工报价。','The rate service is unavailable. Leave your contact for a manual quote.'):t('当前条件暂无可用报价，已保留货物信息，请转人工核价。','No published rate matches these details. Your shipment information is ready for a manual quote.')}</p>}
+   {(status==='unmatched'||status==='error')&&<p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">{status==='error'?t('暂时无法连接报价服务，可留下联系方式由人工报价。','The rate service is unavailable. Leave your contact for a manual quote.'):t('该线路或服务范围暂未发布销售价，仍可提交人工询盘。','No approved public selling rate is published for this route or service scope. You can still submit an inquiry.')}</p>}
    {estimate&&!contactOpen&&status!=='submitted'&&<button onClick={()=>setContactOpen(true)} className="mt-3 w-full rounded-xl border border-blue-200 px-4 py-3 font-semibold text-blue-700">{t('请人工确认报价','Request a firm quote')}</button>}
    {message&&<p role="status" className="mt-3 rounded-xl bg-slate-50 p-4 text-sm">{message}</p>}
   </div>
