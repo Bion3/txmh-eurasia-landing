@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import { estimatePublishedQuote } from '../src/lib/publicQuotePricing.js';
 
@@ -22,3 +23,11 @@ for(const serviceScope of ['door_to_door','door_to_station','ddp','fba_delivery'
 assert.equal(estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:8,weight:5000},rows).quantity,10);
 assert.equal(estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:8,weight:2500},rows).quantity,8);
 console.log('Public quote pricing checks passed.');
+
+const endpoint=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url),'utf8');
+assert.match(endpoint,/\.rpc\('freight_website_sale_rates'\)/);
+assert.doesNotMatch(endpoint,/\.from\('freight_public_quotes'\)/);
+const hiddenRows=[{...fclRows[0],status:'inactive'}];
+assert.equal(estimatePublishedQuote({containerType:'FCL',pol:'Ningbo',pod:'Hamburg'},hiddenRows),null);
+assert.equal(estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',serviceScope:'door_to_door',volume:5,weight:1500},rows),null);
+console.log('Purchase-rate public RPC wiring and safe unavailability checks passed.');
