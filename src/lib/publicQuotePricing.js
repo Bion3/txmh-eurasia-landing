@@ -60,15 +60,23 @@ export function estimatePublishedQuote(form, rows) {
       indicative:quote.status==='indicative',
       validFrom:quote.valid_from,
       railQty:Number.isFinite(volume)&&volume>0&&Number.isFinite(weight)&&weight>0?quantity:null,
+      shipmentFee:Number(quote.shipment_fee||0),
+      hasConfirmedFees:quote.shipment_fee!==undefined&&quote.shipment_fee!==null,
       validUntil: quote.valid_until,
       note: quote.public_note,
     };
+    const shipmentFee=Number(quote.shipment_fee||0);
+    const hasConfirmedFees=quote.shipment_fee!==undefined&&quote.shipment_fee!==null;
     return {
       quoteId: quote.id,
       currency: quote.currency,
-      low: Math.max(quantity * Number(quote.unit_price_low), Number(quote.minimum_charge || 0)),
-      high: Math.max(quantity * Number(quote.unit_price_high), Number(quote.minimum_charge || 0)),
+      low: Math.max(quantity * Number(quote.unit_price_low), Number(quote.minimum_charge || 0))+shipmentFee,
+      high: Math.max(quantity * Number(quote.unit_price_high), Number(quote.minimum_charge || 0))+shipmentFee,
       quantity,
+      shipmentFee,
+      hasConfirmedFees,
+      unitPrice:Number(quote.unit_price_low),
+      railSubtotal:hasConfirmedFees,
       unit: 'chargeable CBM',
       rateOnly: false,
       indicative:quote.status==='indicative',
