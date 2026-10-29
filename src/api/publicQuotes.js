@@ -17,7 +17,15 @@ export async function getPublicQuoteEstimate(form) {
    const domestic=await supabase.rpc('freight_website_linehaul_estimates',{p_origin:form.pol,p_volume:Number(form.volume),p_weight:Number(form.weight)}).abortSignal(signal);
    if(domestic.error)throw domestic.error;
    const combined=estimateDomesticRailLcl(form,completed.data||[],domestic.data||[]);
-   if(combined)return combined;
+   if(combined){
+    const pickup=await supabase.rpc('freight_website_pickup_tier_reference',{p_volume:Number(form.volume),p_weight:Number(form.weight)}).abortSignal(signal);
+    if(!pickup.error&&Array.isArray(pickup.data)&&pickup.data.length){
+      const p=pickup.data[0];
+      const amount=Number(p.amount_usd);
+      if(Number.isFinite(amount)&&amount>=0)combined.optionalPickup={amount,unit:'shipment',tier:p.tier_label,validUntil:p.valid_until,note:p.public_note};
+    }
+    return combined;
+   }
   }
   const completedQuote=estimatePublishedQuote(form,completed.data||[]);
   if(completedQuote)return completedQuote;
