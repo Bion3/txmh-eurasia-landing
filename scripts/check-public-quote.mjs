@@ -28,7 +28,7 @@ const endpoint=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url
 assert.match(endpoint,/\.rpc\('freight_website_sale_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_indicative_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_completed_lcl_rates'\)/);
-assert.match(endpoint,/\.rpc\('freight_website_linehaul_estimates'\)/);
+assert.match(endpoint,/\.rpc\('freight_website_linehaul_estimates'/);
 assert.doesNotMatch(endpoint,/\.from\('freight_public_quotes'\)/);
 const hiddenRows=[{...fclRows[0],status:'inactive'}];
 assert.equal(estimatePublishedQuote({containerType:'FCL',pol:'Ningbo',pod:'Hamburg'},hiddenRows),null);
