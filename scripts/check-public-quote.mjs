@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import { estimatePublishedQuote } from '../src/lib/publicQuotePricing.js';
+import { estimatePublishedQuote, estimateDomesticRailLcl } from '../src/lib/publicQuotePricing.js';
 
 const rows = [{id:'sale',status:'active',origin:'上海',destination:'汉堡',transport:'lcl',service_scope:'station',currency:'USD',unit_price_low:100,unit_price_high:120,minimum_charge:300,ratio:500,valid_until:'2026-11-30',public_note:'Indicative'}];
 const result = estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:'5',weight:'1000'}, rows);
@@ -28,6 +28,7 @@ const endpoint=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url
 assert.match(endpoint,/\.rpc\('freight_website_sale_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_indicative_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_completed_lcl_rates'\)/);
+assert.match(endpoint,/\.rpc\('freight_website_linehaul_estimates'\)/);
 assert.doesNotMatch(endpoint,/\.from\('freight_public_quotes'\)/);
 const hiddenRows=[{...fclRows[0],status:'inactive'}];
 assert.equal(estimatePublishedQuote({containerType:'FCL',pol:'Ningbo',pod:'Hamburg'},hiddenRows),null);
@@ -69,3 +70,15 @@ assert.equal(confirmedWithoutWeight.rateOnly,true);
 assert.equal(confirmedWithoutWeight.low,175);
 assert.equal(confirmedWithoutWeight.hasConfirmedFees,true);
 console.log('Verified LCL rail subtotal includes fixed per-shipment charges.');
+
+const domestic=[{station:'西安',amount_usd:322.14,valid_until:'2026-11-30'},{station:'武汉',amount_usd:100,valid_until:'2026-11-30'}];
+const door=estimateDomesticRailLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl,domestic);
+assert.equal(door.low,2222.14);
+assert.equal(door.domesticLinehaul,322.14);
+assert.equal(door.railwaySubtotal,1900);
+assert.equal(door.consolidationStation,'西安');
+assert.equal(door.partial,true);
+assert.equal(door.missingCosts.length,2);
+assert.equal(estimateDomesticRailLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl,[{station:'武汉',amount_usd:99}]),null);
+assert.equal(estimateDomesticRailLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:''},confirmedLcl,domestic),null);
+console.log('Domestic linehaul joins to the same rail consolidation station and retains missing-cost warnings.');
