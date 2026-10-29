@@ -11,6 +11,10 @@ export async function getPublicQuoteEstimate(form) {
   if(approved.error)throw approved.error;
   const primary=estimatePublishedQuote(form,approved.data||[]);
   if(primary)return primary;
+  const completed=await supabase.rpc('freight_website_completed_lcl_rates').abortSignal(signal);
+  if(completed.error)throw completed.error;
+  const completedQuote=estimatePublishedQuote(form,completed.data||[]);
+  if(completedQuote)return completedQuote;
   const indicative=await supabase.rpc('freight_website_indicative_rates').abortSignal(signal);
   if(indicative.error)throw indicative.error;
   return estimatePublishedQuote(form,indicative.data||[]);
