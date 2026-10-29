@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import { estimatePublishedQuote, estimateDomesticRailLcl } from '../src/lib/publicQuotePricing.js';
+import { estimatePublishedQuote, estimateDomesticRailLcl, estimateLocalStationLcl, estimateCityCentrePickupDistance } from '../src/lib/publicQuotePricing.js';
 
 const rows = [{id:'sale',status:'active',origin:'上海',destination:'汉堡',transport:'lcl',service_scope:'station',currency:'USD',unit_price_low:100,unit_price_high:120,minimum_charge:300,ratio:500,valid_until:'2026-11-30',public_note:'Indicative'}];
 const result = estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:'5',weight:'1000'}, rows);
@@ -90,3 +90,25 @@ assert.equal(withPickup.low,2222.14);
 assert.equal(withPickup.optionalPickup.amount,88);
 assert.equal(withPickup.missingCosts.some(v=>v.includes('门点提货')),true);
 console.log('Optional generic pickup reference does not become an all-in charge.');
+
+const sameCity=estimateCityCentrePickupDistance('西安市','西安');
+assert.equal(sameCity.status,'likely_within');
+assert.equal(sameCity.estimatedRoadKm,0);
+const nearCity=estimateCityCentrePickupDistance('咸阳','西安');
+assert.equal(nearCity.status,'likely_within');
+assert.ok(nearCity.estimatedRoadKm>0&&nearCity.estimatedRoadKm<80);
+const farCity=estimateCityCentrePickupDistance('上海','西安');
+assert.equal(farCity.status,'outside');
+assert.ok(farCity.estimatedRoadKm>100);
+assert.equal(estimateCityCentrePickupDistance('unknown origin','西安').status,'unresolved');
+const local=estimateLocalStationLcl({containerType:'LCL',serviceScope:'door_to_station',pol:"Xi'an",pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl);
+assert.equal(local.railwaySubtotal,1900);
+assert.equal(local.domesticLinehaul,0);
+assert.equal(local.low,1900);
+assert.equal(local.pickupDistance.status,'likely_within');
+assert.equal(estimateLocalStationLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl),null);
+const apiCode=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url),'utf8');
+assert.match(apiCode,/estimateCityCentrePickupDistance\(form.pol,combined.consolidationStation\)/);
+assert.match(apiCode,/distance.status==='likely_within'/);
+assert.doesNotMatch(apiCode,/form.pickupDistanceKm/);
+console.log('City-centre distance automatic pickup eligibility verified: same, nearby, far and unknown.');
