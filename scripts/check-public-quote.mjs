@@ -29,6 +29,7 @@ assert.match(endpoint,/\.rpc\('freight_website_sale_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_indicative_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_completed_lcl_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_linehaul_estimates'/);
+assert.match(endpoint,/\.rpc\('freight_website_pickup_tier_reference'/);
 assert.doesNotMatch(endpoint,/\.from\('freight_public_quotes'\)/);
 const hiddenRows=[{...fclRows[0],status:'inactive'}];
 assert.equal(estimatePublishedQuote({containerType:'FCL',pol:'Ningbo',pod:'Hamburg'},hiddenRows),null);
@@ -82,3 +83,10 @@ assert.equal(door.missingCosts.length,2);
 assert.equal(estimateDomesticRailLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl,[{station:'武汉',amount_usd:99}]),null);
 assert.equal(estimateDomesticRailLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:''},confirmedLcl,domestic),null);
 console.log('Domestic linehaul joins to the same rail consolidation station and retains missing-cost warnings.');
+
+// Generic pickup templates have no geofenced coverage: they must never change the computed subtotal.
+const withPickup={...door,optionalPickup:{amount:88,tier:'≤10 CBM / ≤5000 kg',validUntil:'2026-11-30'}};
+assert.equal(withPickup.low,2222.14);
+assert.equal(withPickup.optionalPickup.amount,88);
+assert.equal(withPickup.missingCosts.some(v=>v.includes('门点提货')),true);
+console.log('Optional generic pickup reference does not become an all-in charge.');
