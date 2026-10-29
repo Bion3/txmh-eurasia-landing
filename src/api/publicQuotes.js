@@ -1,5 +1,5 @@
 import { isSupabaseConfigured, publicSupabase as supabase } from '../lib/supabaseClient';
-import { estimatePublishedQuote } from '../lib/publicQuotePricing';
+import { estimatePublishedQuote, estimateDomesticRailLcl } from '../lib/publicQuotePricing';
 import { withRequestDeadline } from '../lib/requestDeadline';
 
 export async function getPublicQuoteEstimate(form) {
@@ -13,6 +13,12 @@ export async function getPublicQuoteEstimate(form) {
   if(primary)return primary;
   const completed=await supabase.rpc('freight_website_completed_lcl_rates').abortSignal(signal);
   if(completed.error)throw completed.error;
+  if(form.containerType==='LCL'&&form.serviceScope==='door_to_station'&&Number(form.volume)>0&&Number(form.weight)>0){
+   const domestic=await supabase.rpc('freight_website_linehaul_estimates',{p_origin:form.pol,p_volume:Number(form.volume),p_weight:Number(form.weight)}).abortSignal(signal);
+   if(domestic.error)throw domestic.error;
+   const combined=estimateDomesticRailLcl(form,completed.data||[],domestic.data||[]);
+   if(combined)return combined;
+  }
   const completedQuote=estimatePublishedQuote(form,completed.data||[]);
   if(completedQuote)return completedQuote;
   const indicative=await supabase.rpc('freight_website_indicative_rates').abortSignal(signal);
