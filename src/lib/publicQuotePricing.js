@@ -103,3 +103,31 @@ export function estimatePublishedQuote(form, rows) {
     note: quote.public_note,
   };
 }
+
+
+export function estimateDomesticRailLcl(form, railRows, domesticRows) {
+ if(form.containerType!=='LCL'||form.serviceScope!=='door_to_station')return null;
+ const volume=Number(form.volume),weight=Number(form.weight);
+ if(!Number.isFinite(volume)||volume<=0||!Number.isFinite(weight)||weight<=0)return null;
+ const candidates=[];
+ for(const domestic of domesticRows||[]){
+  if(!domestic.station||!Number.isFinite(Number(domestic.amount_usd))||Number(domestic.amount_usd)<=0)continue;
+  const rail=estimatePublishedQuote({...form,pol:domestic.station,serviceScope:'port_to_port'},railRows);
+  if(!rail||rail.rateOnly||rail.railSubtotal!==true)continue;
+  const domesticUsd=Number(domestic.amount_usd);
+  const validUntil=[domestic.valid_until,rail.validUntil].filter(Boolean).sort()[0]||null;
+  candidates.push({
+   ...rail,low:Math.round((rail.low+domesticUsd)*100)/100,
+   high:Math.round((rail.high+domesticUsd)*100)/100,
+   partial:true,railSubtotal:false,
+   domesticLinehaul:domesticUsd,
+   railwaySubtotal:rail.low,
+   consolidationStation:domestic.station,
+   validUntil,
+   missingCosts:['门点提货与仓库收货费用','境外清关、末端派送和不包含的附加费用'],
+   note:'参考费用组合仅含已确认国内干线和铁路段；门点提货、目的地费用及特殊货物收费另询。国内干线按预设参考汇率1美元=7元人民币换算，非正式全程报价。'
+  });
+ }
+ candidates.sort((a,b)=>a.low-b.low);
+ return candidates[0]||null;
+}
