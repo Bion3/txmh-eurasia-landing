@@ -27,6 +27,7 @@ console.log('Public quote pricing checks passed.');
 const endpoint=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url),'utf8');
 assert.match(endpoint,/\.rpc\('freight_website_sale_rates'\)/);
 assert.match(endpoint,/\.rpc\('freight_website_indicative_rates'\)/);
+assert.match(endpoint,/\.rpc\('freight_website_completed_lcl_rates'\)/);
 assert.doesNotMatch(endpoint,/\.from\('freight_public_quotes'\)/);
 const hiddenRows=[{...fclRows[0],status:'inactive'}];
 assert.equal(estimatePublishedQuote({containerType:'FCL',pol:'Ningbo',pod:'Hamburg'},hiddenRows),null);
@@ -50,3 +51,21 @@ assert.equal(railOnly.railQty,10);
 assert.equal(railOnly.low,175); // Never show the incomplete per-ticket fee as an 1,750 USD all-in quote.
 assert.equal(estimatePublishedQuote({containerType:'LCL',pol:"Xi'an",pod:'Hamburg',serviceScope:'door_to_door'},upcoming),null);
 console.log('Upcoming FCL and rail-only LCL indicative checks passed.');
+
+const confirmedLcl=[{
+ id:'xian-hamburg-complete',origin:'西安',destination:'汉堡（时刻表）',
+ transport:'lcl',service_scope:'station',currency:'USD',unit:'chargeable CBM',
+ unit_price_low:175,unit_price_high:175,minimum_charge:150,ratio:500,shipment_fee:150,
+ valid_from:'2026-11-01',valid_until:'2026-11-30',status:'indicative',rate_only:false
+}];
+const confirmedSubtotal=estimatePublishedQuote({containerType:'LCL',pol:"Xi'an",pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl);
+assert.equal(confirmedSubtotal.quantity,10);
+assert.equal(confirmedSubtotal.low,1900);
+assert.equal(confirmedSubtotal.high,1900);
+assert.equal(confirmedSubtotal.shipmentFee,150);
+assert.equal(confirmedSubtotal.railSubtotal,true);
+const confirmedWithoutWeight=estimatePublishedQuote({containerType:'LCL',pol:"Xi'an",pod:'Hamburg',volume:'8',weight:''},confirmedLcl);
+assert.equal(confirmedWithoutWeight.rateOnly,true);
+assert.equal(confirmedWithoutWeight.low,175);
+assert.equal(confirmedWithoutWeight.hasConfirmedFees,true);
+console.log('Verified LCL rail subtotal includes fixed per-shipment charges.');
