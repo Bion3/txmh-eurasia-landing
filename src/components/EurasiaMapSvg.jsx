@@ -22,7 +22,8 @@ export default function EurasiaMapSvg({ mapText }) {
   const mapScrollRef=useRef(null);
   const [features,setFeatures]=useState([]);
   const [mapError,setMapError]=useState(false);
-  const [selected,setSelected]=useState(null);\n  const [showAllStations,setShowAllStations]=useState(false);
+  const [selected,setSelected]=useState(null);
+  const [showAllStations,setShowAllStations]=useState(false);
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
     let live=true;
@@ -49,7 +50,8 @@ export default function EurasiaMapSvg({ mapText }) {
     <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-white/95 px-2 py-2 text-[11px] md:gap-1.5 md:p-3 md:text-xs">
       {Object.entries({feeder:"国内集货",main:"西向干线",europe:"欧洲",central:"中亚",westasia:"西亚"}).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
-    <div className="flex items-center justify-between gap-2 bg-white/90 px-3 py-2 text-xs"><span className="text-slate-600">站点与成本中心目的站对应 · 线路仅作示意</span><label className="flex shrink-0 items-center gap-1"><input type="checkbox" checked={showAllStations} onChange={e=>setShowAllStations(e.target.checked)}/>显示全部站名</label></div>\n    <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-200 bg-white/90 px-3 py-2 text-xs md:hidden"><span className="shrink-0 text-slate-500">快速定位</span>{[["欧洲",18],["西亚",49],["中亚",70],["中国",108]].map(([label,lon])=><button key={label} type="button" onClick={()=>jumpTo(lon)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700">{label}</button>)}</div>
+    <div className="flex items-center justify-between gap-2 bg-white/90 px-3 py-2 text-xs"><span className="text-slate-600">站点与成本中心目的站对应 · 线路仅作示意</span><label className="flex shrink-0 items-center gap-1"><input type="checkbox" checked={showAllStations} onChange={e=>setShowAllStations(e.target.checked)}/>显示全部站名</label></div>
+    <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-200 bg-white/90 px-3 py-2 text-xs md:hidden"><span className="shrink-0 text-slate-500">快速定位</span>{[["欧洲",18],["西亚",49],["中亚",70],["中国",108]].map(([label,lon])=><button key={label} type="button" onClick={()=>jumpTo(lon)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700">{label}</button>)}</div>
     <div ref={mapScrollRef} className="overflow-x-auto overscroll-x-contain touch-pan-x" aria-label="地图可左右滑动查看"><svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-[1100px] max-w-none md:w-full" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
       <rect width={W} height={H} fill="#c9eafb"/>
       {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
