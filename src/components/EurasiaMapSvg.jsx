@@ -37,16 +37,16 @@ export default function EurasiaMapSvg({ mapText }) {
       const [x,y]=project(point);return (i?"L":"M")+x.toFixed(2)+","+y.toFixed(2);
     }).join(" ");
   };
-  return <div className="relative overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200 bg-[#c9eafb] shadow-sm">
+  return <div className="overflow-hidden rounded-2xl border border-slate-200 bg-[#c9eafb] shadow-sm">
     <style>{`
       .eurasia-flow{stroke-dasharray:8 12;animation:eurasiaFlow 7s linear infinite;stroke-linecap:round}
       @keyframes eurasiaFlow{to{stroke-dashoffset:-80}}
-      @media(prefers-reduced-motion:reduce){.eurasia-flow{animation:none}}
+      @media(prefers-reduced-motion:reduce){.eurasia-flow{animation:none}}\n      @media(max-width:767px){.eurasia-map-label{display:none}.eurasia-map-label.active{display:block}}
     `}</style>
-    <div className="absolute left-3 top-3 z-10 flex max-w-[90%] flex-wrap gap-1.5 rounded-xl bg-white/90 p-2 text-xs shadow-sm">
+    <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-white/95 px-2 py-2 text-[11px] md:gap-1.5 md:p-3 md:text-xs">
       {Object.entries({feeder:"国内集货",main:"西向干线",europe:"欧洲",central:"中亚",westasia:"西亚"}).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
-    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full min-w-[760px] md:min-w-0" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
+    <div className="overflow-x-auto overscroll-x-contain touch-pan-x" aria-label="地图可左右滑动查看"><svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-[1100px] max-w-none md:w-full" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
       <rect width={W} height={H} fill="#c9eafb"/>
       {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
       {visibleRoutes.map(r=><g key={r.id} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} style={{cursor:"pointer"}}>
@@ -56,11 +56,11 @@ export default function EurasiaMapSvg({ mapText }) {
       </g>)}
       {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);const compact = ["hamburg","duisburg","warsaw","mala","budapest","milan","paris"].includes(h.id);const dx=compact?(h.id==="hamburg"||h.id==="warsaw"?-8:8):8;const dy=compact?(h.id==="duisburg"||h.id==="milan"?15:-9):-6;return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
         <circle r="8" fill={hubColors[h.type]} opacity=".15"/><circle r="4.4" fill={hubColors[h.type]} stroke="white" strokeWidth="2"/>
-        <text x={dx} y={dy} textAnchor={dx<0?"end":"start"} fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{mapText?.hubs?.[h.id]||h.label}</text>
+        <text className={`eurasia-map-label ${selected?.type==="hub"&&selected.value.id===h.id?"active":""}`} x={dx} y={dy} textAnchor={dx<0?"end":"start"} fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{mapText?.hubs?.[h.id]||h.label}</text>
       </g>})}
-    </svg>
-    {!features.length&&<div className="absolute bottom-3 left-3 rounded bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?"地图底图加载失败，请刷新重试":"正在加载矢量地理底图…"}</div>}
-    {selected&&<div className="absolute bottom-3 right-3 max-w-[60%] rounded-lg border border-slate-200 bg-white/95 p-3 text-xs shadow-md">
+    </svg></div>
+    <div className="bg-white/90 px-3 py-1 text-[11px] text-slate-600 md:hidden">左右滑动查看地图 · 点击圆点查看城市</div>\n    {!features.length&&<div className="bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?"地图底图加载失败，请刷新重试":"正在加载矢量地理底图…"}</div>}
+    {selected&&<div className="border-t border-slate-200 bg-white/95 p-3 text-xs">
       <button className="float-right ml-2" onClick={()=>setSelected(null)} aria-label="关闭">×</button>
       {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div></>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
     </div>}
