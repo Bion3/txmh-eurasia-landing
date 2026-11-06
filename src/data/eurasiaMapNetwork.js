@@ -23,6 +23,11 @@ export const hubs = [
 ];
 
 const routes = [
+  // Domestic feeder lines converge toward the westbound gateway.
+  { id: "feeder-zhengzhou", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 63,31 Q 60,30 58,30 Q 53,27 49,25", points: ["zhengzhou","xian","alashankou"], label: "郑州—西向集结通道" },
+  { id: "feeder-wuhan", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 62,34 Q 60,32 58,30 Q 53,27 49,25", points: ["wuhan","xian","alashankou"], label: "武汉—西向集结通道" },
+  { id: "feeder-yiwu", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 67,35 Q 63,33 58,30 Q 53,27 49,25", points: ["yiwu","xian","alashankou"], label: "义乌—西向集结通道" },
+  { id: "feeder-shenzhen", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 64,37 Q 60,34 58,30 Q 53,27 49,25", points: ["shenzhen","xian","alashankou"], label: "深圳—西向集结通道" },
   {
     id: "route-1",
     color: "#151414",
@@ -36,7 +41,7 @@ const routes = [
     color: "#3b82f6",
     duration: "20–25 days",
     service: "Rail LCL",
-    path: "M 62,34 Q 55,28 49,25 Q 40,21 30,18 Q 26,19 23,21 T 16,22 T 13,24",
+    path: "M 49,25 Q 40,21 30,18 Q 26,19 23,21 T 16,22 T 13,24",
     points: ["wuhan", "alashankou", "moscow", "mala", "duisburg", "paris"],
   },
   {
@@ -44,7 +49,7 @@ const routes = [
     color: "#10b981",
     duration: "22–26 days",
     service: "Rail LCL",
-    path: "M 63,31 Q 56,29 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
+    path: "M 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
     points: ["zhengzhou", "alashankou", "moscow", "mala", "budapest", "milan"],
   },
   { id: "central-asia-almaty", color: "#e8792e", duration: "Subject to confirmation", service: "Indicative corridor", path: "M 58,30 Q 53,27 49,25 Q 47,27 46.5,29", points: ["xian","alashankou","almaty"], label: "中国—阿拉木图（示意）" },
