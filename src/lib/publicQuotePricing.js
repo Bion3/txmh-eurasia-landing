@@ -121,6 +121,8 @@ export function estimateDomesticRailLcl(form, railRows, domesticRows) {
    high:Math.round((rail.high+domesticUsd)*100)/100,
    partial:true,railSubtotal:false,
    domesticLinehaul:domesticUsd,
+   domesticLinehaulIncluded:true,
+   receivingWarehouseCity:form.pol,
    railwaySubtotal:rail.low,
    consolidationStation:domestic.station,
    validUntil,
@@ -135,6 +137,7 @@ export function estimateDomesticRailLcl(form, railRows, domesticRows) {
 /** Approximate city-centre locations, WGS84; not receiving-warehouse coordinates. */
 const domesticCityCentres={
  '上海':[31.2304,121.4737],'宁波':[29.8683,121.5440],'杭州':[30.2741,120.1551],
+ '太仓':[31.45,121.10],'昆山':[31.39,120.95],'常熟':[31.64,120.74],'张家港':[31.87,120.55],
  '嘉兴':[30.7461,120.7555],'绍兴':[30.0303,120.5802],'舟山':[30.0160,122.1069],
  '湖州':[30.8925,120.0875],'金华':[29.0787,119.6474],'义乌':[29.3065,120.0751],
  '温州':[27.9938,120.6994],'台州':[28.6564,121.4208],
@@ -168,6 +171,7 @@ const domesticCityCentres={
 const transliterations={
  'guangzhou':'广州','foshan':'佛山','dongguan':'东莞','hangzhou':'杭州',
  'jiaxing':'嘉兴','wuxi':'无锡','changzhou':'常州','hefei':'合肥',
+ 'taicang':'太仓','kunshan':'昆山','changshu':'常熟','zhangjiagang':'张家港',
  'qingdao':'青岛','jinan':'济南','changsha':'长沙','nanchang':'南昌',
  'tianjin':'天津','beijing':'北京','shijiazhuang':'石家庄','xianyang':'咸阳',
  'yangzhou':'扬州','shaoxing':'绍兴','wenzhou':'温州','jinhua':'金华'
@@ -195,6 +199,19 @@ export function estimateCityCentrePickupDistance(origin,station){
   originCity:from,warehouseCity:to,straightKm:Math.round(straightKm*10)/10,
   estimatedRoadKm,method:'city_centres_x_1_3',limitKm:100};
 }
+// Receiving warehouses are assumed only where the domestic linehaul price list
+// has a departure city. The warehouse's actual address is not yet available.
+// Distance is solely pickup point -> local receiving-city centre, never -> rail hub.
+const receivingWarehouseCities=[
+ '上海','苏州','宁波','嘉兴','杭州','南京','无锡','常州','广州','深圳',
+ '郑州','武汉','西安','成都','重庆','合肥','青岛','济南','南昌','长沙'
+];
+export function nearbyReceivingWarehouseCandidates(pickupPlace){
+ return receivingWarehouseCities.map(city=>estimateCityCentrePickupDistance(pickupPlace,city))
+  .filter(d=>d.status==='likely_within')
+  .sort((a,b)=>a.estimatedRoadKm-b.estimatedRoadKm)
+  .slice(0,5);
+}
 export function estimateLocalStationLcl(form,railRows){
  if(form.containerType!=='LCL'||form.serviceScope!=='door_to_station')return null;
  const from=findDomesticCity(form.pol);
@@ -203,7 +220,7 @@ export function estimateLocalStationLcl(form,railRows){
  if(!rail||rail.rateOnly||rail.railSubtotal!==true)return null;
  const distance=estimateCityCentrePickupDistance(from,from);
  return {...rail,partial:true,railSubtotal:false,domesticLinehaul:0,domesticLinehaulIncluded:false,
-  railwaySubtotal:rail.low,consolidationStation:from,pickupDistance:distance,
+  railwaySubtotal:rail.low,consolidationStation:from,receivingWarehouseCity:from,pickupDistance:distance,
   missingCosts:['门点提货和实际收货仓位置待确认','目的地服务和未包含的附加费用'],
   note:'按同城集货站的已确认铁路运费试算；同城城市中心距离并非实际仓库路程，门点提货须确认。'};
 }
