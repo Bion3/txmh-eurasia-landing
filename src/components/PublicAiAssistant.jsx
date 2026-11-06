@@ -19,6 +19,7 @@ export default function PublicAiAssistant({locale='en'}){
   // Only explicit URL shipment fields are used; stale local form drafts are not reimported.
   const params=Object.fromEntries(new URLSearchParams(location.search));
   const seed={};for(const key of ['pol','pod','containerType','serviceScope','containerSize','quantity','volume','weight'])if(!ignoreUrl.current&&params[key]!==undefined)seed[key]=params[key];
+  if(seed.containerType==='FCL'||seed.containerType==='LCL')seed.containerTypeExplicit=true;
   const next=extractShipment(content,{...seed,...shipment});
   setShipment(next);setMessages(old=>[...old.slice(-10),{role:'user',text:content}]);
   let reply;

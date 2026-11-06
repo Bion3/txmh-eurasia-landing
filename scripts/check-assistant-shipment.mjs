@@ -17,3 +17,12 @@ assert.equal(extractShipment('布达').pod,'布达佩斯');assert.equal(extractS
 const screenshotUrl=new URL(shipmentQuoteHref(screenshot),'https://www.eurasiago.com');
 assert.equal(screenshotUrl.searchParams.get('pod'),'杜伊斯堡');assert.equal(screenshotUrl.searchParams.get('weight'),'4000');
 console.log('Assistant extraction and handoff checks passed, including Duisburg shorthand and compact Chinese cargo input.');
+// Regression: cargo units without "LCL" must not inherit a default FCL lookup.
+const implicit=extractShipment('上海 汉堡 3方6吨');
+assert.equal(implicit.containerType,'LCL');assert.equal(implicit.volume,3);assert.equal(implicit.weight,6000);
+const legacyDefault=extractShipment('上海 汉堡 3方6吨',{containerType:'FCL',serviceScope:'door'});
+assert.equal(legacyDefault.containerType,'LCL');assert.equal(legacyDefault.serviceScope,'door_to_station');
+const chosenFcl=extractShipment('整柜40HQ');
+assert.equal(extractShipment('上海 汉堡3方6吨',chosenFcl).containerType,'FCL');
+assert.equal(extractShipment('改成拼箱3方6吨',chosenFcl).containerSize,undefined);
+console.log('Implicit LCL cargo requests and explicit FCL choices remain distinct.');

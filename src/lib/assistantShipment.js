@@ -3,14 +3,20 @@ const destinations=[['汉堡','hamburg'],['杜伊斯堡','duisburg','杜堡'],['
 function city(text,groups){return groups.flatMap(names=>names.map(name=>({name:names[0],index:text.lastIndexOf(name)}))).filter(x=>x.index>=0).sort((a,b)=>b.index-a.index)[0]?.name;}
 export function extractShipment(message,previous={}){
  const text=String(message).toLowerCase(), next={containerType:'FCL',serviceScope:'door_to_station',...previous};
+ next.serviceScope={door:'door_to_station',station:'port_to_port'}[next.serviceScope]||next.serviceScope;
  const origin=city(text,origins),destination=city(text,destinations);
  if(origin)next.pol=origin;if(destination)next.pod=destination;
  const volume=text.match(/(-?\d+(?:\.\d+)?)\s*(?:cbm|m3|m³|立方米|立方|方)/i);
  const weight=text.match(/(-?\d+(?:\.\d+)?)\s*(kg|kgs|公斤|千克|吨|tons?|t\b)/i);
  if(volume)next.volume=Number(volume[1]);
  if(weight)next.weight=Number(weight[1])*(/吨|^t/.test(weight[2])?1000:1);
- if(/lcl|拼箱/.test(text))next.containerType='LCL';
- if(/fcl|整箱|整柜|40hq|40gp|20gp/.test(text))next.containerType='FCL';
+ const explicitLcl=/\blcl\b|拼箱/.test(text),explicitFcl=/\bfcl\b|整箱|整柜|40hq|40gp|20gp|45hq/.test(text);
+ if(explicitLcl){next.containerType='LCL';next.containerTypeExplicit=true;}
+ if(explicitFcl){next.containerType='FCL';next.containerTypeExplicit=true;}
+ // Cargo-only requests such as "上海 汉堡 3方6吨" describe LCL unless the
+ // customer previously chose FCL explicitly. A legacy/default FCL is not a choice.
+ if(!explicitLcl&&!explicitFcl&&(volume||weight)&&!(previous.containerType==='FCL'&&(previous.containerTypeExplicit===true||previous.containerSize))){next.containerType='LCL';next.containerTypeExplicit=false;}
+ if(next.containerType==='LCL'){delete next.containerSize;delete next.quantity;}
  const box=text.match(/40hq|40gp|20gp|45hq/i);if(box)next.containerSize=box[0].toUpperCase();
  const quantity=text.match(/(\d+)\s*(?:柜|个集装箱|containers?)/i);if(quantity)next.quantity=Number(quantity[1]);
  if(/站到站|terminal.to.terminal/.test(text))next.serviceScope='port_to_port';

@@ -17,11 +17,17 @@ export function isShipmentQuestion(message){
  return Boolean(parsed.pol||parsed.pod||parsed.volume!==undefined||parsed.weight!==undefined||/报价|运费|价格|询价|整箱|整柜|拼箱|站到站|门到门|提货|\b(?:quote|rate|price|fcl|lcl|40hq|40gp|20gp|ddp)\b|pickup|door.to.door/i.test(message));
 }
 export function quoteAnswer(result,shipment,locale='en'){
- const zh=locale==='zh',route=shipment.pol+' → '+shipment.pod;
- if(!result)return route+(zh?'：当前范围暂无匹配售价。点击下方进入报价 / 人工询盘，货物信息会自动带入。':': No matching published rate for this scope. Open the quote / sales form below; your cargo details will carry over.');
+ const zh=locale==='zh',mode=shipment.containerType==='LCL'?(zh?'拼箱':'LCL'):(zh?'整柜':'FCL');
+ const details=shipment.containerType==='LCL'?[Number(shipment.volume)>0?shipment.volume+' CBM':'',Number(shipment.weight)>0?shipment.weight+' KG':''].filter(Boolean).join(' / '):[shipment.containerSize,shipment.quantity?shipment.quantity+(zh?'柜':' container(s)'):''].filter(Boolean).join(' / ');
+ const scopeLabels=zh?{door_to_station:'国内段 + 铁路至目的站',port_to_port:'铁路站到站',door_to_door:'门到门',fba_delivery:'FBA配送',ddp:'DDP'}:{door_to_station:'Origin leg + rail to destination terminal',port_to_port:'Rail terminal to terminal',door_to_door:'Door to door',fba_delivery:'FBA delivery',ddp:'DDP'};
+ const scope=scopeLabels[shipment.serviceScope];
+ const route=shipment.pol+' → '+shipment.pod+' · '+mode+(details?' · '+details:'')+(scope?'\n'+(zh?'查询范围：':'Requested scope: ')+scope:'');
+ if(!result)return route+(zh?'：当前查询范围未匹配到售价。可明确输入“拼箱”或“整柜 40HQ”修正类型，或点击下方报价表核对服务范围并转人工。':': No published rate matched this scope. Specify LCL or FCL 40HQ to change the type, or check the scope in the quote / sales form below.');
  const label=result.rateOnly?(zh?'参考单价':'Indicative unit rate'):result.partial?(zh?'已知费用小计（非全程总价）':'Known charges subtotal (not all-in)'):(zh?'参考运费':'Indicative freight');
  let reply=route+'\n'+label+': '+result.currency+' '+Number(result.low).toFixed(2)+'–'+Number(result.high).toFixed(2);
  if(result.rateOnly)reply+=zh?' /计费方。请补充体积和毛重以核算。':' / chargeable CBM. Add volume and gross weight for calculation.';
+ if(!result.rateOnly&&shipment.containerType==='LCL'&&Number(result.quantity)>0)reply+='\n'+(zh?'铁路计费方：':'Rail chargeable CBM: ')+result.quantity;
+ if(result.domesticLinehaulIncluded)reply+='\n'+(zh?'费用组合：国内干线 '+result.currency+' '+Number(result.domesticLinehaul).toFixed(2)+' + 铁路及已确认固定费 '+result.currency+' '+Number(result.railwaySubtotal).toFixed(2):'Includes domestic linehaul '+result.currency+' '+Number(result.domesticLinehaul).toFixed(2)+' + rail and confirmed fixed charges '+result.currency+' '+Number(result.railwaySubtotal).toFixed(2));
  if(result.missingCosts?.length)reply+='\n'+(zh?'待确认 / 未含：'+result.missingCosts.join('；'):'Pickup, destination services and other excluded charges require confirmation in the quote form.');
  if(result.validUntil)reply+='\n'+(zh?'报价有效期至：':'Valid until: ')+result.validUntil;
  return reply+'\n'+(zh?'完整计价范围、提货参考费、附加费及有效期，请进入报价表核对。最终价格需业务确认。':'Open the quote form to review scope, pickup references, extras and validity. Final rates require confirmation.');
@@ -32,6 +38,7 @@ export function readAssistantSession(raw){
   if(value?.shipment&&typeof value.shipment==='object')for(const key of ['pol','pod','containerType','serviceScope','containerSize','quantity','volume','weight']){
    const v=value.shipment[key];if(typeof v==='string'&&v.length<=150||typeof v==='number'&&Number.isFinite(v))shipment[key]=v;
   }
+  if(typeof value?.shipment?.containerTypeExplicit==='boolean')shipment.containerTypeExplicit=value.shipment.containerTypeExplicit;
   const messages=Array.isArray(value?.messages)?value.messages.filter(m=>['user','assistant'].includes(m?.role)&&typeof m.text==='string').slice(-12).map(m=>({role:m.role,text:m.text.slice(0,3000)})):[];
   return {shipment,messages};
  }catch{return {shipment:{},messages:[]};}
