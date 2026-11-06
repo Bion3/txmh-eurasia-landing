@@ -29,10 +29,13 @@ export default function EurasiaMapSvg({ mapText }) {
   },[]);
   const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
   const visibleRoutes=routes.filter(r=>show[r.kind]);
-  const routePath=(route)=>route.points.map((id,i)=>{
-    const h=byId[id];if(!h)return "";
-    const [x,y]=project([h.lon,h.lat]);return (i?"L":"M")+x.toFixed(2)+","+y.toFixed(2);
-  }).join(" ");
+  const routePath=(route)=>{
+    const start=byId[route.points[0]],end=byId[route.points[route.points.length-1]];
+    if(!start||!end)return "";
+    return [[start.lon,start.lat],...(route.via||[]),[end.lon,end.lat]].map((point,i)=>{
+      const [x,y]=project(point);return (i?"L":"M")+x.toFixed(2)+","+y.toFixed(2);
+    }).join(" ");
+  };
   return <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-[#c9eafb] shadow-sm">
     <style>{`
       .eurasia-flow{stroke-dasharray:8 12;animation:eurasiaFlow 7s linear infinite;stroke-linecap:round}
