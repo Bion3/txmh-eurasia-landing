@@ -22,7 +22,7 @@ export const hubs = [
   { id: "budapest", x: 21, y: 24, type: "hub", country: "Hungary" },
 ];
 
-const routes = [
+export const routes = [
   // Domestic feeder lines converge toward the westbound gateway.
   { id: "feeder-zhengzhou", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 63,31 Q 60,30 58,30 Q 53,27 49,25", points: ["zhengzhou","xian","alashankou"], label: "郑州—西向集结通道" },
   { id: "feeder-wuhan", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 62,34 Q 60,32 58,30 Q 53,27 49,25", points: ["wuhan","xian","alashankou"], label: "武汉—西向集结通道" },
