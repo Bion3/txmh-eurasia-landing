@@ -19,7 +19,8 @@ const colors = {feeder:"#93c5fd",main:"#2563eb",europe:"#0d9488",central:"#16a34
 const hubColors={origin:"#dc2626",border:"#f59e0b",hub:"#2563eb"};
 const worldUrl="https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
 export default function EurasiaMapSvg({ mapText }) {
-  const [features,setFeatures]=useState([]);\n  const [mapError,setMapError]=useState(false);
+  const [features,setFeatures]=useState([]);
+  const [mapError,setMapError]=useState(false);
   const [selected,setSelected]=useState(null);
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
