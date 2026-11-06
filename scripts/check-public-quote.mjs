@@ -158,3 +158,15 @@ assert.match(quoteUi,/lclTermsZh/);
 assert.match(quoteUi,/cargoRisk/);
 assert.match(quoteUi,/pieceLength/);
 console.log('LCL acceptance restriction thresholds, UI gating and seven terms verified.');
+
+const quoteUi=readFileSync(new URL('../src/components/PublicQuoteFlow.jsx',import.meta.url),'utf8');
+assert.match(quoteUi,/getPricedDestinationChoices/);
+assert.match(quoteUi,/pricedDestinations\.filter\(r=>r.transport===/);
+assert.match(quoteUi,/<datalist id="eurasiago-pricing-destinations">/);
+assert.match(quoteUi,/pricedStops\.map\(stop=>/);
+assert.match(quoteUi,/aria-pressed=\{form.containerType===mode.id\}/);
+assert.match(quoteUi,/key==='containerType'&&old.containerType!==value/);
+assert.match(quoteUi,/form.containerType==='FCL'\?/);
+assert.match(quoteUi,/form.containerType==='LCL'&&checkLclCargoRestrictions/);
+assert.match(endpoint,/\.rpc\('freight_website_quote_destinations'\)/);
+console.log('FCL/LCL-first interface and public destination list with manual-entry fallback verified.');
