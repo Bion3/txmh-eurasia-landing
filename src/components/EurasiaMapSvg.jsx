@@ -19,12 +19,12 @@ const colors = {feeder:"#93c5fd",main:"#2563eb",europe:"#0d9488",central:"#16a34
 const hubColors={origin:"#dc2626",border:"#f59e0b",hub:"#2563eb"};
 const worldUrl="https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
 export default function EurasiaMapSvg({ mapText }) {
-  const [features,setFeatures]=useState([]);
+  const [features,setFeatures]=useState([]);\n  const [mapError,setMapError]=useState(false);
   const [selected,setSelected]=useState(null);
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
     let live=true;
-    fetch(worldUrl).then(r=>{if(!r.ok)throw new Error("map fetch");return r.json()}).then(data=>{if(live)setFeatures(data.features||[])}).catch(()=>{});
+    fetch(worldUrl).then(r=>{if(!r.ok)throw new Error("map fetch");return r.json()}).then(data=>{if(live)setFeatures(data.features||[])}).catch(()=>{if(live)setMapError(true)});
     return ()=>{live=false};
   },[]);
   const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
@@ -50,15 +50,15 @@ export default function EurasiaMapSvg({ mapText }) {
       {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
       {visibleRoutes.map(r=><g key={r.id} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} style={{cursor:"pointer"}}>
         <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2.8" opacity=".18"/>
-        <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2" opacity=".9" className="eurasia-flow"/>
+        <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2" opacity=".9" className="eurasia-flow" strokeDasharray={r.mode==="multimodal"?"3 7":undefined}/>
         <path d={routePath(r)} fill="none" stroke="transparent" strokeWidth="13"/>
       </g>)}
-      {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
+      {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);const compact = ["hamburg","duisburg","warsaw","mala","budapest","milan","paris"].includes(h.id);const dx=compact?(h.id==="hamburg"||h.id==="warsaw"?-8:8):8;const dy=compact?(h.id==="duisburg"||h.id==="milan"?15:-9):-6;return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
         <circle r="8" fill={hubColors[h.type]} opacity=".15"/><circle r="4.4" fill={hubColors[h.type]} stroke="white" strokeWidth="2"/>
-        <text x="8" y="-6" fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{mapText?.hubs?.[h.id]||h.label}</text>
+        <text x={dx} y={dy} textAnchor={dx<0?"end":"start"} fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{mapText?.hubs?.[h.id]||h.label}</text>
       </g>})}
     </svg>
-    {!features.length&&<div className="absolute bottom-3 left-3 rounded bg-white/90 px-3 py-1 text-xs text-slate-600">正在加载矢量地理底图…</div>}
+    {!features.length&&<div className="absolute bottom-3 left-3 rounded bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?"地图底图加载失败，请刷新重试":"正在加载矢量地理底图…"}</div>}
     {selected&&<div className="absolute bottom-3 right-3 max-w-[60%] rounded-lg border border-slate-200 bg-white/95 p-3 text-xs shadow-md">
       <button className="float-right ml-2" onClick={()=>setSelected(null)} aria-label="关闭">×</button>
       {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div></>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
