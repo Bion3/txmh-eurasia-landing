@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useLocation} from 'react-router';
-import {getPublicQuoteEstimate} from '../api/publicQuotes';
+import {getPublicQuoteEstimate,getPricedDestinationChoices} from '../api/publicQuotes';
 import {checkLclCargoRestrictions,lclTermsZh,lclTermsEn} from '../lib/lclQuoteRestrictions';
 import {leadsApi} from '../api/leads';
 import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
@@ -13,7 +13,22 @@ export default function PublicQuoteFlow({locale='en'}) {
  const location=useLocation();
  const [form,setForm,draft]=usePersistentFormDraft('eurasiago:unified-quote',empty);
  const [status,setStatus]=useState('idle'),[estimate,setEstimate]=useState(null),[contactOpen,setContactOpen]=useState(false),[sending,setSending]=useState(false),[message,setMessage]=useState('');
+ const [pricedDestinations,setPricedDestinations]=useState([]),[destinationsLoading,setDestinationsLoading]=useState(true),[destinationsError,setDestinationsError]=useState(false);
  const revision=useRef(0);
+ useEffect(()=>{
+  let alive=true;
+  getPricedDestinationChoices().then(rows=>{
+    if(!alive)return;
+    setPricedDestinations(rows);setDestinationsError(false);
+  }).catch(()=>{if(alive)setDestinationsError(true);})
+    .finally(()=>{if(alive)setDestinationsLoading(false);});
+  return ()=>{alive=false;};
+ },[]);
+ const pricedRoutes=pricedDestinations.filter(r=>r.transport===(form.containerType==='FCL'?'fcl':'lcl'));
+ const pricedStops=[...new Set(pricedRoutes.map(r=>String(r.destination||'').trim()).filter(Boolean))]
+  .sort((a,b)=>a.localeCompare(b,zh?'zh-CN':'en'));
+ const pricedForSelected=pricedRoutes.some(r=>r.destination===form.pod);
+
  useEffect(()=>{
   const params=new URLSearchParams(location.search), values={};
   for(const key of Object.keys(empty))if(params.has(key))values[key]=params.get(key);
@@ -51,17 +66,41 @@ export default function PublicQuoteFlow({locale='en'}) {
  const scopes={door_to_station:t('国内提货 + 铁路至目的站','Origin pickup + rail to terminal'),port_to_port:t('铁路站到站','Rail terminal to terminal'),door_to_door:t('门到门（含目的地派送）','Door to door'),fba_delivery:t('FBA 仓库派送','FBA delivery'),ddp:t('DDP 服务','DDP service')};
  return <section id="public-quote" className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/10 sm:p-7 lg:p-8">
   <h1 className="text-2xl font-bold text-slate-950">{t('获取运费报价','Get a freight quote')}</h1>
-  <p className="mt-2 text-sm text-slate-500">{t('默认查询铁路站到站价格；需国内提货或送货，可切换服务范围。暂无公开价可提交人工询盘。','Rail terminal-to-terminal rates are the default. Change the service scope for pickup or delivery; request a manual quote when no rate is published.')}</p>
+  <p className="mt-2 text-sm text-slate-500">{t('先选择整柜或拼箱，再选择有价格的目的站；其他线路仍可人工询盘。','Choose FCL or LCL first, then search priced destinations. Other routes can still request a manual quote.')}</p>
   <form onSubmit={calculate} className="mt-5 space-y-4">
-   <fieldset disabled={sending} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    {fields('pol',t('起始地','Origin'),{required:true,placeholder:t('例如：上海','e.g. Shanghai')})}
-    {fields('pod',t('目的地','Destination'),{required:true,placeholder:t('例如：汉堡','e.g. Hamburg')})}
-    <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('运输方式','Shipment')}</span><select className={inputClass} value={form.containerType} onChange={e=>change('containerType',e.target.value)}><option value="FCL">{t('铁路整箱','Rail FCL')}</option><option value="LCL">{t('铁路拼箱','Rail LCL')}</option></select></label>
+   <fieldset disabled={sending} className="grid grid-cols-2 gap-2" aria-label={t('选择运输方式','Choose shipment type')}>
+    {[
+      {id:'FCL',cn:'整柜 FCL',en:'Full Container · FCL',hintCn:'按箱型 / 箱量报价',hintEn:'Container & quantity'},
+      {id:'LCL',cn:'拼箱 LCL',en:'Less than Container · LCL',hintCn:'按体积 / 毛重报价',hintEn:'Volume & weight'}
+    ].map(mode=><button key={mode.id} type="button" onClick={()=>change('containerType',mode.id)}
+      aria-pressed={form.containerType===mode.id}
+      className={`rounded-xl border px-4 py-3 text-left transition-colors ${form.containerType===mode.id?'border-blue-600 bg-blue-50 text-blue-950 ring-1 ring-blue-600':'border-slate-200 bg-white text-slate-600 hover:border-blue-300'}`}>
+      <span className="block text-sm font-bold">{zh?mode.cn:mode.en}</span>
+      <span className="mt-1 block text-xs opacity-70">{zh?mode.hintCn:mode.hintEn}</span>
+     </button>)}
+   </fieldset>
+   <fieldset disabled={sending} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
     <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('服务范围','Service scope')}</span><select className={inputClass} value={form.serviceScope} onChange={e=>change('serviceScope',e.target.value)}>{Object.entries(scopes).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
-    {form.containerType==='LCL'&&<>{fields('volume',t('体积（CBM，选填）','Volume (CBM, optional)'),{type:'number',min:'0.001',step:'any'})}{fields('weight',t('毛重（KG，选填）','Weight (KG, optional)'),{type:'number',min:'0.001',step:'any'})}</>}
+    {fields('pol',t('起运地 / 提货城市','Origin / Pickup city'),{required:true,placeholder:t('例如：太仓 / 上海','e.g. Taicang / Shanghai')})}
+    <label className="grid gap-1.5 text-sm font-medium text-slate-700">
+      <span>{t('目的地 / 目的站','Destination / Terminal')}</span>
+      <input className={inputClass} list="eurasiago-pricing-destinations" required value={form.pod}
+        onChange={e=>change('pod',e.target.value)} placeholder={t('搜索或选择有价格的站点','Search priced destinations or type another')}/>
+      <datalist id="eurasiago-pricing-destinations">
+       {pricedStops.map(stop=><option key={stop} value={stop}/>)}
+      </datalist>
+      <span className="text-xs font-normal text-slate-500" aria-live="polite">
+       {destinationsLoading?t('正在读取价格站点…','Loading priced destinations…'):destinationsError?t('站点列表暂不可用，可手动填写','Station list unavailable; type a destination'):pricedForSelected?t('该目的站有参考价，仍需匹配起运地和箱型','Reference rates exist; origin and equipment must also match'):t(`当前${form.containerType==='FCL'?'整柜':'拼箱'}可选 ${pricedStops.length} 个有价目的站，也可手动输入其他站点`,`${pricedStops.length} priced destinations available; other destinations may be typed manually`)}
+      </span>
+    </label>
+    {form.containerType==='FCL'?
+      <><label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('箱型','Container size')}</span><select className={inputClass} value={form.containerSize} onChange={e=>change('containerSize',e.target.value)}><option value="">{t('自动匹配箱型','Auto match size')}</option>{['40HQ','40GP','20GP','45HQ'].map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+      <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('用箱方式','SOC / COC')}</span><select className={inputClass} value={form.equipment} onChange={e=>change('equipment',e.target.value)}><option value="">{t('自动匹配','Auto match')}</option><option value="SOC">SOC</option><option value="COC">COC</option></select></label>
+      {fields('quantity',t('箱量（默认1箱）','Quantity (default 1)'),{type:'number',min:1,step:1})}</>:
+      <>{fields('volume',t('货物体积 CBM','Volume · CBM'),{type:'number',min:'0.001',step:'any'})}{fields('weight',t('毛重 KG','Gross weight · KG'),{type:'number',min:'0.001',step:'any'})}</>}
    </fieldset>
    <details className="rounded-xl bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm text-slate-600">{t('更多信息（选填）','More details (optional)')}</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
-    {form.containerType==='FCL'&&<><label className="grid gap-1.5 text-sm"><span>{t('箱型','Container')}</span><select className={inputClass} value={form.containerSize} onChange={e=>change('containerSize',e.target.value)}><option value="">{t('自动匹配','Auto match')}</option>{['40HQ','40GP','20GP','45HQ'].map(value=><option key={value}>{value}</option>)}</select></label><label className="grid gap-1.5 text-sm"><span>{t('用箱方式','Container ownership')}</span><select className={inputClass} value={form.equipment} onChange={e=>change('equipment',e.target.value)}><option value="">{t('自动匹配','Auto match')}</option><option value="SOC">SOC</option><option value="COC">COC</option></select></label>{fields('quantity',t('箱量（默认 1 箱）','Quantity (default 1)'),{type:'number',min:1,step:1})}</>}
+    
     {fields('cargo',t('货物名称','Cargo'))}{fields('notes',t('补充要求','Additional requirements'))}
     {form.containerType==='LCL'&&<><label className="grid gap-1.5 text-sm"><span>{t('货物类型 / 特殊要求','Cargo classification')}</span><select className={inputClass} value={form.cargoRisk} onChange={e=>change('cargoRisk',e.target.value)}>
       <option value="unspecified">{t('未确认（按普通货参考）','Unspecified (general cargo reference)')}</option>
