@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
+import {checkLclCargoRestrictions,lclTermsZh,lclTermsEn} from '../src/lib/lclQuoteRestrictions.js';
 import { estimatePublishedQuote, estimateDomesticRailLcl, estimateLocalStationLcl, estimateCityCentrePickupDistance, nearbyReceivingWarehouseCandidates } from '../src/lib/publicQuotePricing.js';
 
 const rows = [{id:'sale',status:'active',origin:'上海',destination:'汉堡',transport:'lcl',service_scope:'station',currency:'USD',unit_price_low:100,unit_price_high:120,minimum_charge:300,ratio:500,valid_until:'2026-11-30',public_note:'Indicative'}];
@@ -137,3 +138,23 @@ const shanghaiLocal=nearbyReceivingWarehouseCandidates('上海');
 assert.equal(shanghaiLocal[0].warehouseCity,'上海');
 assert.equal(shanghaiLocal[0].estimatedRoadKm,0);
 console.log('Pickup city -> local receiving warehouse -> separately priced rail hub routing checks passed.');
+
+assert.equal(lclTermsZh.length,7);
+assert.equal(lclTermsEn.length,7);
+const normal=checkLclCargoRestrictions({containerType:'LCL',volume:25,weight:7000,pieceLength:3,pieceWidth:1.5,pieceHeight:1.5,pieceWeight:3000,cargoRisk:'general'});
+assert.equal(normal.manualRequired,false);
+assert.equal(checkLclCargoRestrictions({containerType:'LCL',volume:25.01,weight:1000}).manualRequired,true);
+assert.equal(checkLclCargoRestrictions({containerType:'LCL',volume:8,weight:7001}).reasons[0],'bulkShipment');
+for(const key of ['pieceLength','pieceWidth','pieceHeight','pieceWeight']){
+ const cap=key==='pieceLength'?3:key==='pieceWeight'?3000:1.5;
+ assert.equal(checkLclCargoRestrictions({containerType:'LCL',[key]:cap+0.01}).reasons[0],'oversizePiece');
+}
+assert.equal(checkLclCargoRestrictions({containerType:'LCL',cargoRisk:'restricted'}).reasons[0],'excludedCargo');
+assert.equal(checkLclCargoRestrictions({containerType:'LCL',cargoRisk:'special'}).reasons[0],'specialCargo');
+assert.equal(checkLclCargoRestrictions({containerType:'FCL',volume:30,cargoRisk:'restricted'}).manualRequired,false);
+const quoteUi=readFileSync(new URL('../src/components/PublicQuoteFlow.jsx',import.meta.url),'utf8');
+assert.match(quoteUi,/restrictions.manualRequired/);
+assert.match(quoteUi,/lclTermsZh/);
+assert.match(quoteUi,/cargoRisk/);
+assert.match(quoteUi,/pieceLength/);
+console.log('LCL acceptance restriction thresholds, UI gating and seven terms verified.');
