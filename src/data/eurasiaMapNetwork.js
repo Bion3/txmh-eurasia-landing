@@ -55,4 +55,4 @@ const routes = [
 ];
 
 
-export { hubs, routes };
+
