@@ -112,7 +112,7 @@ assert.match(apiCode,/nearbyReceivingWarehouseCandidates\(form.pol\)/);
 assert.match(apiCode,/p_origin:distance.warehouseCity/);
 assert.match(apiCode,/combined.receivingWarehouseCity=distance.warehouseCity/);
 assert.doesNotMatch(apiCode,/estimateCityCentrePickupDistance\(form.pol,combined.consolidationStation\)/);
-assert.match(apiCode,/distance.status==='likely_within'/);
+assert.match(readFileSync(new URL('../src/lib/publicQuotePricing.js',import.meta.url),'utf8'),/d.status==='likely_within'/);
 assert.doesNotMatch(apiCode,/form.pickupDistanceKm/);
 console.log('City-centre distance automatic pickup eligibility verified: same, nearby, far and unknown.');
 
