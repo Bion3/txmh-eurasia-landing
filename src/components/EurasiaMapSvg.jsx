@@ -1,245 +1,64 @@
-import React, { useMemo, useState } from "react";
-import mapSvg from "./Eurasia_location_map.svg";
+import React, { useEffect, useMemo, useState } from "react";
+import { hubs, routes } from "../data/eurasiaMapNetwork";
 
-// =========================
-// 1) 可维护的数据（后续可从后台读取）
-// =========================
-const hubs = [
-  { id: "xian", x: 58, y: 30, type: "origin", country: "China" },
-  { id: "zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
-  { id: "wuhan", x: 62, y: 34, type: "origin", country: "China" },
-  { id: "shenzhen", x: 64, y: 37, type: "origin", country: "China" },
-  { id: "yiwu", x: 67, y: 35, type: "origin", country: "China" },
-  { id: "alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
-  { id: "moscow", x: 30, y: 18, type: "hub", country: "Russia" },
-  { id: "mala", x: 23, y: 21, type: "hub", country: "Poland" },
-  { id: "warsaw", x: 21, y: 22, type: "hub", country: "Poland" },
-  { id: "hamburg", x: 16, y: 21, type: "hub", country: "Germany" },
-  { id: "duisburg", x: 15, y: 22, type: "hub", country: "Germany" },
-  { id: "paris", x: 13, y: 24, type: "hub", country: "France" },
-  { id: "milan", x: 17, y: 26, type: "hub", country: "Italy" },
-  { id: "budapest", x: 21, y: 24, type: "hub", country: "Hungary" },
-];
-
-const routes = [
-  {
-    id: "route-1",
-    color: "#151414",
-    duration: "18–22 days",
-    service: "Rail LCL",
-    path: "M 58,30 Q 54,27 49,25 Q 40,21 30,18 Q 26,19 23,21 T 19,21.5 T 16,21",
-    points: ["xian", "alashankou", "moscow", "mala", "warsaw", "hamburg"],
-  },
-  {
-    id: "route-2",
-    color: "#3b82f6",
-    duration: "20–25 days",
-    service: "Rail LCL",
-    path: "M 62,34 Q 55,28 49,25 Q 40,21 30,18 Q 26,19 23,21 T 16,22 T 13,24",
-    points: ["wuhan", "alashankou", "moscow", "mala", "duisburg", "paris"],
-  },
-  {
-    id: "route-3",
-    color: "#10b981",
-    duration: "22–26 days",
-    service: "Rail LCL",
-    path: "M 63,31 Q 56,29 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
-    points: ["zhengzhou", "alashankou", "moscow", "mala", "budapest", "milan"],
-  },
-];
-
-// =========================
-// 2) 工具函数：百分比坐标转真实像素
-// 你的地图底图尺寸用 viewBox 100x60 统一处理
-// =========================
-const VIEW_W = 100;
-const VIEW_H = 60;
-
-function getTypeColor(type) {
-  if (type === "origin") return "#dc2626";
-  if (type === "border") return "#f59e0b";
-  return "#2563eb";
+// Equirectangular geographic projection: every marker and boundary uses the same lon/lat transform.
+const W = 1100, H = 510;
+const WEST = -13, EAST = 136, NORTH = 65, SOUTH = 10;
+const project = ([lon, lat]) => [((lon-WEST)/(EAST-WEST))*W, ((NORTH-lat)/(NORTH-SOUTH))*H];
+const polygonPath = (rings) => rings.map(ring => ring.map((pt,i) => {
+  const [x,y]=project(pt); return (i===0?"M":"L")+x.toFixed(2)+","+y.toFixed(2);
+}).join(" ")+" Z").join(" ");
+function featurePath(feature) {
+  const g=feature.geometry;
+  if(!g) return "";
+  if(g.type==="Polygon") return polygonPath(g.coordinates);
+  if(g.type==="MultiPolygon") return g.coordinates.map(polygonPath).join(" ");
+  return "";
 }
-
-// =========================
-// 3) 城市点位组件
-// =========================
-function CityMarker({ hub, name, active, onEnter, onLeave }) {
-  const color = getTypeColor(hub.type);
-
-  return (
-    <g
-      transform={`translate(${hub.x}, ${hub.y})`}
-      onMouseEnter={(e) => onEnter?.(e, hub)}
-      onMouseLeave={onLeave}
-      style={{ cursor: "pointer" }}
-    >
-      {/* 外圈脉冲 */}
-      <circle
-        cx="0"
-        cy="0"
-        r={active ? "1.8" : "1.3"}
-        fill={color}
-        opacity="0.15"
-      />
-      {/* 主点 */}
-      <circle
-        cx="0"
-        cy="0"
-        r={active ? "0.85" : "0.65"}
-        fill={color}
-        stroke="#ffffff"
-        strokeWidth="0.25"
-      />
-      {/* 文字 */}
-      <text
-        x="1.2"
-        y="0.5"
-        fontSize="1.2"
-        fill="#0f172a"
-        className="font-semibold"
-      >
-        {name}
-      </text>
-    </g>
-  );
-}
-
-// =========================
-// 4) 主组件
-// =========================
+const colors = {feeder:"#93c5fd",main:"#2563eb",europe:"#0d9488",central:"#16a34a",westasia:"#ea580c"};
+const hubColors={origin:"#dc2626",border:"#f59e0b",hub:"#2563eb"};
+const worldUrl="https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
 export default function EurasiaMapSvg({ mapText }) {
-  const [hoveredHub, setHoveredHub] = useState(null);
-  const [hoveredRoute, setHoveredRoute] = useState(null);
-
-  const hubMap = useMemo(() => {
-    const map = {};
-    hubs.forEach((h) => {
-      map[h.id] = h;
-    });
-    return map;
-  }, []);
-
-  return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-      {/* 动画样式 */}
-      <style>{`
-        .txmh-route {
-          stroke-dasharray: 2.8 1.8;
-          animation: txmhDashMove 8s linear infinite;
-          transition: opacity 0.25s ease, stroke-width 0.25s ease;
-        }
-
-        .txmh-route-glow {
-          filter: drop-shadow(0 0 3px rgba(59,130,246,0.18));
-        }
-
-        @keyframes txmhDashMove {
-          to {
-            stroke-dashoffset: -18;
-          }
-        }
-      `}</style>
-
-      {/* 地图容器：底图 + 覆盖层 */}
-      <div className="relative w-full">
-        {/* 真实底图 */}
-        <img
-          src={mapSvg}
-          alt="Eurasia logistics map"
-          className="block w-full h-auto select-none"
-          draggable="false"
-        />
-
-        {/* 覆盖层：必须 absolute */}
-        <svg
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-          className="absolute inset-0 w-full h-full"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-        >
-          {/* 路线层 */}
-          {routes.map((route) => {
-            const isActive = hoveredRoute?.id === route.id;
-
-            return (
-              <g key={route.id}>
-                {/* 发光底层 */}
-                <path
-                  d={route.path}
-                  fill="none"
-                  stroke={route.color}
-                  strokeWidth={isActive ? "1.15" : "0.85"}
-                  opacity={isActive ? "0.2" : "0.08"}
-                  className="txmh-route-glow"
-                />
-
-                {/* 主线路 */}
-                <path
-                  d={route.path}
-                  fill="none"
-                  stroke={route.color}
-                  strokeWidth={isActive ? "0.62" : "0.48"}
-                  strokeLinecap="round"
-                  className="txmh-route"
-                  opacity={hoveredRoute && !isActive ? 0.25 : 0.95}
-                  onMouseEnter={() => setHoveredRoute(route)}
-                  onMouseLeave={() => setHoveredRoute(null)}
-                  style={{ cursor: "pointer" }}
-                />
-              </g>
-            );
-          })}
-
-          {/* 城市点位层 */}
-          {hubs.map((hub) => (
-            <CityMarker
-              key={hub.id}
-              hub={hub}
-              name={mapText.hubs[hub.id]}
-              active={hoveredHub?.id === hub.id}
-              onEnter={(e, item) => setHoveredHub(item)}
-              onLeave={() => setHoveredHub(null)}
-            />
-          ))}
-        </svg>
-      </div>
-
-  
-
-      {/* 右下角图例 */}
-      <div className="absolute bottom-3 right-3 bg-white/50 backdrop-blur-sm p-1 rounded-xl border border-slate-200 text-xs shadow-sm">
-        {routes.map((route) => (
-          <div key={route.id} className="flex items-center gap-1 font-medium text-slate-500 mb-1 last:mb-0">
-            <span
-              className="inline-block w-2 h-0.5 rounded-full"
-              style={{ backgroundColor: route.color }}
-            />
-            {mapText.routes[route.id]}
-          </div>
-        ))}
-      </div>
-
-      {/* 城市 hover 信息卡 */}
-      {hoveredHub && (
-        <div className="absolute left-4 bottom-4 md:left-6 md:bottom-6 bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-md min-w-[180px]">
-          <div className="text-sm font-semibold text-slate-900">{mapText.hubs[hoveredHub.id]}</div>
-          <div className="mt-1 text-xs text-slate-600">Type: {hoveredHub.type}</div>
-          <div className="text-xs text-slate-600">Country: {hoveredHub.country}</div>
-        </div>
-      )}
-
-      {/* 路线 hover 信息卡 */}
-      {hoveredRoute && (
-        <div className="absolute right-4 top-20 md:right-6 md:top-24 bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-md min-w-[220px]">
-          <div className="text-sm font-semibold text-slate-900">{mapText.routes[hoveredRoute.id]}</div>
-          <div className="mt-1 text-xs text-slate-600">Service: {hoveredRoute.service}</div>
-          <div className="text-xs text-slate-600">Transit: {hoveredRoute.duration}</div>
-          <div className="text-xs text-slate-600 mt-1">
-            Stops: {hoveredRoute.points.map((id) => mapText.hubs[id]).join(" → ")}
-          </div>
-        </div>
-      )}
+  const [features,setFeatures]=useState([]);
+  const [selected,setSelected]=useState(null);
+  const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
+  useEffect(()=>{
+    let live=true;
+    fetch(worldUrl).then(r=>{if(!r.ok)throw new Error("map fetch");return r.json()}).then(data=>{if(live)setFeatures(data.features||[])}).catch(()=>{});
+    return ()=>{live=false};
+  },[]);
+  const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
+  const visibleRoutes=routes.filter(r=>show[r.kind]);
+  const routePath=(route)=>route.points.map((id,i)=>{
+    const h=byId[id];if(!h)return "";
+    const [x,y]=project([h.lon,h.lat]);return (i?"L":"M")+x.toFixed(2)+","+y.toFixed(2);
+  }).join(" ");
+  return <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-[#c9eafb] shadow-sm">
+    <style>{`
+      .eurasia-flow{stroke-dasharray:8 12;animation:eurasiaFlow 7s linear infinite;stroke-linecap:round}
+      @keyframes eurasiaFlow{to{stroke-dashoffset:-80}}
+      @media(prefers-reduced-motion:reduce){.eurasia-flow{animation:none}}
+    `}</style>
+    <div className="absolute left-3 top-3 z-10 flex max-w-[90%] flex-wrap gap-1.5 rounded-xl bg-white/90 p-2 text-xs shadow-sm">
+      {Object.entries({feeder:"国内集货",main:"西向干线",europe:"欧洲",central:"中亚",westasia:"西亚"}).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
-  );
+    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
+      <rect width={W} height={H} fill="#c9eafb"/>
+      {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
+      {visibleRoutes.map(r=><g key={r.id} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} style={{cursor:"pointer"}}>
+        <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2.8" opacity=".18"/>
+        <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2" opacity=".9" className="eurasia-flow"/>
+        <path d={routePath(r)} fill="none" stroke="transparent" strokeWidth="13"/>
+      </g>)}
+      {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
+        <circle r="8" fill={hubColors[h.type]} opacity=".15"/><circle r="4.4" fill={hubColors[h.type]} stroke="white" strokeWidth="2"/>
+        <text x="8" y="-6" fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{mapText?.hubs?.[h.id]||h.label}</text>
+      </g>})}
+    </svg>
+    {!features.length&&<div className="absolute bottom-3 left-3 rounded bg-white/90 px-3 py-1 text-xs text-slate-600">正在加载矢量地理底图…</div>}
+    {selected&&<div className="absolute bottom-3 right-3 max-w-[60%] rounded-lg border border-slate-200 bg-white/95 p-3 text-xs shadow-md">
+      <button className="float-right ml-2" onClick={()=>setSelected(null)} aria-label="关闭">×</button>
+      {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div></>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
+    </div>}
+  </div>;
 }
