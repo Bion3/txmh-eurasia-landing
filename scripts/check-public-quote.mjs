@@ -159,7 +159,6 @@ assert.match(quoteUi,/cargoRisk/);
 assert.match(quoteUi,/pieceLength/);
 console.log('LCL acceptance restriction thresholds, UI gating and seven terms verified.');
 
-const quoteUi=readFileSync(new URL('../src/components/PublicQuoteFlow.jsx',import.meta.url),'utf8');
 assert.match(quoteUi,/getPricedDestinationChoices/);
 assert.match(quoteUi,/pricedDestinations\.filter\(r=>r.transport===/);
 assert.match(quoteUi,/<datalist id="eurasiago-pricing-destinations">/);
