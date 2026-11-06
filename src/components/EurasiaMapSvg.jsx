@@ -4,49 +4,7 @@ import mapSvg from "./Eurasia_location_map.svg";
 // =========================
 // 1) 可维护的数据（后续可从后台读取）
 // =========================
-const hubs = [
-  { id: "xian", x: 58, y: 30, type: "origin", country: "China" },
-  { id: "zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
-  { id: "wuhan", x: 62, y: 34, type: "origin", country: "China" },
-  { id: "shenzhen", x: 64, y: 37, type: "origin", country: "China" },
-  { id: "yiwu", x: 67, y: 35, type: "origin", country: "China" },
-  { id: "alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
-  { id: "moscow", x: 30, y: 18, type: "hub", country: "Russia" },
-  { id: "mala", x: 23, y: 21, type: "hub", country: "Poland" },
-  { id: "warsaw", x: 21, y: 22, type: "hub", country: "Poland" },
-  { id: "hamburg", x: 16, y: 21, type: "hub", country: "Germany" },
-  { id: "duisburg", x: 15, y: 22, type: "hub", country: "Germany" },
-  { id: "paris", x: 13, y: 24, type: "hub", country: "France" },
-  { id: "milan", x: 17, y: 26, type: "hub", country: "Italy" },
-  { id: "budapest", x: 21, y: 24, type: "hub", country: "Hungary" },
-];
-
-const routes = [
-  {
-    id: "route-1",
-    color: "#151414",
-    duration: "18–22 days",
-    service: "Rail LCL",
-    path: "M 58,30 Q 54,27 49,25 Q 40,21 30,18 Q 26,19 23,21 T 19,21.5 T 16,21",
-    points: ["xian", "alashankou", "moscow", "mala", "warsaw", "hamburg"],
-  },
-  {
-    id: "route-2",
-    color: "#3b82f6",
-    duration: "20–25 days",
-    service: "Rail LCL",
-    path: "M 62,34 Q 55,28 49,25 Q 40,21 30,18 Q 26,19 23,21 T 16,22 T 13,24",
-    points: ["wuhan", "alashankou", "moscow", "mala", "duisburg", "paris"],
-  },
-  {
-    id: "route-3",
-    color: "#10b981",
-    duration: "22–26 days",
-    service: "Rail LCL",
-    path: "M 63,31 Q 56,29 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
-    points: ["zhengzhou", "alashankou", "moscow", "mala", "budapest", "milan"],
-  },
-];
+import { hubs, routes } from "../data/eurasiaMapNetwork";
 
 // =========================
 // 2) 工具函数：百分比坐标转真实像素
@@ -196,7 +154,7 @@ export default function EurasiaMapSvg({ mapText }) {
             <CityMarker
               key={hub.id}
               hub={hub}
-              name={mapText.hubs[hub.id]}
+              name={hub.label || mapText.hubs[hub.id] || hub.id}
               active={hoveredHub?.id === hub.id}
               onEnter={(e, item) => setHoveredHub(item)}
               onLeave={() => setHoveredHub(null)}
@@ -215,7 +173,7 @@ export default function EurasiaMapSvg({ mapText }) {
               className="inline-block w-2 h-0.5 rounded-full"
               style={{ backgroundColor: route.color }}
             />
-            {mapText.routes[route.id]}
+            {route.label || mapText.routes[route.id] || route.id}
           </div>
         ))}
       </div>
@@ -223,7 +181,7 @@ export default function EurasiaMapSvg({ mapText }) {
       {/* 城市 hover 信息卡 */}
       {hoveredHub && (
         <div className="absolute left-4 bottom-4 md:left-6 md:bottom-6 bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-md min-w-[180px]">
-          <div className="text-sm font-semibold text-slate-900">{mapText.hubs[hoveredHub.id]}</div>
+          <div className="text-sm font-semibold text-slate-900">{hoveredHub.label || mapText.hubs[hoveredHub.id] || hoveredHub.id}</div>
           <div className="mt-1 text-xs text-slate-600">Type: {hoveredHub.type}</div>
           <div className="text-xs text-slate-600">Country: {hoveredHub.country}</div>
         </div>
@@ -232,11 +190,11 @@ export default function EurasiaMapSvg({ mapText }) {
       {/* 路线 hover 信息卡 */}
       {hoveredRoute && (
         <div className="absolute right-4 top-20 md:right-6 md:top-24 bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 px-4 py-3 shadow-md min-w-[220px]">
-          <div className="text-sm font-semibold text-slate-900">{mapText.routes[hoveredRoute.id]}</div>
+          <div className="text-sm font-semibold text-slate-900">{hoveredRoute.label || mapText.routes[hoveredRoute.id] || hoveredRoute.id}</div>
           <div className="mt-1 text-xs text-slate-600">Service: {hoveredRoute.service}</div>
           <div className="text-xs text-slate-600">Transit: {hoveredRoute.duration}</div>
           <div className="text-xs text-slate-600 mt-1">
-            Stops: {hoveredRoute.points.map((id) => mapText.hubs[id]).join(" → ")}
+            Stops: {hoveredRoute.points.map((id) => (hubMap[id]?.label || mapText.hubs[id] || id)).join(" → ")}
           </div>
         </div>
       )}
