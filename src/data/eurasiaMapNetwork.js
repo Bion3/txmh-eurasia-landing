@@ -1,63 +1,37 @@
-// Editable preview network data. Coordinates are schematic on the current SVG, not GIS coordinates.
-// Replace with verified geometry and CMS records before publishing operational claims.
+// Geographic coordinates (longitude, latitude), WGS84. Schematic corridors, not verified rail track geometry.
 export const hubs = [
-  { id: "xian", x: 58, y: 30, type: "origin", country: "China" },
-  { id: "zhengzhou", x: 63, y: 31, type: "origin", country: "China" },
-  { id: "wuhan", x: 62, y: 34, type: "origin", country: "China" },
-  { id: "shenzhen", x: 64, y: 37, type: "origin", country: "China" },
-  { id: "yiwu", x: 67, y: 35, type: "origin", country: "China" },
-  { id: "alashankou", x: 49, y: 25, type: "border", country: "China / Kazakhstan" },
-  { id: "almaty", x: 46.5, y: 29, type: "hub", country: "Kazakhstan", label: "阿拉木图 / Almaty" },
-  { id: "tashkent", x: 43.5, y: 32.8, type: "hub", country: "Uzbekistan", label: "塔什干 / Tashkent" },
-  { id: "baku", x: 34.5, y: 32.8, type: "hub", country: "Azerbaijan", label: "巴库 / Baku" },
-  { id: "tehran", x: 35.5, y: 38.5, type: "hub", country: "Iran", label: "德黑兰 / Tehran" },
-  { id: "istanbul", x: 26, y: 31.5, type: "hub", country: "Türkiye", label: "伊斯坦布尔 / Istanbul" },
-  { id: "moscow", x: 30, y: 18, type: "hub", country: "Russia" },
-  { id: "mala", x: 23, y: 21, type: "hub", country: "Poland" },
-  { id: "warsaw", x: 21, y: 22, type: "hub", country: "Poland" },
-  { id: "hamburg", x: 16, y: 21, type: "hub", country: "Germany" },
-  { id: "duisburg", x: 15, y: 22, type: "hub", country: "Germany" },
-  { id: "paris", x: 13, y: 24, type: "hub", country: "France" },
-  { id: "milan", x: 17, y: 26, type: "hub", country: "Italy" },
-  { id: "budapest", x: 21, y: 24, type: "hub", country: "Hungary" },
-];
+  ["xian","西安",108.94,34.34,"origin"],["zhengzhou","郑州",113.63,34.75,"origin"],["wuhan","武汉",114.31,30.59,"origin"],
+  ["yiwu","义乌",120.08,29.31,"origin"],["shenzhen","深圳",114.06,22.54,"origin"],
+  ["alashankou","阿拉山口",82.56,45.17,"border"],["khorgos","霍尔果斯",80.42,44.21,"border"],
+  ["almaty","阿拉木图",76.95,43.24,"hub"],["tashkent","塔什干",69.24,41.31,"hub"],
+  ["aktau","阿克套",51.17,43.65,"hub"],["baku","巴库",49.87,40.41,"hub"],
+  ["tehran","德黑兰",51.39,35.69,"hub"],["istanbul","伊斯坦布尔",28.98,41.01,"hub"],
+  ["moscow","莫斯科",37.62,55.75,"hub"],["mala","马拉舍维奇",23.05,52.03,"hub"],
+  ["warsaw","华沙",21.01,52.23,"hub"],["hamburg","汉堡",9.99,53.55,"hub"],
+  ["duisburg","杜伊斯堡",6.76,51.43,"hub"],["paris","巴黎",2.35,48.86,"hub"],
+  ["milan","米兰",9.19,45.46,"hub"],["budapest","布达佩斯",19.04,47.50,"hub"]
+].map(([id,label,lon,lat,type])=>({id,label,lon,lat,type}));
 
+// Route segments are shared, preventing overlapping animated lines on common trunks.
+// Each segment can later be managed in CRM with status, geometry and publish flag.
 export const routes = [
-  // Domestic feeder lines converge toward the westbound gateway.
-  { id: "feeder-zhengzhou", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 63,31 Q 60,30 58,30 Q 53,27 49,25", points: ["zhengzhou","xian","alashankou"], label: "郑州—西向集结通道" },
-  { id: "feeder-wuhan", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 62,34 Q 60,32 58,30 Q 53,27 49,25", points: ["wuhan","xian","alashankou"], label: "武汉—西向集结通道" },
-  { id: "feeder-yiwu", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 67,35 Q 63,33 58,30 Q 53,27 49,25", points: ["yiwu","xian","alashankou"], label: "义乌—西向集结通道" },
-  { id: "feeder-shenzhen", color: "#93c5fd", duration: "Indicative", service: "Domestic feeder", path: "M 64,37 Q 60,34 58,30 Q 53,27 49,25", points: ["shenzhen","xian","alashankou"], label: "深圳—西向集结通道" },
-  {
-    id: "route-1",
-    color: "#151414",
-    duration: "18–22 days",
-    service: "Rail LCL",
-    path: "M 58,30 Q 54,27 49,25 Q 40,21 30,18 Q 26,19 23,21 T 19,21.5 T 16,21",
-    points: ["xian", "alashankou", "moscow", "mala", "warsaw", "hamburg"],
-  },
-  {
-    id: "route-2",
-    color: "#3b82f6",
-    duration: "20–25 days",
-    service: "Rail LCL",
-    path: "M 49,25 Q 40,21 30,18 Q 26,19 23,21 T 16,22 T 13,24",
-    points: ["wuhan", "alashankou", "moscow", "mala", "duisburg", "paris"],
-  },
-  {
-    id: "route-3",
-    color: "#10b981",
-    duration: "22–26 days",
-    service: "Rail LCL",
-    path: "M 49,25 Q 40,21 30,18 Q 26,19 23,21 T 21,24 T 17,26",
-    points: ["zhengzhou", "alashankou", "moscow", "mala", "budapest", "milan"],
-  },
-  { id: "central-asia-almaty", color: "#e8792e", duration: "Subject to confirmation", service: "Indicative corridor", path: "M 58,30 Q 53,27 49,25 Q 47,27 46.5,29", points: ["xian","alashankou","almaty"], label: "中国—阿拉木图（示意）" },
-  { id: "central-asia-tashkent", color: "#d97706", duration: "Subject to confirmation", service: "Indicative corridor", path: "M 58,30 Q 53,27 49,25 Q 47,29 43.5,32.8", points: ["xian","alashankou","tashkent"], label: "中国—塔什干（示意）" },
-  { id: "caspian-baku", color: "#8b5cf6", duration: "Subject to confirmation", service: "Indicative multimodal corridor", path: "M 49,25 Q 47,29 43.5,32.8 Q 39,34 34.5,32.8", points: ["alashankou","tashkent","baku"], label: "中亚—巴库（示意）" },
-  { id: "iran-tehran", color: "#db2777", duration: "Subject to confirmation", service: "Indicative multimodal corridor", path: "M 43.5,32.8 Q 39,36 35.5,38.5", points: ["tashkent","tehran"], label: "中亚—德黑兰（示意）" },
-  { id: "turkiye-istanbul", color: "#0891b2", duration: "Subject to confirmation", service: "Indicative multimodal corridor", path: "M 34.5,32.8 Q 30,32 26,31.5", points: ["baku","istanbul"], label: "巴库—伊斯坦布尔（示意）" }
+  {id:"f-zhengzhou",points:["zhengzhou","xian"],kind:"feeder"},
+  {id:"f-wuhan",points:["wuhan","xian"],kind:"feeder"},
+  {id:"f-yiwu",points:["yiwu","xian"],kind:"feeder"},
+  {id:"f-shenzhen",points:["shenzhen","xian"],kind:"feeder"},
+  {id:"trunk-west",points:["xian","alashankou"],kind:"main"},
+  {id:"trunk-khorgos",points:["xian","khorgos"],kind:"main"},
+  {id:"central-almaty",points:["khorgos","almaty"],kind:"central"},
+  {id:"central-tashkent",points:["almaty","tashkent"],kind:"central"},
+  {id:"europe-moscow",points:["alashankou","moscow"],kind:"europe"},
+  {id:"europe-mala",points:["moscow","mala"],kind:"europe"},
+  {id:"europe-hamburg",points:["mala","hamburg"],kind:"europe"},
+  {id:"europe-duisburg",points:["mala","duisburg"],kind:"europe"},
+  {id:"europe-paris",points:["duisburg","paris"],kind:"europe"},
+  {id:"europe-budapest",points:["mala","budapest"],kind:"europe"},
+  {id:"europe-milan",points:["budapest","milan"],kind:"europe"},
+  {id:"caspian-aktau",points:["tashkent","aktau"],kind:"westasia"},
+  {id:"caspian-baku",points:["aktau","baku"],kind:"westasia",mode:"multimodal"},
+  {id:"iran-tehran",points:["tashkent","tehran"],kind:"westasia"},
+  {id:"turkiye-istanbul",points:["baku","istanbul"],kind:"westasia"}
 ];
-
-
-
