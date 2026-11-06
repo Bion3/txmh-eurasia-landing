@@ -58,3 +58,13 @@ export async function getPublicQuoteEstimate(form) {
   return estimatePublishedQuote(form,indicative.data||[]);
  });
 }
+
+/** Public station choices contain only route labels, never procurement cost data. */
+export async function getPricedDestinationChoices() {
+ if(!isSupabaseConfigured||!supabase) return [];
+ return withRequestDeadline(async signal=>{
+  const {data,error}=await supabase.rpc('freight_website_quote_destinations').abortSignal(signal);
+  if(error)throw error;
+  return Array.isArray(data)?data:[];
+ });
+}
