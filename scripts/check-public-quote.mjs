@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-import { estimatePublishedQuote, estimateDomesticRailLcl, estimateLocalStationLcl, estimateCityCentrePickupDistance } from '../src/lib/publicQuotePricing.js';
+import { estimatePublishedQuote, estimateDomesticRailLcl, estimateLocalStationLcl, estimateCityCentrePickupDistance, nearbyReceivingWarehouseCandidates } from '../src/lib/publicQuotePricing.js';
 
 const rows = [{id:'sale',status:'active',origin:'上海',destination:'汉堡',transport:'lcl',service_scope:'station',currency:'USD',unit_price_low:100,unit_price_high:120,minimum_charge:300,ratio:500,valid_until:'2026-11-30',public_note:'Indicative'}];
 const result = estimatePublishedQuote({containerType:'LCL',pol:'Shanghai',pod:'Hamburg',volume:'5',weight:'1000'}, rows);
@@ -108,7 +108,32 @@ assert.equal(local.low,1900);
 assert.equal(local.pickupDistance.status,'likely_within');
 assert.equal(estimateLocalStationLcl({containerType:'LCL',serviceScope:'door_to_station',pol:'Shanghai',pod:'Hamburg',volume:'8',weight:'5000'},confirmedLcl),null);
 const apiCode=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url),'utf8');
-assert.match(apiCode,/estimateCityCentrePickupDistance\(form.pol,combined.consolidationStation\)/);
+assert.match(apiCode,/nearbyReceivingWarehouseCandidates\(form.pol\)/);
+assert.match(apiCode,/p_origin:distance.warehouseCity/);
+assert.match(apiCode,/combined.receivingWarehouseCity=distance.warehouseCity/);
+assert.doesNotMatch(apiCode,/estimateCityCentrePickupDistance\(form.pol,combined.consolidationStation\)/);
 assert.match(apiCode,/distance.status==='likely_within'/);
 assert.doesNotMatch(apiCode,/form.pickupDistanceKm/);
 console.log('City-centre distance automatic pickup eligibility verified: same, nearby, far and unknown.');
+
+const taicang=nearbyReceivingWarehouseCandidates('太仓');
+assert.ok(taicang.length>0);
+assert.equal(taicang[0].originCity,'太仓');
+assert.equal(taicang[0].warehouseCity,'上海');
+assert.equal(taicang[0].status,'likely_within');
+assert.ok(taicang[0].estimatedRoadKm>0&&taicang[0].estimatedRoadKm<=80);
+assert.equal(taicang.some(d=>d.warehouseCity==='西安'),false);
+const taicangRail=estimateDomesticRailLcl(
+ {containerType:'LCL',serviceScope:'door_to_station',pol:taicang[0].warehouseCity,pod:'Hamburg',volume:'8',weight:'5000'},
+ confirmedLcl,[{station:'西安',amount_usd:322.14,valid_until:'2026-11-30'}]);
+assert.equal(taicangRail.domesticLinehaul,322.14);
+assert.equal(taicangRail.receivingWarehouseCity,'上海');
+assert.equal(taicangRail.consolidationStation,'西安');
+assert.equal(taicangRail.low,2222.14);
+assert.equal(estimateCityCentrePickupDistance('上海','西安').status,'outside');
+// Distance to the distant loading station must not suppress pickup when a local
+// receiving warehouse is available; the two legs have distinct pricing rules.
+const shanghaiLocal=nearbyReceivingWarehouseCandidates('上海');
+assert.equal(shanghaiLocal[0].warehouseCity,'上海');
+assert.equal(shanghaiLocal[0].estimatedRoadKm,0);
+console.log('Pickup city -> local receiving warehouse -> separately priced rail hub routing checks passed.');
