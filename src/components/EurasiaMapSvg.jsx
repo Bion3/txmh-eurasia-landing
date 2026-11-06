@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { hubs, routes } from "../data/eurasiaMapNetwork";
+import { costStationCounts, costSnapshotDate } from "../data/costStationSnapshot";
 
 // Equirectangular geographic projection: every marker and boundary uses the same lon/lat transform.
 const W = 1100, H = 510;
@@ -24,6 +25,7 @@ export default function EurasiaMapSvg({ mapText }) {
   const [mapError,setMapError]=useState(false);
   const [selected,setSelected]=useState(null);
   const [showAllStations,setShowAllStations]=useState(false);
+  const [costFilter,setCostFilter]=useState("all");
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
     let live=true;
@@ -32,6 +34,7 @@ export default function EurasiaMapSvg({ mapText }) {
   },[]);
   const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
   const visibleRoutes=routes.filter(r=>show[r.kind]);
+  const visibleHubs=hubs.filter(h=>costFilter==="all"||(costFilter==="confirmed"?costStationCounts[h.id]?.[0]>0:!costStationCounts[h.id]?.[0]));
   const jumpTo=(lon)=>{const el=mapScrollRef.current;if(!el)return;const width=el.scrollWidth;const target=((lon-WEST)/(EAST-WEST))*width-el.clientWidth/2;el.scrollTo({left:Math.max(0,target),behavior:"smooth"});};
   const routePath=(route)=>{
     const start=byId[route.points[0]],end=byId[route.points[route.points.length-1]];
@@ -51,6 +54,7 @@ export default function EurasiaMapSvg({ mapText }) {
       {Object.entries({feeder:"国内集货",main:"西向干线",europe:"欧洲",central:"中亚",westasia:"西亚"}).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
     <div className="flex items-center justify-between gap-2 bg-white/90 px-3 py-2 text-xs"><span className="text-slate-600">站点与成本中心目的站对应 · 线路仅作示意</span><label className="flex shrink-0 items-center gap-1"><input type="checkbox" checked={showAllStations} onChange={e=>setShowAllStations(e.target.checked)}/>显示全部站名</label></div>
+    <div className="flex flex-wrap items-center gap-2 bg-white/90 px-3 py-2 text-xs"><span className="text-slate-500">成本记录快照（{costSnapshotDate}）</span><select aria-label="筛选成本记录" value={costFilter} onChange={e=>setCostFilter(e.target.value)} className="rounded border border-slate-200 bg-white px-2 py-1"><option value="all">全部站点</option><option value="confirmed">有已确认成本记录</option><option value="missing">无已确认成本记录</option></select><span className="text-slate-500">● 蓝：有已确认记录 · 灰：无已确认记录；不代表报价有效</span></div>
     <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-200 bg-white/90 px-3 py-2 text-xs md:hidden"><span className="shrink-0 text-slate-500">快速定位</span>{[["欧洲",18],["西亚",49],["中亚",70],["中国",108]].map(([label,lon])=><button key={label} type="button" onClick={()=>jumpTo(lon)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700">{label}</button>)}</div>
     <div ref={mapScrollRef} className="overflow-x-auto overscroll-x-contain touch-pan-x" aria-label="地图可左右滑动查看"><svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-[1100px] max-w-none md:w-full" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
       <rect width={W} height={H} fill="#c9eafb"/>
@@ -60,8 +64,8 @@ export default function EurasiaMapSvg({ mapText }) {
         <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2" opacity=".9" className="eurasia-flow" strokeDasharray={r.mode==="multimodal"?"3 7":undefined}/>
         <path d={routePath(r)} fill="none" stroke="transparent" strokeWidth="13"/>
       </g>)}
-      {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);const isAdditional = !["xian","zhengzhou","wuhan","yiwu","shenzhen","alashankou","khorgos","almaty","tashkent","aktau","baku","tehran","istanbul","moscow","mala","warsaw","hamburg","duisburg","paris","milan","budapest"].includes(h.id);const compact = ["hamburg","duisburg","warsaw","mala","budapest","milan","paris"].includes(h.id);const dx=compact?(h.id==="hamburg"||h.id==="warsaw"?-8:8):8;const dy=compact?(h.id==="duisburg"||h.id==="milan"?15:-9):-6;return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
-        <circle r="8" fill={hubColors[h.type]} opacity=".15"/><circle r="4.4" fill={hubColors[h.type]} stroke="white" strokeWidth="2"/>
+      {visibleHubs.map(h=>{const [x,y]=project([h.lon,h.lat]);const isAdditional = !["xian","zhengzhou","wuhan","yiwu","shenzhen","alashankou","khorgos","almaty","tashkent","aktau","baku","tehran","istanbul","moscow","mala","warsaw","hamburg","duisburg","paris","milan","budapest"].includes(h.id);const compact = ["hamburg","duisburg","warsaw","mala","budapest","milan","paris"].includes(h.id);const dx=compact?(h.id==="hamburg"||h.id==="warsaw"?-8:8):8;const dy=compact?(h.id==="duisburg"||h.id==="milan"?15:-9):-6;return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
+        <circle r="8" fill={costStationCounts[h.id]?.[0]>0?"#2563eb":"#94a3b8"} opacity=".18"/><circle r="4.4" fill={costStationCounts[h.id]?.[0]>0?"#2563eb":"#94a3b8"} stroke="white" strokeWidth="2"/>
         <text className={`eurasia-map-label ${showAllStations||selected?.type==="hub"&&selected.value.id===h.id?"active":""}`} style={{display:!showAllStations&&isAdditional&&selected?.value?.id!==h.id?"none":undefined}} x={dx} y={dy} textAnchor={dx<0?"end":"start"} fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{mapText?.hubs?.[h.id]||h.label}</text>
       </g>})}
     </svg></div>
@@ -69,7 +73,7 @@ export default function EurasiaMapSvg({ mapText }) {
     {!features.length&&<div className="bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?"地图底图加载失败，请刷新重试":"正在加载矢量地理底图…"}</div>}
     {selected&&<div className="border-t border-slate-200 bg-white/95 p-3 text-xs">
       <button className="float-right ml-2" onClick={()=>setSelected(null)} aria-label="关闭">×</button>
-      {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>{selected.value.type==="border"?"口岸 / 换装节点":"铁路站点 / 城市节点"} · 地图不代表当前可售报价</div><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div></>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
+      {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>{selected.value.type==="border"?"口岸 / 换装节点":"铁路站点 / 城市节点"} · 地图不代表当前可售报价</div><div>{costStationCounts[selected.value.id]?.[0]>0?`已确认成本记录 ${costStationCounts[selected.value.id][0]} 条 · 草稿 ${costStationCounts[selected.value.id][1]} 条`:"暂无对应的已确认成本记录"}（${costSnapshotDate} 快照，未校验有效期、箱型和起运站）</div><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div></>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
     </div>}
   </div>;
 }
