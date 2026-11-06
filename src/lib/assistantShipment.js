@@ -1,5 +1,5 @@
 const origins=[['上海','shanghai'],['宁波','ningbo'],['西安',"xi'an",'xian'],['成都','chengdu'],['重庆','chongqing'],['郑州','zhengzhou'],['武汉','wuhan'],['深圳','shenzhen'],['义乌','yiwu'],['苏州','suzhou'],['南京','nanjing'],['太仓','taicang'],['杭州','hangzhou']];
-const destinations=[['汉堡','hamburg'],['杜伊斯堡','duisburg'],['华沙','warsaw'],['布拉格','prague'],['布达佩斯','budapest'],['米兰','milan'],['巴黎','paris'],['莫斯科','moscow'],['圣彼得堡','saint petersburg','st petersburg'],['叶卡捷琳堡','yekaterinburg'],['明斯克','minsk'],['德黑兰','tehran'],['阿拉木图','almaty'],['塔什干','tashkent'],['伦敦','london']];
+const destinations=[['汉堡','hamburg'],['杜伊斯堡','duisburg','杜堡'],['华沙','warsaw'],['布拉格','prague'],['布达佩斯','budapest','布达'],['米兰','milan'],['巴黎','paris'],['莫斯科','moscow'],['圣彼得堡','saint petersburg','st petersburg'],['叶卡捷琳堡','yekaterinburg','叶卡'],['明斯克','minsk'],['德黑兰','tehran'],['阿拉木图','almaty'],['塔什干','tashkent'],['伦敦','london']];
 function city(text,groups){return groups.flatMap(names=>names.map(name=>({name:names[0],index:text.lastIndexOf(name)}))).filter(x=>x.index>=0).sort((a,b)=>b.index-a.index)[0]?.name;}
 export function extractShipment(message,previous={}){
  const text=String(message).toLowerCase(), next={containerType:'FCL',serviceScope:'door_to_station',...previous};
