@@ -37,7 +37,7 @@ export default function EurasiaMapSvg({ mapText }) {
       const [x,y]=project(point);return (i?"L":"M")+x.toFixed(2)+","+y.toFixed(2);
     }).join(" ");
   };
-  return <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-[#c9eafb] shadow-sm">
+  return <div className="relative overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200 bg-[#c9eafb] shadow-sm">
     <style>{`
       .eurasia-flow{stroke-dasharray:8 12;animation:eurasiaFlow 7s linear infinite;stroke-linecap:round}
       @keyframes eurasiaFlow{to{stroke-dashoffset:-80}}
@@ -46,7 +46,7 @@ export default function EurasiaMapSvg({ mapText }) {
     <div className="absolute left-3 top-3 z-10 flex max-w-[90%] flex-wrap gap-1.5 rounded-xl bg-white/90 p-2 text-xs shadow-sm">
       {Object.entries({feeder:"国内集货",main:"西向干线",europe:"欧洲",central:"中亚",westasia:"西亚"}).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
-    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
+    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full min-w-[760px] md:min-w-0" role="img" aria-label="欧亚铁路线路地理坐标示意地图">
       <rect width={W} height={H} fill="#c9eafb"/>
       {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
       {visibleRoutes.map(r=><g key={r.id} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} style={{cursor:"pointer"}}>
