@@ -39,7 +39,7 @@ export default function PublicQuoteFlow({locale='en'}) {
   if(Object.keys(values).length)setForm(old=>({...old,...values}));
   revision.current++;setStatus('idle');setEstimate(null);setContactOpen(false);
  },[location.search]);
- function change(key,value){setForm(old=>({...old,[key]:value}));setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);}}
+ function change(key,value){setForm(old=>key==='containerType'&&old.containerType!==value?{...old,containerType:value,pod:''}:{...old,[key]:value});setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);}}
  async function calculate(event){
   event.preventDefault();const current=++revision.current;setMessage('');setEstimate(null);setContactOpen(false);
   if(!form.pol.trim()||!form.pod.trim())return setMessage(t('请填写起始地和目的地。','Enter origin and destination.'));
