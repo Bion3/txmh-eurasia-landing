@@ -176,7 +176,7 @@ assert.match(quotesApi,/freight_website_fcl_segment_options/);
 assert.match(quotesApi,/getFclStationSuggestions/);
 assert.match(quotesUi,/getFclStationSuggestions\(form\)/);
 assert.match(quotesUi,/stationSuggestions\.length>0/);
-assert.match(quotesUi,/提货城市，而非铁路起运站/);
+assert.match(quotesUi,/提货地，而非铁路发运站/);
 console.log('Unpriced FCL pickup-city destinations give station suggestions without invented total prices.');
 
 assert.match(quotesApi,/option\.rail_status==='reference_available'/);
