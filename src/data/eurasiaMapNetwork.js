@@ -23,6 +23,9 @@ export const hubs = [
   ["ashgabat","阿什哈巴德",58.38,37.96,"hub"],["mary","马雷",61.83,37.60,"hub"],
   ["london","伦敦",0.13,51.51,"hub"],["gdansk","格但斯克",18.65,54.35,"hub"],
   ["xuzhou","徐州",117.18,34.26,"hub"],["shijiazhuang","石家庄",114.51,38.04,"hub"],["jinan","济南",117.12,36.65,"hub"],
+  ["shenyang","沈阳",123.43,41.80,"hub"],["changchun","长春",125.32,43.90,"hub"],
+  ["ulaanbaatar","乌兰巴托",106.92,47.92,"hub"],["sukhbaatar","苏赫巴托尔",106.20,50.24,"border"],
+  ["naushki","纳乌什基",106.10,50.38,"border"],["ulanude","乌兰乌德",107.58,51.83,"hub"],
   ["harbin","哈尔滨",126.64,45.76,"origin"],["chita","赤塔",113.50,52.03,"hub"],
   ["irkutsk","伊尔库茨克",104.30,52.29,"hub"],["novosibirsk","新西伯利亚",82.92,55.03,"hub"],
   ["yekaterinburg","叶卡捷琳堡",60.61,56.84,"hub"],["stpetersburg","圣彼得堡",30.31,59.94,"hub"]
@@ -74,6 +77,15 @@ export const routes = [
   {id:"ru-yekaterinburg-moscow",points:["yekaterinburg","moscow"],via:[[49.12,55.79]],kind:"europe"},
   {id:"ru-moscow-stpetersburg",points:["moscow","stpetersburg"],kind:"europe"},
   {id:"border-mongolia",points:["erlian","zamynuud"],kind:"europe"},
+  // Erenhot–Mongolia–Russia corridor (schematic, not a verified timetable).
+  {id:"mn-zamynuud-ulaanbaatar",points:["zamynuud","ulaanbaatar"],via:[[107.05,44.90]],kind:"europe"},
+  {id:"mn-ulaanbaatar-sukhbaatar",points:["ulaanbaatar","sukhbaatar"],kind:"europe"},
+  {id:"mn-sukhbaatar-naushki",points:["sukhbaatar","naushki"],kind:"europe"},
+  {id:"ru-naushki-ulanude",points:["naushki","ulanude"],kind:"europe"},
+  {id:"ru-ulanude-irkutsk",points:["ulanude","irkutsk"],kind:"europe"},
+  // Northeast China feeder toward Manzhouli, shared with existing Russian corridor.
+  {id:"f-shenyang-changchun",points:["shenyang","changchun"],kind:"feeder"},
+  {id:"f-changchun-harbin",points:["changchun","harbin"],kind:"feeder"},
   {id:"europe-minsk",points:["moscow","minsk"],kind:"europe"},
   {id:"europe-brest",points:["minsk","brest"],kind:"europe"},
   {id:"europe-border-mala",points:["brest","mala"],kind:"europe"},
