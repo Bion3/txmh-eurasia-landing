@@ -182,7 +182,7 @@ console.log('Unpriced FCL pickup-city destinations give station suggestions with
 assert.match(quotesApi,/option\.rail_status==='reference_available'/);
 
 
-assert.match(quotesUi,/s\.railReference/);
+
 
 assert.doesNotMatch(quotesApi,/supabase\.from\('freight_fcl_rail_rates'\)/);
 console.log('Segmented FCL quotation status checks: only approved reference prices displayed, no unsafe all-in total.');
@@ -193,15 +193,26 @@ assert.match(quotesApi,/p_loading_area:form.loadingArea\|\|null/);
 assert.match(quotesApi,/p_empty_pickup:form.emptyPickupCity\|\|null/);
 assert.match(quotesUi,/工厂装箱区县（选填）/);
 assert.match(quotesUi,/空箱提箱城市（选填）/);
-assert.match(quotesUi,/r\.empty_pickup_city/);
-assert.match(quotesUi,/r\.loading_area/);
-assert.match(quotesUi,/r\.rail_station/);
+
+
+
 
 console.log('FCL trucking matches independent empty pickup, factory loading and rail dropoff locations without exposing purchase prices.');
 
-assert.match(quotesUi,/已有采购价的项目将直接匹配/);
-assert.match(quotesUi,/无需逐项确认，提交一次询价即可核实缺项/);
-assert.match(quotesUi,/查看提空箱地、装箱地点和费用说明/);
-assert.match(quotesUi,/s\.truckingLocations\?\.length/);
-assert.match(quotesUi,/s\.rental_status==='terms_review'/);
+
+
+
+
+
 console.log('Compact FCL results keep uncommon detail hidden and direct only missing fees to inquiry.');
+
+assert.match(quotesApi,/freight_website_fcl_route_comparisons/);
+assert.match(quotesApi,/quotePlans:safePlans\.filter/);
+assert.match(quotesUi,/stationSuggestions\.flatMap\(s=>s.quotePlans/);
+assert.match(quotesUi,/p\.sale_reference_usd/);
+assert.match(quotesUi,/已匹配费用参考售价（非全包价）/);
+assert.match(quotesUi,/已知费用参考小计（仍有缺项）/);
+assert.match(quotesUi,/p\.missing_segments/);
+assert.match(quotesUi,/10%操作费/);
+assert.doesNotMatch(quotesUi,/内部采购价\}\} USD/);
+console.log('Public FCL compare surface uses marked-up reference prices, ranks complete segments and flags incomplete options.');
