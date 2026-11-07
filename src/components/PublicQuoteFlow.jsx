@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useLocation} from 'react-router';
-import {getPublicQuoteEstimate,getPricedDestinationChoices} from '../api/publicQuotes';
+import {getPublicQuoteEstimate,getPricedDestinationChoices,getFclStationSuggestions} from '../api/publicQuotes';
 import {checkLclCargoRestrictions,lclTermsZh,lclTermsEn} from '../lib/lclQuoteRestrictions';
 import {leadsApi} from '../api/leads';
 import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
@@ -13,6 +13,7 @@ export default function PublicQuoteFlow({locale='en'}) {
  const location=useLocation();
  const [form,setForm,draft]=usePersistentFormDraft('eurasiago:unified-quote',empty);
  const [status,setStatus]=useState('idle'),[estimate,setEstimate]=useState(null),[contactOpen,setContactOpen]=useState(false),[sending,setSending]=useState(false),[message,setMessage]=useState('');
+ const [stationSuggestions,setStationSuggestions]=useState([]);
  const [pricedDestinations,setPricedDestinations]=useState([]),[destinationsLoading,setDestinationsLoading]=useState(true),[destinationsError,setDestinationsError]=useState(false);
  const revision=useRef(0);
  useEffect(()=>{
@@ -37,17 +38,17 @@ export default function PublicQuoteFlow({locale='en'}) {
   if(['FBA','DDP'].includes(values.containerType)){values.serviceScope=values.containerType==='FBA'?'fba_delivery':'ddp';values.containerType='LCL';}
   if(values.serviceScope==='amazon_fba')values.serviceScope='fba_delivery';
   if(Object.keys(values).length)setForm(old=>({...old,...values}));
-  revision.current++;setStatus('idle');setEstimate(null);setContactOpen(false);
+  revision.current++;setStatus('idle');setEstimate(null);setContactOpen(false);setStationSuggestions([]);
  },[location.search]);
- function change(key,value){setForm(old=>key==='containerType'&&old.containerType!==value?{...old,containerType:value,pod:''}:{...old,[key]:value});setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);}}
+ function change(key,value){setForm(old=>key==='containerType'&&old.containerType!==value?{...old,containerType:value,pod:''}:{...old,[key]:value});setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);setStationSuggestions([]);}}
  async function calculate(event){
-  event.preventDefault();const current=++revision.current;setMessage('');setEstimate(null);setContactOpen(false);
+  event.preventDefault();const current=++revision.current;setMessage('');setEstimate(null);setContactOpen(false);setStationSuggestions([]);
   if(!form.pol.trim()||!form.pod.trim())return setMessage(t('请填写起始地和目的地。','Enter origin and destination.'));
   if(form.containerType==='FCL'&&form.quantity!==''&&(!Number.isInteger(Number(form.quantity))||Number(form.quantity)<1))return setMessage(t('箱量须为正整数。','Container quantity must be a positive integer.'));
   const restrictions=checkLclCargoRestrictions(form);
   if(restrictions.manualRequired){setStatus('restricted');setMessage(t('这票货物触发特殊装载或加价条件，需要人工确认，暂不显示可能漏费的自动报价。','This cargo requires special handling or rate confirmation. Automatic pricing is withheld to avoid omitted fees.'));setContactOpen(true);return;}
   setStatus('loading');
-  try{const result=await getPublicQuoteEstimate(form);if(current!==revision.current)return;setEstimate(result);setStatus(result?'matched':'unmatched');if(!result)setContactOpen(true);}
+  try{const result=await getPublicQuoteEstimate(form);if(current!==revision.current)return;setEstimate(result);setStatus(result?'matched':'unmatched');if(!result){setContactOpen(true);if(form.containerType==='FCL'){const suggestions=await getFclStationSuggestions(form).catch(()=>[]);if(current===revision.current)setStationSuggestions(suggestions);}}}
   catch{if(current!==revision.current)return;setStatus('error');setContactOpen(true);}
  }
  async function submit(event){
@@ -130,6 +131,12 @@ export default function PublicQuoteFlow({locale='en'}) {
  :t('距离无法可靠确定或接近100公里边界，提货价需人工核实。','Distance unknown or near the 100 km limit; pickup price requires verification.')}</p>
  </div>}{estimate.partial&&estimate.optionalPickup&&<div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900"><p className="font-semibold">{t('通用提货阶梯参考（未计入上方小计）','Generic pickup tier reference (not included above)')}: USD {estimate.optionalPickup.amount.toLocaleString(undefined,{maximumFractionDigits:2})} / {t('票','shipment')}</p><p>{estimate.optionalPickup.tier} · {t('市中心估算；实际仓库和公路里程须核实','City-centre estimate; actual warehouse and road distance must be verified')}</p></div>}{estimate.railSubtotal&&<p className="mt-2 text-sm text-blue-900">{t(`计费方 ${estimate.quantity.toLocaleString(undefined,{maximumFractionDigits:2})} × USD ${estimate.unitPrice.toLocaleString(undefined,{maximumFractionDigits:2})} + 每票已确认费用 USD ${estimate.shipmentFee.toLocaleString(undefined,{maximumFractionDigits:2})}`,`Chargeable CBM ${estimate.quantity.toLocaleString(undefined,{maximumFractionDigits:2})} × USD ${estimate.unitPrice.toLocaleString(undefined,{maximumFractionDigits:2})} + confirmed fee USD ${estimate.shipmentFee.toLocaleString(undefined,{maximumFractionDigits:2})}`)}</p>}{estimate.rateOnly&&estimate.railQty&&<p className="mt-1 text-xs text-blue-800">{t(`当前货量对应约 ${estimate.railQty.toLocaleString(undefined,{maximumFractionDigits:2})} 计费方，实际整票费用须加上另计费用后人工核实。`,`Estimated ${estimate.railQty.toLocaleString(undefined,{maximumFractionDigits:2})} chargeable CBM; total requires manual verification of additional fees.`)}</p>}<p className="mt-2 text-xs text-blue-800">{scopes[form.serviceScope]}{estimate.validFrom?` · ${t('报价适用起','Rate from')} ${estimate.validFrom}`:''}{estimate.validUntil?` · ${t('有效至','Valid to')} ${estimate.validUntil}`:''}</p>{estimate.note&&<p className="mt-3 rounded-lg bg-white/80 px-3 py-2 text-xs leading-6 text-blue-900">{estimate.note}</p>}{estimate.indicative&&<p className="mt-2 text-xs font-semibold text-amber-800">{t('仅为按采购数据自动推算的参考价，尚未核实为正式报价。','Automatically derived reference, not a verified firm quote.')}</p>}</div>}
    {(status==='unmatched'||status==='error'||status==='restricted')&&<p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">{status==='error'?t('暂时无法连接报价服务，可留下联系方式由人工报价。','The rate service is unavailable. Leave your contact for a manual quote.'):status==='restricted'?t('特殊货物或超过25方/7吨，暂不提供自动总价；请提交人工询盘。','Special cargo or over 25 CBM / 7 tonnes: automatic total withheld; request a quotation.'):t('该线路或服务范围暂未发布销售价，仍可提交人工询盘。','No approved public selling rate is published for this route or service scope. You can still submit an inquiry.')}</p>}
+   {status==='unmatched'&&form.containerType==='FCL'&&stationSuggestions.length>0&&<div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+    <p className="font-semibold">{t('找到相关铁路装箱站，但尚无可直接报价的全程费用','Rail departure stations found, but no reliable through-rate')}</p>
+    <p className="mt-1">{t('所填起运地可能是提货城市，而非铁路起运站。下列为目的站匹配的班列起运站，并不代表已经确认国内拖车、租箱及全部附加费用。','The entered origin may be a pickup city rather than a rail departure station. These stations serve the destination but do not confirm trucking, container rental or other charges.')}</p>
+    <div className="mt-2 flex flex-wrap gap-2">{[...new Set(stationSuggestions.map(x=>x.station))].slice(0,6).map(station=><span key={station} className="rounded-lg border border-amber-200 bg-white px-2 py-1">{station}</span>)}</div>
+    <p className="mt-2 text-xs">{t('请提交人工询盘，业务人员将核实提货地点→铁路站→目的站的费用组合。','Please submit an inquiry so our team can verify pickup → rail station → destination costs.')}</p>
+   </div>}
    {estimate&&!contactOpen&&status!=='submitted'&&<button onClick={()=>setContactOpen(true)} className="mt-3 w-full rounded-xl border border-blue-200 px-4 py-3 font-semibold text-blue-700">{t('请人工确认报价','Request a firm quote')}</button>}
    {message&&<p role="status" className="mt-3 rounded-xl bg-slate-50 p-4 text-sm">{message}</p>}
   </div>
