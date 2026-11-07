@@ -34,6 +34,8 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   const [selected,setSelected]=useState(null);
   const [search,setSearch]=useState("");
   const [corridor,setCorridor]=useState("all");
+  const [originId,setOriginId]=useState("");
+  const [destinationId,setDestinationId]=useState("");
   const [showAllStations,setShowAllStations]=useState(false);
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
@@ -44,6 +46,26 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
   const visibleRoutes=routes.filter(r=>show[r.kind]);
   const routeInCorridor=(r)=>corridor==="all"||corridorGroups[corridor]?.includes(r.id)||r.kind==="feeder"&&["f-suzhou-xuzhou","f-xuzhou-shijiazhuang","f-xuzhou-jinan"].includes(r.id)||r.id.startsWith("europe-");
+  // Breadth-first path over schematic network; only highlight a continuous connected path.
+  const chosenPath=useMemo(()=>{
+    if(!originId||!destinationId||originId===destinationId)return [];
+    const adjacency=new Map();
+    for(const r of routes.filter(x=>show[x.kind]&&(corridor==="all"||routeInCorridor(x)))){
+      const [a,b]=r.points;
+      for(const [from,to] of [[a,b],[b,a]])adjacency.set(from,[...(adjacency.get(from)||[]),{to,id:r.id}]);
+    }
+    const queue=[originId],seen=new Set(queue),previous=new Map();
+    for(let i=0;i<queue.length;i++){
+      const current=queue[i];if(current===destinationId)break;
+      for(const edge of adjacency.get(current)||[])if(!seen.has(edge.to)){seen.add(edge.to);previous.set(edge.to,{from:current,id:edge.id});queue.push(edge.to)}
+    }
+    if(!seen.has(destinationId))return [];
+    const ids=[];let node=destinationId;
+    while(node!==originId){const step=previous.get(node);if(!step)return [];ids.unshift(step.id);node=step.from;}
+    return ids;
+  },[originId,destinationId,corridor,show]);
+  const pathSelected=Boolean(originId&&destinationId);
+  const hasPath=chosenPath.length>0;
   const matchingStations=search.trim()?hubs.filter(h=>`${h.label} ${stationNamesEn[h.id]||""}`.toLowerCase().includes(search.trim().toLowerCase())).slice(0,8):[];
   const selectStation=(h)=>{setSelected({type:"hub",value:h});jumpTo(h.lon);setSearch("");};
   const jumpTo=(lon)=>{const el=mapScrollRef.current;if(!el)return;const width=el.scrollWidth;const target=((lon-WEST)/(EAST-WEST))*width-el.clientWidth/2;el.scrollTo({left:Math.max(0,target),behavior:"smooth"});};
@@ -65,13 +87,14 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
       {Object.entries(ui.groups).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
     <div className="border-b border-slate-200 bg-white/95 px-3 py-2 text-xs"><label className="flex flex-wrap items-center gap-2"><span className="font-medium text-slate-700">{locale==="zh"?"出境通道":"Border corridor"}</span><select value={corridor} onChange={e=>{setCorridor(e.target.value);setSelected(null)}} className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 md:max-w-xs" aria-label={locale==="zh"?"选择出境通道":"Choose border corridor"}><option value="all">{locale==="zh"?"全部线路":"All routes"}</option><option value="manzhouli">{locale==="zh"?"满洲里 / 后贝加尔斯克":"Manzhouli / Zabaykalsk"}</option><option value="erenhot">{locale==="zh"?"二连浩特 / 扎门乌德":"Erenhot / Zamyn-Uud"}</option><option value="west">{locale==="zh"?"阿拉山口 / 霍尔果斯":"Alashankou / Khorgos"}</option></select></label></div>
+    <div className="grid gap-2 border-b border-slate-200 bg-white/95 px-3 py-3 text-xs sm:grid-cols-[1fr_1fr_auto]"><label className="flex flex-col gap-1"><span>{locale==="zh"?"起运站":"Origin"}</span><select className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2" value={originId} onChange={e=>setOriginId(e.target.value)}><option value="">{locale==="zh"?"选择起运站":"Select origin"}</option>{hubs.map(h=><option key={h.id} value={h.id}>{stationName(h.id)}</option>)}</select></label><label className="flex flex-col gap-1"><span>{locale==="zh"?"目的站":"Destination"}</span><select className="min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2" value={destinationId} onChange={e=>setDestinationId(e.target.value)}><option value="">{locale==="zh"?"选择目的站":"Select destination"}</option>{hubs.filter(h=>h.id!==originId).map(h=><option key={h.id} value={h.id}>{stationName(h.id)}</option>)}</select></label><button type="button" onClick={()=>{setOriginId("");setDestinationId("")}} className="self-end rounded-lg border border-slate-200 px-3 py-2">{locale==="zh"?"重置":"Reset"}</button>{pathSelected&&<div className="sm:col-span-3 flex flex-wrap items-center gap-3"><span className={hasPath?"text-green-700":"text-amber-700"}>{hasPath?(locale==="zh"?"已突出显示示意路径（非班列承诺）":"Schematic path highlighted (not a service guarantee)"):(locale==="zh"?"当前筛选条件下无连通路径，请更换站点或通道":"No connected path under these filters; try other stations or corridor")}</span>{hasPath&&onQuote&&<button type="button" className="rounded-lg bg-blue-700 px-3 py-2 font-semibold text-white" onClick={()=>onQuote({origin:byId[originId].label,destination:byId[destinationId].label})}>{locale==="zh"?"按此线路询价":"Quote this route"}</button>}</div>}</div>
     <div className="border-b border-slate-200 bg-white/95 px-3 py-2 text-xs"><label className="flex items-center gap-2"><span className="shrink-0 text-slate-600">{locale==="zh"?"查找站点":"Find a station"}</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={locale==="zh"?"输入城市或站点名称":"Search city or rail hub"} className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-blue-500" aria-label={locale==="zh"?"搜索站点":"Search stations"}/></label>{search.trim()&&<div className="mt-2 flex flex-wrap gap-2">{matchingStations.length?matchingStations.map(h=><button key={h.id} type="button" onClick={()=>selectStation(h)} className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-blue-800">{locale==="zh"?h.label:stationNamesEn[h.id]||h.label}</button>):<span className="text-slate-500">{locale==="zh"?"没有匹配站点":"No matching stations"}</span>}</div>}</div>
     <div className="flex items-center justify-between gap-2 bg-white/90 px-3 py-2 text-xs"><span className="text-slate-600">{ui.intro}</span><label className="flex shrink-0 items-center gap-1"><input type="checkbox" checked={showAllStations} onChange={e=>setShowAllStations(e.target.checked)}/>{ui.allStations}</label></div>
     <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-200 bg-white/90 px-3 py-2 text-xs md:hidden"><span className="shrink-0 text-slate-500">{ui.quick}</span>{ui.regions.map((label,i)=>[label,[18,49,70,108][i]]).map(([label,lon])=><button key={label} type="button" onClick={()=>jumpTo(lon)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700">{label}</button>)}</div>
     <div ref={mapScrollRef} className="overflow-x-auto overscroll-x-contain touch-pan-x" aria-label={ui.hint}><svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-[1100px] max-w-none md:w-full" role="img" aria-label={ui.intro}>
       <rect width={W} height={H} fill="#c9eafb"/>
       {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
-      {visibleRoutes.map(r=><g key={r.id} opacity={routeInCorridor(r)?1:0.09} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} role="button" tabIndex={0} aria-label={r.points.map(stationName).join(" to ")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelected({type:"route",value:r})}}} style={{cursor:"pointer"}}>
+      {visibleRoutes.map(r=><g key={r.id} opacity={pathSelected?(chosenPath.includes(r.id)?1:0.06):(routeInCorridor(r)?1:0.09)} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} role="button" tabIndex={0} aria-label={r.points.map(stationName).join(" to ")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelected({type:"route",value:r})}}} style={{cursor:"pointer"}}>
         <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2.8" opacity=".18"/>
         <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2" opacity=".9" className="eurasia-flow" strokeDasharray={r.mode==="multimodal"?"3 7":undefined}/>
         <path d={routePath(r)} fill="none" stroke="transparent" strokeWidth="13"/>
