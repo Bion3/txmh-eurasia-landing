@@ -83,7 +83,24 @@ export async function getFclStationSuggestions(form){
   ]);
   if(segments.error)throw segments.error;
   if(indicative.error)throw indicative.error;
-  return (segments.data||[]).map(option=>{
+  const enriched=await Promise.all((segments.data||[]).slice(0,12).map(async option=>{
+   // The trucking tariff identifies THREE distinct locations:
+   // empty-container collection (quote origin), factory loading (loadingPlace),
+   // and loaded-container rail drop-off (quote destination).
+   // Never convert an area-level match into an approved all-in amount.
+   const truck=await supabase.rpc('freight_website_fcl_trucking_location_options',{
+    p_loading_city:form.pol,p_station:option.station,
+    p_container:option.container,
+    p_loading_area:form.loadingArea||null,
+    p_empty_pickup:form.emptyPickupCity||null
+   }).abortSignal(signal);
+   const truckingLocations=truck.error?[]:(truck.data||[]);
+   return {...option,truckingLocations,
+    truckingStatus:truckingLocations.length
+      ? form.loadingArea?'area_matched_price_unverified':'area_selection_required'
+      : 'missing'};
+  }));
+  return enriched.map(option=>{
    const rail=option.rail_status==='reference_available'?estimatePublishedQuote({
      ...form,pol:option.station,serviceScope:'port_to_port',
      containerSize:option.container,equipment:option.equipment
