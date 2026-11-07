@@ -68,3 +68,16 @@ export async function getPricedDestinationChoices() {
   return Array.isArray(data)?data:[];
  });
 }
+
+/** Station possibilities only. Never infer a Shanghai pickup-to-hub price or
+ * publish customer-list railway prices as approved procurement quotations. */
+export async function getFclStationSuggestions(form){
+ if(!isSupabaseConfigured||!supabase||form.containerType!=='FCL')return [];
+ return withRequestDeadline(async signal=>{
+  const {data,error}=await supabase.rpc('freight_website_fcl_route_options',{
+   p_destination:form.pod,p_container:form.containerSize||null,p_equipment:form.equipment||null
+  }).abortSignal(signal);
+  if(error)throw error;
+  return Array.isArray(data)?data:[];
+ });
+}
