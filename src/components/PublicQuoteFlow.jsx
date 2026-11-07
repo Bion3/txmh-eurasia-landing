@@ -6,7 +6,7 @@ import {leadsApi} from '../api/leads';
 import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
 import {captureAcquisitionAttribution} from '../lib/acquisitionAttribution';
 
-const empty = {pol:'',pod:'',containerType:'FCL',containerSize:'',equipment:'',quantity:'',volume:'',weight:'',pieceLength:'',pieceWidth:'',pieceHeight:'',pieceWeight:'',cargoRisk:'unspecified',serviceScope:'port_to_port',cargo:'',notes:'',name:'',contact:''};
+const empty = {pol:'',loadingArea:'',emptyPickupCity:'',pod:'',containerType:'FCL',containerSize:'',equipment:'',quantity:'',volume:'',weight:'',pieceLength:'',pieceWidth:'',pieceHeight:'',pieceWeight:'',cargoRisk:'unspecified',serviceScope:'port_to_port',cargo:'',notes:'',name:'',contact:''};
 const inputClass='w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 export default function PublicQuoteFlow({locale='en'}) {
  const zh=locale==='zh', t=(a,b)=>zh?a:b;
@@ -40,7 +40,7 @@ export default function PublicQuoteFlow({locale='en'}) {
   if(Object.keys(values).length)setForm(old=>({...old,...values}));
   revision.current++;setStatus('idle');setEstimate(null);setContactOpen(false);setStationSuggestions([]);
  },[location.search]);
- function change(key,value){setForm(old=>key==='containerType'&&old.containerType!==value?{...old,containerType:value,pod:''}:{...old,[key]:value});setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);setStationSuggestions([]);}}
+ function change(key,value){setForm(old=>key==='containerType'&&old.containerType!==value?{...old,containerType:value,pod:'',loadingArea:'',emptyPickupCity:''}:key==='pol'&&old.pol!==value?{...old,pol:value,loadingArea:'',emptyPickupCity:''}:{...old,[key]:value});setMessage('');if(!['name','contact','notes'].includes(key)){revision.current++;setEstimate(null);setStatus('idle');setContactOpen(false);setStationSuggestions([]);}}
  async function calculate(event){
   event.preventDefault();const current=++revision.current;setMessage('');setEstimate(null);setContactOpen(false);setStationSuggestions([]);
   if(!form.pol.trim()||!form.pod.trim())return setMessage(t('请填写起始地和目的地。','Enter origin and destination.'));
@@ -57,7 +57,7 @@ export default function PublicQuoteFlow({locale='en'}) {
   if(!form.name.trim()||!(email?/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact):contact.replace(/\D/g,'').length>=5))return setMessage(t('请填写姓名和有效邮箱或电话。','Enter your name and a valid email or phone number.'));
   setSending(true);setMessage('');
   try{
-   const result=await leadsApi.createPublic({...captureAcquisitionAttribution({defaultSourceType:'website_form',touchpoint:'unified_quote'}).leadFields,contact_name:form.name.trim(),company_name:form.name.trim(),email:email?contact:null,phone:email?null:contact,origin:form.pol,destination:form.pod,cargo_desc:form.cargo||null,volume_cbm:Number(form.volume)||0,weight_kg:Number(form.weight)||0,source_type:'website_form',transport_mode_interest:'rail',shipment_type_interest:form.containerType==='FCL'?'FCL':'LCL',status:'new',message:JSON.stringify({source:location.pathname,service:form.containerType,scope:form.serviceScope,container:form.containerSize||'auto',equipment:form.equipment||'auto',quantity:form.quantity||1,notes:form.notes,cargoRisk:form.cargoRisk,pieceDimensions:{lengthM:form.pieceLength,widthM:form.pieceWidth,heightM:form.pieceHeight,weightKg:form.pieceWeight},reviewFlags:checkLclCargoRestrictions(form).reasons,estimate:estimate?{quoteId:estimate.quoteId,currency:estimate.currency,low:estimate.low,high:estimate.high,rateOnly:estimate.rateOnly,railSubtotal:estimate.railSubtotal,partial:estimate.partial,shipmentFee:estimate.shipmentFee,optionalPickup:estimate.optionalPickup,pickupDistance:estimate.pickupDistance,missingCosts:estimate.missingCosts,indicative:estimate.indicative,validFrom:estimate.validFrom}:null})});
+   const result=await leadsApi.createPublic({...captureAcquisitionAttribution({defaultSourceType:'website_form',touchpoint:'unified_quote'}).leadFields,contact_name:form.name.trim(),company_name:form.name.trim(),email:email?contact:null,phone:email?null:contact,origin:form.pol,destination:form.pod,cargo_desc:form.cargo||null,volume_cbm:Number(form.volume)||0,weight_kg:Number(form.weight)||0,source_type:'website_form',transport_mode_interest:'rail',shipment_type_interest:form.containerType==='FCL'?'FCL':'LCL',status:'new',message:JSON.stringify({source:location.pathname,service:form.containerType,scope:form.serviceScope,container:form.containerSize||'auto',equipment:form.equipment||'auto',quantity:form.quantity||1,loadingArea:form.loadingArea||null,emptyPickupCity:form.emptyPickupCity||null,notes:form.notes,cargoRisk:form.cargoRisk,pieceDimensions:{lengthM:form.pieceLength,widthM:form.pieceWidth,heightM:form.pieceHeight,weightKg:form.pieceWeight},reviewFlags:checkLclCargoRestrictions(form).reasons,estimate:estimate?{quoteId:estimate.quoteId,currency:estimate.currency,low:estimate.low,high:estimate.high,rateOnly:estimate.rateOnly,railSubtotal:estimate.railSubtotal,partial:estimate.partial,shipmentFee:estimate.shipmentFee,optionalPickup:estimate.optionalPickup,pickupDistance:estimate.pickupDistance,missingCosts:estimate.missingCosts,indicative:estimate.indicative,validFrom:estimate.validFrom}:null})});
    setMessage(result.data.notificationStatus==='sent'?t(email?'询盘已保存，已向客户邮箱和业务邮箱发送同一封邮件，请使用“回复全部”沟通。':'询盘已保存，已邮件通知业务人员；如需客户邮件副本，请提供邮箱。',email?'Inquiry saved. Customer and sales share one email conversation; use Reply All.':'Inquiry saved. Sales was notified; enter an email to receive a customer copy.'):t('询盘已保存，邮件通知待确认，无需重复提交。','Inquiry saved. Email notification is unconfirmed; please do not resubmit.'));
    setStatus('submitted');setContactOpen(false);draft.clearDraft({...form,name:'',contact:''});
   }catch{setMessage(t('提交结果未确认，信息已保留。请稍后重试或联系销售。','Submission is unconfirmed. Your details are preserved; retry later or contact sales.'));}
@@ -97,7 +97,14 @@ export default function PublicQuoteFlow({locale='en'}) {
     {form.containerType==='FCL'?
       <><label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('箱型','Container size')}</span><select className={inputClass} value={form.containerSize} onChange={e=>change('containerSize',e.target.value)}><option value="">{t('自动匹配箱型','Auto match size')}</option>{['40HQ','40GP','20GP','45HQ'].map(value=><option key={value} value={value}>{value}</option>)}</select></label>
       <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('用箱方式','SOC / COC')}</span><select className={inputClass} value={form.equipment} onChange={e=>change('equipment',e.target.value)}><option value="">{t('自动匹配','Auto match')}</option><option value="SOC">SOC</option><option value="COC">COC</option></select></label>
-      {fields('quantity',t('箱量（默认1箱）','Quantity (default 1)'),{type:'number',min:1,step:1})}</>:
+      {fields('quantity',t('箱量（默认1箱）','Quantity (default 1)'),{type:'number',min:1,step:1})}
+      <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('工厂装箱区县（选填）','Factory loading area (optional)')}</span>
+       <input className={inputClass} list="eurasiago-fcl-loading-areas" value={form.loadingArea} onChange={e=>change('loadingArea',e.target.value)}
+        placeholder={t('如：上海市,浦东新区','e.g. Shanghai, Pudong')}/>
+       <datalist id="eurasiago-fcl-loading-areas">{[...new Set(stationSuggestions.flatMap(x=>(x.truckingLocations||[]).map(y=>y.loading_area)))].map(a=><option key={a} value={a}/>)}</datalist>
+      </label>
+      {fields('emptyPickupCity',t('空箱提箱城市（选填）','Empty-container pickup city (optional)'),{placeholder:t('如：上海；留空自动筛选','e.g. Shanghai; leave blank for options')})}
+      </>:
       <>{fields('volume',t('货物体积 CBM','Volume · CBM'),{type:'number',min:'0.001',step:'any'})}{fields('weight',t('毛重 KG','Gross weight · KG'),{type:'number',min:'0.001',step:'any'})}</>}
    </fieldset>
    <details className="rounded-xl bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm text-slate-600">{t('更多信息（选填）','More details (optional)')}</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -137,7 +144,15 @@ export default function PublicQuoteFlow({locale='en'}) {
     {stationSuggestions.slice(0,4).map((s,i)=><div key={s.station+'-'+s.container+'-'+s.equipment} className="rounded-lg border border-amber-200 bg-white p-3">
       <div className="flex flex-wrap items-center justify-between gap-2 font-semibold"><span>{form.pol} → {s.station} → {form.pod}</span><span className="text-xs text-amber-800">{s.container} · {s.equipment}</span></div>
       <div className="mt-2 grid gap-2 text-xs text-slate-700">
-       <div className="flex flex-wrap items-start justify-between gap-2"><span>{t('国内拖车','Origin trucking')} · {form.pol} → {s.station}</span><span>{s.trucking_status==='not_needed'?t('同站，无需该段','Same station, not needed'):s.trucking_status==='address_and_price_basis_review'?t('已有候选报价，需确认具体装箱地址与价格口径','Possible rates; loading address and price basis require review'):t('未匹配适用采购价','No suitable rate')}</span></div>
+       <div className="flex flex-wrap items-start justify-between gap-2"><span>{t('国内拖车','Origin trucking')} · {form.pol} → {s.station}</span>
+        <span>{s.truckingStatus==='area_matched_price_unverified'?t('装箱地区已匹配，拖车价格待核','Factory area matched; trucking price needs review'):s.truckingStatus==='area_selection_required'?t('发现装箱区县与提箱地点候选，请核对','Factory-area and empty-pickup options found'):s.trucking_status==='not_needed'?t('同站，无需该段','Same station, not needed'):t('未匹配适用拖车报价','No applicable trucking tariff')}</span></div>
+       {(s.truckingLocations||[]).length>0&&<div className="rounded-lg bg-slate-50 p-2 text-xs"><p className="mb-1 font-semibold">{t('拖车线路：提空箱地 → 工厂装货地 → 铁路落箱站','Trucking: empty pickup → factory loading → rail drop-off')}</p>
+        {s.truckingLocations.slice(0,5).map((r,i)=><div key={r.empty_pickup_city+'-'+r.loading_area+'-'+i} className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 py-1 last:border-0">
+         <span>{r.empty_pickup_city} → {r.loading_area} → {r.rail_station}</span>
+         {!form.loadingArea&&<button type="button" className="rounded border border-blue-200 px-2 py-1 text-blue-700" onClick={()=>change('loadingArea',r.loading_area)}>{t('选择装箱地区','Select loading area')}</button>}
+        </div>)}
+        <p className="mt-1 text-amber-900">{t('只匹配装箱区县及提箱城市，具体工厂地址、车辆适用性及价格仍需核实。','Matching is by area and empty pickup city only; verify factory address, truck suitability and price.')}</p>
+       </div>}
        <div className="flex flex-wrap items-start justify-between gap-2"><span>{t('整柜铁路','FCL rail')} · {s.station} → {form.pod}</span><span className="font-semibold">{s.railReference?`${s.railReference.currency} ${Number(s.railReference.amount).toLocaleString(undefined,{maximumFractionDigits:2})} ${t('铁路参考小计','Rail reference subtotal')}`:t('客户售价/采购口径或费用待核实','Price basis or inclusions need review')}</span></div>
        <div className="flex flex-wrap items-start justify-between gap-2"><span>{t('SOC租箱','SOC container rental')}</span><span>{s.rental_status==='not_needed'?t('COC无需单独租箱','Included in COC arrangement'):s.rental_status==='terms_review'?t('已有候选报价，用箱期、还箱地和超期费待确认','Possible rate; rental terms and return location need review'):t('未匹配可确认租箱价','No confirmed rental rate')}</span></div>
       </div>
