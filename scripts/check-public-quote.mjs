@@ -216,3 +216,7 @@ assert.match(quotesUi,/p\.missing_segments/);
 assert.match(quotesUi,/10%操作费/);
 assert.doesNotMatch(quotesUi,/内部采购价\}\} USD/);
 console.log('Public FCL compare surface uses marked-up reference prices, ranks complete segments and flags incomplete options.');
+
+assert.match(quotesUi,/\(status==='matched'\|\|status==='unmatched'\)/);
+assert.match(quotesUi,/if\(!result\)setContactOpen\(true\);if\(form\.containerType==='FCL'\)/);
+console.log('FCL route alternatives appear for direct rail results and missing through-rates alike.');
