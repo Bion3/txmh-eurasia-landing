@@ -26,6 +26,7 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   const [features,setFeatures]=useState([]);
   const [mapError,setMapError]=useState(false);
   const [selected,setSelected]=useState(null);
+  const [search,setSearch]=useState("");
   const [showAllStations,setShowAllStations]=useState(false);
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
@@ -35,6 +36,8 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   },[]);
   const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
   const visibleRoutes=routes.filter(r=>show[r.kind]);
+  const matchingStations=search.trim()?hubs.filter(h=>`${h.label} ${stationNamesEn[h.id]||""}`.toLowerCase().includes(search.trim().toLowerCase())).slice(0,8):[];
+  const selectStation=(h)=>{setSelected({type:"hub",value:h});jumpTo(h.lon);setSearch("");};
   const jumpTo=(lon)=>{const el=mapScrollRef.current;if(!el)return;const width=el.scrollWidth;const target=((lon-WEST)/(EAST-WEST))*width-el.clientWidth/2;el.scrollTo({left:Math.max(0,target),behavior:"smooth"});};
   const routePath=(route)=>{
     const start=byId[route.points[0]],end=byId[route.points[route.points.length-1]];
@@ -53,17 +56,18 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
     <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-white/95 px-2 py-2 text-[11px] md:gap-1.5 md:p-3 md:text-xs">
       {Object.entries(ui.groups).map(([key,label])=><label key={key} className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-1"><input type="checkbox" checked={show[key]} onChange={e=>setShow(v=>({...v,[key]:e.target.checked}))}/><span style={{color:colors[key]}}>●</span>{label}</label>)}
     </div>
+    <div className="border-b border-slate-200 bg-white/95 px-3 py-2 text-xs"><label className="flex items-center gap-2"><span className="shrink-0 text-slate-600">{locale==="zh"?"查找站点":"Find a station"}</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={locale==="zh"?"输入城市或站点名称":"Search city or rail hub"} className="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-blue-500" aria-label={locale==="zh"?"搜索站点":"Search stations"}/></label>{search.trim()&&<div className="mt-2 flex flex-wrap gap-2">{matchingStations.length?matchingStations.map(h=><button key={h.id} type="button" onClick={()=>selectStation(h)} className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-blue-800">{locale==="zh"?h.label:stationNamesEn[h.id]||h.label}</button>):<span className="text-slate-500">{locale==="zh"?"没有匹配站点":"No matching stations"}</span>}</div>}</div>
     <div className="flex items-center justify-between gap-2 bg-white/90 px-3 py-2 text-xs"><span className="text-slate-600">{ui.intro}</span><label className="flex shrink-0 items-center gap-1"><input type="checkbox" checked={showAllStations} onChange={e=>setShowAllStations(e.target.checked)}/>{ui.allStations}</label></div>
     <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-200 bg-white/90 px-3 py-2 text-xs md:hidden"><span className="shrink-0 text-slate-500">{ui.quick}</span>{ui.regions.map((label,i)=>[label,[18,49,70,108][i]]).map(([label,lon])=><button key={label} type="button" onClick={()=>jumpTo(lon)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700">{label}</button>)}</div>
     <div ref={mapScrollRef} className="overflow-x-auto overscroll-x-contain touch-pan-x" aria-label={ui.hint}><svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-[1100px] max-w-none md:w-full" role="img" aria-label={ui.intro}>
       <rect width={W} height={H} fill="#c9eafb"/>
       {features.map((f,i)=><path key={i} d={featurePath(f)} fill="#fbfae9" stroke="#8c9ca2" strokeWidth=".65" fillRule="evenodd"/>)}
-      {visibleRoutes.map(r=><g key={r.id} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} style={{cursor:"pointer"}}>
+      {visibleRoutes.map(r=><g key={r.id} onMouseEnter={()=>setSelected({type:"route",value:r})} onClick={()=>setSelected({type:"route",value:r})} role="button" tabIndex={0} aria-label={r.points.map(stationName).join(" to ")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelected({type:"route",value:r})}}} style={{cursor:"pointer"}}>
         <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2.8" opacity=".18"/>
         <path d={routePath(r)} fill="none" stroke={colors[r.kind]} strokeWidth="2" opacity=".9" className="eurasia-flow" strokeDasharray={r.mode==="multimodal"?"3 7":undefined}/>
         <path d={routePath(r)} fill="none" stroke="transparent" strokeWidth="13"/>
       </g>)}
-      {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);const isAdditional = !["xian","zhengzhou","wuhan","yiwu","shenzhen","alashankou","khorgos","almaty","tashkent","aktau","baku","tehran","istanbul","moscow","mala","warsaw","hamburg","duisburg","paris","milan","budapest"].includes(h.id);const compact = ["hamburg","duisburg","warsaw","mala","budapest","milan","paris"].includes(h.id);const dx=compact?(h.id==="hamburg"||h.id==="warsaw"?-8:8):8;const dy=compact?(h.id==="duisburg"||h.id==="milan"?15:-9):-6;return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} style={{cursor:"pointer"}}>
+      {hubs.map(h=>{const [x,y]=project([h.lon,h.lat]);const isAdditional = !["xian","zhengzhou","wuhan","yiwu","shenzhen","alashankou","khorgos","almaty","tashkent","aktau","baku","tehran","istanbul","moscow","mala","warsaw","hamburg","duisburg","paris","milan","budapest"].includes(h.id);const compact = ["hamburg","duisburg","warsaw","mala","budapest","milan","paris"].includes(h.id);const dx=compact?(h.id==="hamburg"||h.id==="warsaw"?-8:8):8;const dy=compact?(h.id==="duisburg"||h.id==="milan"?15:-9):-6;return <g key={h.id} transform={`translate(${x} ${y})`} onMouseEnter={()=>setSelected({type:"hub",value:h})} onClick={()=>setSelected({type:"hub",value:h})} role="button" tabIndex={0} aria-label={stationName(h.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelected({type:"hub",value:h})}}} style={{cursor:"pointer"}}>
         <circle r="8" fill={hubColors[h.type]} opacity=".15"/><circle r="4.4" fill={hubColors[h.type]} stroke="white" strokeWidth="2"/>
         <text className={`eurasia-map-label ${showAllStations||selected?.type==="hub"&&selected.value.id===h.id?"active":""}`} style={{display:!showAllStations&&isAdditional&&selected?.value?.id!==h.id?"none":undefined}} x={dx} y={dy} textAnchor={dx<0?"end":"start"} fontSize="10.5" fontWeight="600" fill="#0f172a" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">{locale==="zh"?h.label:(stationNamesEn[h.id]||h.label)}</text>
       </g>})}
