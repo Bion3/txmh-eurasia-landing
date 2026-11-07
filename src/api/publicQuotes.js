@@ -75,14 +75,21 @@ export async function getPricedDestinationChoices() {
 export async function getFclStationSuggestions(form){
  if(!isSupabaseConfigured||!supabase||form.containerType!=='FCL')return [];
  return withRequestDeadline(async signal=>{
-  const [segments,indicative]=await Promise.all([
+  const [segments,indicative,comparisons]=await Promise.all([
    supabase.rpc('freight_website_fcl_segment_options',{
     p_origin:form.pol,p_destination:form.pod,p_container:form.containerSize||null,p_equipment:form.equipment||null
    }).abortSignal(signal),
-   supabase.rpc('freight_website_indicative_rates').abortSignal(signal)
+   supabase.rpc('freight_website_indicative_rates').abortSignal(signal),
+   supabase.rpc('freight_website_fcl_route_comparisons',{
+    p_loading_city:form.pol,p_destination:form.pod,
+    p_container:form.containerSize||null,p_equipment:form.equipment||null,
+    p_loading_area:form.loadingArea||null,p_empty_pickup:form.emptyPickupCity||null
+   }).abortSignal(signal)
   ]);
   if(segments.error)throw segments.error;
   if(indicative.error)throw indicative.error;
+  // This RPC returns only marked-up public reference figures, never supplier costs.
+  const safePlans=comparisons.error?[]:(comparisons.data||[]);
   const enriched=await Promise.all((segments.data||[]).slice(0,12).map(async option=>{
    // The trucking tariff identifies THREE distinct locations:
    // empty-container collection (quote origin), factory loading (loadingPlace),
@@ -95,7 +102,7 @@ export async function getFclStationSuggestions(form){
     p_empty_pickup:form.emptyPickupCity||null
    }).abortSignal(signal);
    const truckingLocations=truck.error?[]:(truck.data||[]);
-   return {...option,truckingLocations,
+   return {...option,quotePlans:safePlans.filter(p=>p.rail_station===option.station&&p.container===option.container&&p.equipment===option.equipment),truckingLocations,
     truckingStatus:truckingLocations.length
       ? form.loadingArea?'area_matched_price_unverified':'area_selection_required'
       : 'missing'};
