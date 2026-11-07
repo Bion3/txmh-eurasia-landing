@@ -22,6 +22,7 @@ export const hubs = [
   ["vienna","维也纳",16.37,48.21,"hub"],["belgrade","贝尔格莱德",20.46,44.81,"hub"],
   ["ashgabat","阿什哈巴德",58.38,37.96,"hub"],["mary","马雷",61.83,37.60,"hub"],
   ["london","伦敦",0.13,51.51,"hub"],["gdansk","格但斯克",18.65,54.35,"hub"],
+  ["xuzhou","徐州",117.18,34.26,"hub"],["shijiazhuang","石家庄",114.51,38.04,"hub"],["jinan","济南",117.12,36.65,"hub"],
   ["harbin","哈尔滨",126.64,45.76,"origin"],["chita","赤塔",113.50,52.03,"hub"],
   ["irkutsk","伊尔库茨克",104.30,52.29,"hub"],["novosibirsk","新西伯利亚",82.92,55.03,"hub"],
   ["yekaterinburg","叶卡捷琳堡",60.61,56.84,"hub"],["stpetersburg","圣彼得堡",30.31,59.94,"hub"]
@@ -56,6 +57,14 @@ export const routes = [
   {id:"border-altynkol",points:["khorgos","altynkol"],kind:"main"},
   {id:"border-manchuria",points:["manzhouli","zabaikalsk"],kind:"europe"},
   // Manzhouli / Zabaykalsk corridor; schematic rail hub links, not scheduled service commitments.
+  // Suzhou–Xuzhou feeder with alternative Shijiazhuang / Jinan branches toward both border gateways.
+  {id:"f-suzhou-xuzhou",points:["suzhou","xuzhou"],kind:"feeder"},
+  {id:"f-xuzhou-shijiazhuang",points:["xuzhou","shijiazhuang"],kind:"feeder"},
+  {id:"f-xuzhou-jinan",points:["xuzhou","jinan"],kind:"feeder"},
+  {id:"f-shijiazhuang-manzhouli",points:["shijiazhuang","manzhouli"],via:[[116.4,39.9],[119.6,43.95]],kind:"feeder"},
+  {id:"f-jinan-manzhouli",points:["jinan","manzhouli"],via:[[119.2,39.6],[122.0,43.7]],kind:"feeder"},
+  {id:"f-shijiazhuang-erlian",points:["shijiazhuang","erlian"],via:[[112.5,40.9]],kind:"feeder"},
+  {id:"f-jinan-erlian",points:["jinan","erlian"],via:[[114.5,38.05],[112.5,40.9]],kind:"feeder"},
   {id:"f-harbin-manzhouli",points:["harbin","manzhouli"],via:[[123.97,47.75],[119.75,49.22]],kind:"feeder"},
   {id:"f-xian-manzhouli",points:["xian","manzhouli"],via:[[112.55,37.87],[116.40,39.90],[119.60,43.95]],kind:"feeder"},
   {id:"ru-zabaikalsk-chita",points:["zabaikalsk","chita"],kind:"europe"},
