@@ -69,15 +69,28 @@ export async function getPricedDestinationChoices() {
  });
 }
 
-/** Station possibilities only. Never infer a Shanghai pickup-to-hub price or
- * publish customer-list railway prices as approved procurement quotations. */
+/** Safe FCL segment planning: status only for unapproved supplier records.
+ * Published indicative rail price may be displayed, but never a fabricated
+ * all-in total or unapproved trucking/container-rental purchase price. */
 export async function getFclStationSuggestions(form){
  if(!isSupabaseConfigured||!supabase||form.containerType!=='FCL')return [];
  return withRequestDeadline(async signal=>{
-  const {data,error}=await supabase.rpc('freight_website_fcl_route_options',{
-   p_destination:form.pod,p_container:form.containerSize||null,p_equipment:form.equipment||null
-  }).abortSignal(signal);
-  if(error)throw error;
-  return Array.isArray(data)?data:[];
+  const [segments,indicative]=await Promise.all([
+   supabase.rpc('freight_website_fcl_segment_options',{
+    p_origin:form.pol,p_destination:form.pod,p_container:form.containerSize||null,p_equipment:form.equipment||null
+   }).abortSignal(signal),
+   supabase.rpc('freight_website_indicative_rates').abortSignal(signal)
+  ]);
+  if(segments.error)throw segments.error;
+  if(indicative.error)throw indicative.error;
+  return (segments.data||[]).map(option=>{
+   const rail=option.rail_status==='reference_available'?estimatePublishedQuote({
+     ...form,pol:option.station,serviceScope:'port_to_port',
+     containerSize:option.container,equipment:option.equipment
+   },indicative.data||[]):null;
+   return {...option,railReference:rail&&!rail.rateOnly?{
+    amount:rail.low,currency:rail.currency,validUntil:rail.validUntil
+   }:null};
+  });
  });
 }
