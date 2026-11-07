@@ -18,7 +18,7 @@ function featurePath(feature) {
 const colors = {feeder:"#93c5fd",main:"#2563eb",europe:"#0d9488",central:"#16a34a",westasia:"#ea580c"};
 const hubColors={origin:"#dc2626",border:"#f59e0b",hub:"#2563eb"};
 const worldUrl="https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
-export default function EurasiaMapSvg({ mapText }) {
+export default function EurasiaMapSvg({ mapText, onQuote }) {
   const mapScrollRef=useRef(null);
   const [features,setFeatures]=useState([]);
   const [mapError,setMapError]=useState(false);
@@ -69,7 +69,7 @@ export default function EurasiaMapSvg({ mapText }) {
     {!features.length&&<div className="bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?"地图底图加载失败，请刷新重试":"正在加载矢量地理底图…"}</div>}
     {selected&&<div className="border-t border-slate-200 bg-white/95 p-3 text-xs">
       <button className="float-right ml-2" onClick={()=>setSelected(null)} aria-label="关闭">×</button>
-      {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>{selected.value.type==="border"?"口岸 / 换装节点":"铁路站点 / 城市节点"} · 地图不代表当前可售报价</div><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div></>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
+      {selected.type==="hub"?<><strong>{selected.value.label}</strong><div>{selected.value.type==="border"?"口岸 / 换装节点":"铁路站点 / 城市节点"} · 运输网络示意，具体服务以询价为准</div><div>经度 {selected.value.lon}° · 纬度 {selected.value.lat}°</div>{selected.value.type!=="border"&&onQuote&&<button type="button" className="mt-2 rounded-lg bg-blue-700 px-3 py-2 font-medium text-white hover:bg-blue-800" onClick={()=>onQuote({destination:selected.value.label})}>查询至该站报价 / Get a quote →</button>}</>:<><strong>{selected.value.points.map(id=>byId[id]?.label||id).join(" → ")}</strong><div>示意通道 · 实际运输线路待核实</div></>}
     </div>}
   </div>;
 }
