@@ -1,7 +1,7 @@
 import React from "react";
 import EurasiaMapSvg from "./EurasiaMapSvg";
 
-export default function EurasiaMap({ text }) {
+export default function EurasiaMap({ text, onQuote }) {
   return (
     <section className="pt-8 pb-16 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -19,7 +19,7 @@ export default function EurasiaMap({ text }) {
           </p>
         </div>
 
-        <EurasiaMapSvg mapText={text.map} />
+        <EurasiaMapSvg mapText={text.map} onQuote={onQuote} />
       </div>
     </section>
   );
