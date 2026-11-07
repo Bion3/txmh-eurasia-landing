@@ -169,7 +169,7 @@ export default function HomePage({ locale = "en", text, changePage }) {
 
       <section className="bg-white py-8 md:py-12">
         <h2 className="mb-6 text-center text-2xl font-semibold md:mb-8 md:text-3xl">{copy.networkTitle}</h2>
-        <EurasiaMap text={text} locale={locale} onQuote={({destination}) => changePage("quote", {search:`?${new URLSearchParams({pod:destination}).toString()}`})} />
+        <EurasiaMap text={text} locale={locale} onQuote={({origin,destination}) => changePage("quote", {search:`?${new URLSearchParams({...origin?{pol:origin}:{},pod:destination}).toString()}`})} />
       </section>
 
       <section className="py-16 text-center md:py-20">
