@@ -9,7 +9,19 @@ export const hubs = [
   ["moscow","莫斯科",37.62,55.75,"hub"],["mala","马拉舍维奇",23.05,52.03,"hub"],
   ["warsaw","华沙",21.01,52.23,"hub"],["hamburg","汉堡",9.99,53.55,"hub"],
   ["duisburg","杜伊斯堡",6.76,51.43,"hub"],["paris","巴黎",2.35,48.86,"hub"],
-  ["milan","米兰",9.19,45.46,"hub"],["budapest","布达佩斯",19.04,47.50,"hub"]
+  ["milan","米兰",9.19,45.46,"hub"],["budapest","布达佩斯",19.04,47.50,"hub"],
+  // Stations found in the internal cost and rail-plan destination catalog; coordinates are city-level approximations.
+  ["suzhou","苏州",120.59,31.30,"origin"],["nanjing","南京",118.80,32.06,"origin"],["chengdu","成都",104.07,30.67,"origin"],
+  ["manzhouli","满洲里",117.38,49.60,"border"],["zabaikalsk","后贝加尔斯克",116.87,49.65,"border"],
+  ["erlian","二连浩特",111.98,43.65,"border"],["zamynuud","扎门乌德",111.90,43.72,"border"],
+  ["dostyk","多斯特克",82.59,45.25,"border"],["altynkol","阿腾科里",80.39,44.19,"border"],
+  ["brest","布列斯特",23.69,52.10,"border"],["minsk","明斯克",27.56,53.90,"hub"],
+  ["prague","布拉格",14.42,50.08,"hub"],["rotterdam","鹿特丹",4.48,51.92,"hub"],
+  ["munich","慕尼黑",11.58,48.14,"hub"],["verona","维罗纳",10.99,45.44,"hub"],
+  ["liege","列日",5.57,50.63,"hub"],["katowice","卡托维兹",19.02,50.26,"hub"],
+  ["vienna","维也纳",16.37,48.21,"hub"],["belgrade","贝尔格莱德",20.46,44.81,"hub"],
+  ["ashgabat","阿什哈巴德",58.38,37.96,"hub"],["mary","马雷",61.83,37.60,"hub"],
+  ["london","伦敦",0.13,51.51,"hub"],["gdansk","格但斯克",18.65,54.35,"hub"]
 ].map(([id,label,lon,lat,type])=>({id,label,lon,lat,type}));
 
 // Route segments are shared, preventing overlapping animated lines on common trunks.
@@ -33,5 +45,26 @@ export const routes = [
   {id:"caspian-aktau",points:["tashkent","aktau"],via:[[64.42,39.77],[58.83,42.46]],kind:"westasia"},
   {id:"caspian-baku",points:["aktau","baku"],kind:"westasia",mode:"multimodal"},
   {id:"iran-tehran",points:["tashkent","tehran"],via:[[61.83,37.6],[58.8,36.3]],kind:"westasia"},
-  {id:"turkiye-istanbul",points:["baku","istanbul"],via:[[44.8,41.7],[41.64,41.0],[35.33,40.7]],kind:"westasia"}
+  {id:"turkiye-istanbul",points:["baku","istanbul"],via:[[44.8,41.7],[41.64,41.0],[35.33,40.7]],kind:"westasia"},
+  {id:"f-suzhou",points:["suzhou","xian"],kind:"feeder"},
+  {id:"f-nanjing",points:["nanjing","xian"],kind:"feeder"},
+  {id:"f-chengdu",points:["chengdu","xian"],kind:"feeder"},
+  {id:"border-dostyk",points:["alashankou","dostyk"],kind:"main"},
+  {id:"border-altynkol",points:["khorgos","altynkol"],kind:"main"},
+  {id:"border-manchuria",points:["manzhouli","zabaikalsk"],kind:"europe"},
+  {id:"border-mongolia",points:["erlian","zamynuud"],kind:"europe"},
+  {id:"europe-minsk",points:["moscow","minsk"],kind:"europe"},
+  {id:"europe-brest",points:["minsk","brest"],kind:"europe"},
+  {id:"europe-border-mala",points:["brest","mala"],kind:"europe"},
+  {id:"europe-prague",points:["mala","prague"],kind:"europe"},
+  {id:"europe-rotterdam",points:["duisburg","rotterdam"],kind:"europe"},
+  {id:"europe-liege",points:["duisburg","liege"],kind:"europe"},
+  {id:"europe-katowice",points:["mala","katowice"],kind:"europe"},
+  {id:"europe-gdansk",points:["warsaw","gdansk"],kind:"europe"},
+  {id:"europe-vienna",points:["budapest","vienna"],kind:"europe"},
+  {id:"europe-munich",points:["prague","munich"],kind:"europe"},
+  {id:"europe-verona",points:["milan","verona"],kind:"europe"},
+  {id:"europe-belgrade",points:["budapest","belgrade"],kind:"europe"},
+  {id:"iran-mary",points:["tashkent","mary"],via:[[64.42,39.77]],kind:"westasia"},
+  {id:"iran-ashgabat",points:["mary","ashgabat"],kind:"westasia"}
 ];
