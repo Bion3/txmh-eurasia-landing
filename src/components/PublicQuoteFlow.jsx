@@ -142,28 +142,29 @@ export default function PublicQuoteFlow({locale='en'}) {
  </div>}{estimate.partial&&estimate.optionalPickup&&<div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-900"><p className="font-semibold">{t('通用提货阶梯参考（未计入上方小计）','Generic pickup tier reference (not included above)')}: USD {estimate.optionalPickup.amount.toLocaleString(undefined,{maximumFractionDigits:2})} / {t('票','shipment')}</p><p>{estimate.optionalPickup.tier} · {t('市中心估算；实际仓库和公路里程须核实','City-centre estimate; actual warehouse and road distance must be verified')}</p></div>}{estimate.railSubtotal&&<p className="mt-2 text-sm text-blue-900">{t(`计费方 ${estimate.quantity.toLocaleString(undefined,{maximumFractionDigits:2})} × USD ${estimate.unitPrice.toLocaleString(undefined,{maximumFractionDigits:2})} + 每票已确认费用 USD ${estimate.shipmentFee.toLocaleString(undefined,{maximumFractionDigits:2})}`,`Chargeable CBM ${estimate.quantity.toLocaleString(undefined,{maximumFractionDigits:2})} × USD ${estimate.unitPrice.toLocaleString(undefined,{maximumFractionDigits:2})} + confirmed fee USD ${estimate.shipmentFee.toLocaleString(undefined,{maximumFractionDigits:2})}`)}</p>}{estimate.rateOnly&&estimate.railQty&&<p className="mt-1 text-xs text-blue-800">{t(`当前货量对应约 ${estimate.railQty.toLocaleString(undefined,{maximumFractionDigits:2})} 计费方，实际整票费用须加上另计费用后人工核实。`,`Estimated ${estimate.railQty.toLocaleString(undefined,{maximumFractionDigits:2})} chargeable CBM; total requires manual verification of additional fees.`)}</p>}<p className="mt-2 text-xs text-blue-800">{scopes[form.serviceScope]}{estimate.validFrom?` · ${t('报价适用起','Rate from')} ${estimate.validFrom}`:''}{estimate.validUntil?` · ${t('有效至','Valid to')} ${estimate.validUntil}`:''}</p>{estimate.note&&<p className="mt-3 rounded-lg bg-white/80 px-3 py-2 text-xs leading-6 text-blue-900">{estimate.note}</p>}{estimate.indicative&&<p className="mt-2 text-xs font-semibold text-amber-800">{t('仅为按采购数据自动推算的参考价，尚未核实为正式报价。','Automatically derived reference, not a verified firm quote.')}</p>}</div>}
    {(status==='unmatched'||status==='error'||status==='restricted')&&<p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-700">{status==='error'?t('暂时无法连接报价服务，可留下联系方式由人工报价。','The rate service is unavailable. Leave your contact for a manual quote.'):status==='restricted'?t('特殊货物或超过25方/7吨，暂不提供自动总价；请提交人工询盘。','Special cargo or over 25 CBM / 7 tonnes: automatic total withheld; request a quotation.'):t('该线路或服务范围暂未发布销售价，仍可提交人工询盘。','No approved public selling rate is published for this route or service scope. You can still submit an inquiry.')}</p>}
    {status==='unmatched'&&form.containerType==='FCL'&&stationSuggestions.length>0&&<div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-    <p className="font-semibold">{t('找到可衔接线路，完整价格待补齐','Route options found; a complete rate is not yet available')}</p>
-    <p className="mt-1">{t('已有采购价的项目将直接匹配；缺失或明确有冲突的项目才需要核实。','Existing applicable rates are matched automatically; only missing or conflicting items need review.')}</p>
-    <div className="mt-3 grid gap-2">
-     {stationSuggestions.slice(0,3).map(s=>{
-      const truck=s.trucking_status==='not_needed'?t('无需拖车','Not needed'):s.truckingStatus==='area_matched_price_unverified'?t('已匹配地区','Area matched'):s.truckingLocations?.length?t('有拖车候选','Trucking available'):t('缺少拖车','Missing trucking');
-      const rail=s.railReference?`${s.railReference.currency} ${Number(s.railReference.amount).toLocaleString(undefined,{maximumFractionDigits:2})}`:t('价格口径待核','Price basis to verify');
-      const rental=s.rental_status==='not_needed'?t('无需租箱','Not needed'):s.rental_status==='terms_review'?t('有租箱报价','Rental available'):t('缺少租箱','Rental missing');
-      return <div key={s.station+'-'+s.container+'-'+s.equipment} className="rounded-lg border border-amber-200 bg-white p-3">
-       <p className="font-semibold">{form.pol} → {s.station} → {form.pod} <span className="text-xs font-normal">· {s.container} {s.equipment}</span></p>
-       <p className="mt-2 text-xs text-slate-700">{t('拖车','Truck')}: {truck}　·　{t('铁路','Rail')}: {rail}　·　{t('租箱','Rental')}: {rental}</p>
-       <details className="mt-2 text-xs"><summary className="cursor-pointer text-blue-700">{t('查看提空箱地、装箱地点和费用说明','View pickup/loading locations and fee notes')}</summary>
-        <p className="mt-2">{t('拖车按照提空箱地 → 工厂装箱地 → 铁路落箱站匹配。','Trucking matches empty pickup → factory loading → rail drop-off.')}</p>
-        {(s.truckingLocations||[]).slice(0,5).map((r,i)=><div key={r.empty_pickup_city+'-'+r.loading_area+'-'+i} className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 py-2">
-          <span>{r.empty_pickup_city} → {r.loading_area} → {r.rail_station}</span>
-          {!form.loadingArea&&<button type="button" className="rounded border border-blue-200 px-2 py-1 text-blue-700" onClick={()=>change('loadingArea',r.loading_area)}>{t('选择装箱地区','Select loading area')}</button>}
-         </div>)}
-        <p className="mt-2 text-slate-600">{t('参考线路并非已确认的门到门总价；具体装箱地址、另计费用及必要条款由业务补齐。','Route options are not an approved door-to-door total; sales will complete missing address, extra fees and essential terms.')}</p>
-       </details>
-      </div>;
-     })}
-    </div>
-    <p className="mt-3 text-xs">{t('无需逐项确认，提交一次询价即可核实缺项。','No need to confirm each segment. One inquiry covers the missing items.')}</p>
+    <p className="font-semibold">{t('已找到可比较的运输方案','Comparable transport routes found')}</p>
+    <p className="mt-1">{t('按提货地和目的站组合已录入费用；下列仅显示加价后的公开参考售价，不公开内部采购价。','Existing legs are combined by origin and destination; public reference selling prices only, no supplier costs.')}</p>
+    {(()=>{
+     const plans=stationSuggestions.flatMap(s=>s.quotePlans||[]).filter(p=>Number(p.sale_reference_usd)>0)
+      .sort((a,b)=>Number(b.estimate_status==='segment_covered')-Number(a.estimate_status==='segment_covered')
+       ||Number(a.sale_reference_usd)-Number(b.sale_reference_usd));
+     return plans.length?<div className="mt-3 grid gap-2">
+      {plans.slice(0,5).map((p,i)=><div key={p.rail_station+'-'+p.equipment+'-'+(p.loading_area||'')+'-'+i} className="rounded-lg border border-amber-200 bg-white p-3">
+       <div className="flex flex-wrap justify-between gap-2">
+        <strong>{form.pol} → {p.rail_station} → {form.pod} <span className="font-normal text-xs">· {p.container} {p.equipment}</span></strong>
+        <strong className="text-base text-blue-800">USD {(Number(p.sale_reference_usd)*(Number(form.quantity)||1)).toLocaleString(undefined,{maximumFractionDigits:2})}</strong>
+       </div>
+       <div className="mt-1 text-xs text-slate-600">{p.estimate_status==='segment_covered'?t('已匹配费用参考售价（非全包价）','Matched-segment reference sale (not all-in)'):t('已知费用参考小计（仍有缺项）','Known-segment subtotal (incomplete)')}
+       {' · '}{t('包含','Included')}: {(p.covered_segments||[]).join('、')||'—'}
+       {(p.missing_segments||[]).length>0&&<span className="block text-amber-800">{t('缺少','Missing')}: {p.missing_segments.join('、')}</span>}
+       {p.loading_area&&<span className="block">{t('工厂装货地区','Factory loading area')}: {p.loading_area} · {t('提空箱','Empty pickup')}: {p.empty_pickup_city||'—'}</span>}
+       </div>
+      </div>)}
+     </div>:<div className="mt-3 grid gap-2">
+      {stationSuggestions.slice(0,4).map(s=><p key={s.station+s.container+s.equipment} className="rounded-lg bg-white px-3 py-2">{form.pol} → {s.station} → {form.pod} · {s.container} {s.equipment} · {t('采购线路已匹配，价格待补齐','Route available, rate to be completed')}</p>)}
+     </div>;
+    })()}
+    <p className="mt-3 text-xs">{t('默认采用10%操作费、人民币换算参考汇率7；未列明的清关、目的地杂费、特殊作业及条件仍需确认。正式报价请提交一次询价。','Uses 10% handling markup and CNY/USD 7 reference conversion. Unlisted customs, destination and special charges require confirmation; submit one inquiry for a firm quote.')}</p>
    </div>}
    {estimate&&!contactOpen&&status!=='submitted'&&<button onClick={()=>setContactOpen(true)} className="mt-3 w-full rounded-xl border border-blue-200 px-4 py-3 font-semibold text-blue-700">{t('请人工确认报价','Request a firm quote')}</button>}
    {message&&<p role="status" className="mt-3 rounded-xl bg-slate-50 p-4 text-sm">{message}</p>}
