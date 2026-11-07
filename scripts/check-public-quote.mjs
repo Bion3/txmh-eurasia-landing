@@ -172,9 +172,17 @@ console.log('FCL/LCL-first interface and public destination list with manual-ent
 
 const quotesApi=readFileSync(new URL('../src/api/publicQuotes.js',import.meta.url),'utf8');
 const quotesUi=readFileSync(new URL('../src/components/PublicQuoteFlow.jsx',import.meta.url),'utf8');
-assert.match(quotesApi,/freight_website_fcl_route_options/);
+assert.match(quotesApi,/freight_website_fcl_segment_options/);
 assert.match(quotesApi,/getFclStationSuggestions/);
 assert.match(quotesUi,/getFclStationSuggestions\(form\)/);
 assert.match(quotesUi,/stationSuggestions\.length>0/);
 assert.match(quotesUi,/提货城市，而非铁路起运站/);
 console.log('Unpriced FCL pickup-city destinations give station suggestions without invented total prices.');
+
+assert.match(quotesApi,/option\.rail_status==='reference_available'/);
+assert.match(quotesUi,/s\.trucking_status==='address_and_price_basis_review'/);
+assert.match(quotesUi,/s\.rental_status==='terms_review'/);
+assert.match(quotesUi,/s\.railReference/);
+assert.match(quotesUi,/以上不是可下单的完整报价/);
+assert.doesNotMatch(quotesApi,/supabase\.from\('freight_fcl_rail_rates'\)/);
+console.log('Segmented FCL quotation status checks: only approved reference prices displayed, no unsafe all-in total.');
