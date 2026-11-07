@@ -21,7 +21,10 @@ export const hubs = [
   ["liege","列日",5.57,50.63,"hub"],["katowice","卡托维兹",19.02,50.26,"hub"],
   ["vienna","维也纳",16.37,48.21,"hub"],["belgrade","贝尔格莱德",20.46,44.81,"hub"],
   ["ashgabat","阿什哈巴德",58.38,37.96,"hub"],["mary","马雷",61.83,37.60,"hub"],
-  ["london","伦敦",0.13,51.51,"hub"],["gdansk","格但斯克",18.65,54.35,"hub"]
+  ["london","伦敦",0.13,51.51,"hub"],["gdansk","格但斯克",18.65,54.35,"hub"],
+  ["harbin","哈尔滨",126.64,45.76,"origin"],["chita","赤塔",113.50,52.03,"hub"],
+  ["irkutsk","伊尔库茨克",104.30,52.29,"hub"],["novosibirsk","新西伯利亚",82.92,55.03,"hub"],
+  ["yekaterinburg","叶卡捷琳堡",60.61,56.84,"hub"],["stpetersburg","圣彼得堡",30.31,59.94,"hub"]
 ].map(([id,label,lon,lat,type])=>({id,label,lon,lat,type}));
 
 // Route segments are shared, preventing overlapping animated lines on common trunks.
@@ -52,6 +55,15 @@ export const routes = [
   {id:"border-dostyk",points:["alashankou","dostyk"],kind:"main"},
   {id:"border-altynkol",points:["khorgos","altynkol"],kind:"main"},
   {id:"border-manchuria",points:["manzhouli","zabaikalsk"],kind:"europe"},
+  // Manzhouli / Zabaykalsk corridor; schematic rail hub links, not scheduled service commitments.
+  {id:"f-harbin-manzhouli",points:["harbin","manzhouli"],via:[[123.97,47.75],[119.75,49.22]],kind:"feeder"},
+  {id:"f-xian-manzhouli",points:["xian","manzhouli"],via:[[112.55,37.87],[116.40,39.90],[119.60,43.95]],kind:"feeder"},
+  {id:"ru-zabaikalsk-chita",points:["zabaikalsk","chita"],kind:"europe"},
+  {id:"ru-chita-irkutsk",points:["chita","irkutsk"],kind:"europe"},
+  {id:"ru-irkutsk-novosibirsk",points:["irkutsk","novosibirsk"],via:[[92.85,56.02]],kind:"europe"},
+  {id:"ru-novosibirsk-yekaterinburg",points:["novosibirsk","yekaterinburg"],via:[[73.37,54.99]],kind:"europe"},
+  {id:"ru-yekaterinburg-moscow",points:["yekaterinburg","moscow"],via:[[49.12,55.79]],kind:"europe"},
+  {id:"ru-moscow-stpetersburg",points:["moscow","stpetersburg"],kind:"europe"},
   {id:"border-mongolia",points:["erlian","zamynuud"],kind:"europe"},
   {id:"europe-minsk",points:["moscow","minsk"],kind:"europe"},
   {id:"europe-brest",points:["minsk","brest"],kind:"europe"},
