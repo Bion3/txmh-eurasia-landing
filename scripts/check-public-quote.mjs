@@ -231,3 +231,8 @@ assert.match(quotesUi,/以上为参考价格/);
 assert.doesNotMatch(quotesUi,/已找到可比较的运输方案[\s\S]{0,200}加价后的公开参考售价/);
 assert.doesNotMatch(quotesUi,/自动采用10%操作费/);
 console.log('Customer price UI omits purchase-cost formulas and includes 13 bilingual FCL remarks.');
+
+assert.match(quotesUi,/estimate&&\!\(form\.containerType==='FCL'&&stationSuggestions\.some/);
+assert.match(quotesUi,/status==='unmatched'&&\!stationSuggestions\.some/);
+assert.match(quotesUi,/整柜运输方案及参考价格/);
+console.log('FCL quote shows one scheme-price list instead of duplicate price and no-rate messaging.');
