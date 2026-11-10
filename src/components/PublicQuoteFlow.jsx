@@ -8,7 +8,7 @@ import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
 import {captureAcquisitionAttribution} from '../lib/acquisitionAttribution';
 
 const empty = {pol:'',loadingArea:'',emptyPickupCity:'',pod:'',containerType:'FCL',containerSize:'',equipment:'',quantity:'',volume:'',weight:'',pieceLength:'',pieceWidth:'',pieceHeight:'',pieceWeight:'',cargoRisk:'unspecified',serviceScope:'port_to_port',cargo:'',notes:'',name:'',contact:''};
-const inputClass='w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+const inputClass='w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 export default function PublicQuoteFlow({locale='en'}) {
  const zh=locale==='zh', t=(a,b)=>zh?a:b;
  const location=useLocation();
@@ -66,22 +66,22 @@ export default function PublicQuoteFlow({locale='en'}) {
  }
  const fields=(key,label,props={})=><label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{label}</span><input className={inputClass} value={form[key]} onChange={e=>change(key,e.target.value)} {...props}/></label>;
  const scopes={door_to_station:t('国内提货 + 铁路至目的站','Origin pickup + rail to terminal'),port_to_port:t('铁路站到站','Rail terminal to terminal'),door_to_door:t('门到门（含目的地派送）','Door to door'),fba_delivery:t('FBA 仓库派送','FBA delivery'),ddp:t('DDP 服务','DDP service')};
- return <section id="public-quote" className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/10 sm:p-7 lg:p-8">
+ return <section id="public-quote" className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-900/10 sm:p-6 lg:p-7">
   <h1 className="text-2xl font-bold text-slate-950">{t('获取运费报价','Get a freight quote')}</h1>
-  <p className="mt-2 text-sm text-slate-500">{t('先选择整柜或拼箱，再选择有价格的目的站；其他线路仍可人工询盘。','Choose FCL or LCL first, then search priced destinations. Other routes can still request a manual quote.')}</p>
-  <form onSubmit={calculate} className="mt-5 space-y-4">
+  <p className="mt-2 text-sm text-slate-500">{t('填写提货地与目的地，查看可选运输方案和价格。','Enter pickup and destination to compare available routes and prices.')}</p>
+  <form onSubmit={calculate} className="mt-4 space-y-3">
    <fieldset disabled={sending} className="grid grid-cols-2 gap-2" aria-label={t('选择运输方式','Choose shipment type')}>
     {[
       {id:'FCL',cn:'整柜 FCL',en:'Full Container · FCL',hintCn:'按箱型 / 箱量报价',hintEn:'Container & quantity'},
       {id:'LCL',cn:'拼箱 LCL',en:'Less than Container · LCL',hintCn:'按体积 / 毛重报价',hintEn:'Volume & weight'}
     ].map(mode=><button key={mode.id} type="button" onClick={()=>change('containerType',mode.id)}
       aria-pressed={form.containerType===mode.id}
-      className={`rounded-xl border px-4 py-3 text-left transition-colors ${form.containerType===mode.id?'border-blue-600 bg-blue-50 text-blue-950 ring-1 ring-blue-600':'border-slate-200 bg-white text-slate-600 hover:border-blue-300'}`}>
+      className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${form.containerType===mode.id?'border-blue-600 bg-blue-50 text-blue-950 ring-1 ring-blue-600':'border-slate-200 bg-white text-slate-600 hover:border-blue-300'}`}>
       <span className="block text-sm font-bold">{zh?mode.cn:mode.en}</span>
-      <span className="mt-1 block text-xs opacity-70">{zh?mode.hintCn:mode.hintEn}</span>
+      <span className="mt-0.5 block text-xs opacity-70">{zh?mode.hintCn:mode.hintEn}</span>
      </button>)}
    </fieldset>
-   <fieldset disabled={sending} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+   <fieldset disabled={sending} className="grid gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
     <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('服务范围','Service scope')}</span><select className={inputClass} value={form.serviceScope} onChange={e=>change('serviceScope',e.target.value)}>{Object.entries(scopes).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
     {fields('pol',t('起运地 / 提货城市','Origin / Pickup city'),{required:true,placeholder:t('例如：太仓 / 上海','e.g. Taicang / Shanghai')})}
     <label className="grid gap-1.5 text-sm font-medium text-slate-700">
@@ -92,7 +92,7 @@ export default function PublicQuoteFlow({locale='en'}) {
        {pricedStops.map(stop=><option key={stop} value={stop}/>)}
       </datalist>
       <span className="text-xs font-normal text-slate-500" aria-live="polite">
-       {destinationsLoading?t('正在读取价格站点…','Loading priced destinations…'):destinationsError?t('站点列表暂不可用，可手动填写','Station list unavailable; type a destination'):pricedForSelected?t('该目的站有参考价，仍需匹配起运地和箱型','Reference rates exist; origin and equipment must also match'):t(`当前${form.containerType==='FCL'?'整柜':'拼箱'}可选 ${pricedStops.length} 个有价目的站，也可手动输入其他站点`,`${pricedStops.length} priced destinations available; other destinations may be typed manually`)}
+       {destinationsLoading?t('正在读取价格站点…','Loading priced destinations…'):destinationsError?t('站点列表暂不可用，可手动填写','Station list unavailable; type a destination'):pricedForSelected?t('该目的站有可查询线路','Routes available for this destination'):t(`当前${form.containerType==='FCL'?'整柜':'拼箱'}可选 ${pricedStops.length} 个有价目的站，也可手动输入其他站点`,`${pricedStops.length} priced destinations available; other destinations may be typed manually`)}
       </span>
     </label>
     {form.containerType==='FCL'?
@@ -128,8 +128,8 @@ export default function PublicQuoteFlow({locale='en'}) {
     </div></>}
    </div></details>
    {form.containerType==='LCL'&&checkLclCargoRestrictions(form).manualRequired&&<div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"><strong>{t('特殊货物：需要人工确认','Special cargo: manual review required')}</strong><ul className="mt-2 list-disc space-y-1 pl-5">{checkLclCargoRestrictions(form).notices.map((line,i)=><li key={i}>{zh?line:({bulkShipment:lclTermsEn[0],oversizePiece:lclTermsEn[2],excludedCargo:lclTermsEn[6],specialCargo:lclTermsEn[5]})[checkLclCargoRestrictions(form).reasons[i]]}</li>)}</ul></div>}
-   <details className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm font-medium text-slate-700">{t('铁路拼箱出运限制与费用须知（7条）','Rail LCL restrictions and fee terms (7 items)')}</summary><ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-6 text-slate-600">{(zh?lclTermsZh:lclTermsEn).map((term,i)=><li key={i}>{term}</li>)}</ol><p className="mt-2 text-xs text-slate-500">{t('超限与特殊货物需人工确认；商检、查验及额外作业费不包含在自动参考价中。','Oversize and special cargo require approval; inspections and extra handling are not included in automated reference rates.')}</p></details>
-   <button disabled={status==='loading'||sending} className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50">{status==='loading'?t('正在查询…','Checking…'):t('查看价格','Check price')}</button>
+   {form.containerType==='LCL'&&<details className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm font-medium text-slate-700">{t('拼箱运输须知（7条）','LCL shipping notes (7 points)')}</summary><ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-6 text-slate-600">{(zh?lclTermsZh:lclTermsEn).map((term,i)=><li key={i}>{term}</li>)}</ol><p className="mt-2 text-xs text-slate-500">{t('超限与特殊货物需人工确认；商检、查验及额外作业费不包含在自动参考价中。','Oversize and special cargo require approval; inspections and extra handling are not included in automated reference rates.')}</p></details>}
+   <button disabled={status==='loading'||sending} className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">{status==='loading'?t('正在查询…','Checking…'):t('查看价格','Check price')}</button>
   </form>
   <div aria-live="polite" className="mt-4">
    {estimate&&!(form.containerType==='FCL'&&stationSuggestions.some(s=>(s.quotePlans||[]).length>0))&&<div className="rounded-xl bg-blue-50 p-5"><div className="text-sm text-blue-800">{estimate.rateOnly?t('铁路参考单价（非总价）','Rail-only unit reference (not a total)'):estimate.partial?t('已匹配费用组合（非全程总价）','Matched cost components (not door-to-door total)'):estimate.railSubtotal?t('铁路拼箱费用小计（不含国内和目的地费用）','Rail LCL subtotal (excluding local and destination charges)'):estimate.indicative?t('铁路站到站预估运费','Indicative station-to-station rail freight'):t('参考运费','Indicative freight')}</div><div className="mt-1 text-3xl font-bold text-blue-950">{estimate.currency} {estimate.low.toLocaleString(undefined,{maximumFractionDigits:2})}{estimate.high!==estimate.low?`–${estimate.high.toLocaleString(undefined,{maximumFractionDigits:2})}`:''}</div><p className="mt-2 text-sm text-blue-800">{estimate.rateOnly?t('每计费方。尚有每票操作费及其他费用待核实，填写体积和重量也不能视为完整总价。','Per chargeable CBM. Per-shipment handling and other charges need verification; this is not a total even with weight and volume.'):t(`按 ${estimate.quantity} ${estimate.unit==='container'?'箱':'计费方'}计算`,`Based on ${estimate.quantity} ${estimate.unit}`)}{estimate.container?` · ${estimate.container}`:''}{estimate.equipment?` · ${estimate.equipment}`:''}</p>{estimate.partial&&<div className="mt-3 rounded-lg bg-white/80 p-3 text-sm text-blue-900"><p className="font-semibold">{t('国内运输分段','Domestic freight segments')}: {estimate.pickupOriginCity||form.pol} → {estimate.receivingWarehouseCity||estimate.consolidationStation} → {estimate.consolidationStation}</p><p>{t('收货仓至铁路装箱站干线','Receiving warehouse to rail loading station')}: {estimate.receivingWarehouseCity||form.pol} → {estimate.consolidationStation} · {estimate.domesticLinehaulIncluded===false?t('同城无独立干线','No intercity linehaul'): `USD ${estimate.domesticLinehaul.toLocaleString(undefined,{maximumFractionDigits:2})}`}</p><p>{t('铁路段（含已知每票费）','Rail segment (confirmed shipment fee included)')}: USD {estimate.railwaySubtotal.toLocaleString(undefined,{maximumFractionDigits:2})}</p><p className="mt-2 text-xs font-semibold">{t('未包含：门点提货、境外清关及末端配送等费用。','Not included: origin pickup, destination clearance, last-mile delivery and applicable extras.')}</p></div>}{estimate.partial&&estimate.pickupDistance&&<div className="mt-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-700">
