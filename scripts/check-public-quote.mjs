@@ -210,13 +210,24 @@ assert.match(quotesApi,/freight_website_fcl_route_comparisons/);
 assert.match(quotesApi,/quotePlans:safePlans\.filter/);
 assert.match(quotesUi,/stationSuggestions\.flatMap\(s=>s.quotePlans/);
 assert.match(quotesUi,/p\.sale_reference_usd/);
-assert.match(quotesUi,/已匹配费用参考售价（非全包价）/);
-assert.match(quotesUi,/已知费用参考小计（仍有缺项）/);
+assert.match(quotesUi,/方案参考价（以所列服务为准）/);
+assert.match(quotesUi,/部分费用待补，价格仅供参考/);
 assert.match(quotesUi,/p\.missing_segments/);
-assert.match(quotesUi,/10%操作费/);
+assert.doesNotMatch(quotesUi,/10%操作费|人民币换算参考汇率7|按采购数据自动推算/);
 assert.doesNotMatch(quotesUi,/内部采购价\}\} USD/);
 console.log('Public FCL compare surface uses marked-up reference prices, ranks complete segments and flags incomplete options.');
 
 assert.match(quotesUi,/\(status==='matched'\|\|status==='unmatched'\)/);
 assert.match(quotesUi,/if\(!result\)setContactOpen\(true\);if\(form\.containerType==='FCL'\)/);
 console.log('FCL route alternatives appear for direct rail results and missing through-rates alike.');
+
+const {fclQuoteTerms}=await import('../src/lib/fclQuoteTerms.js');
+assert.equal(fclQuoteTerms.length,13);
+for(const term of fclQuoteTerms){assert.ok(term.zh.length>=12);assert.ok(term.en.length>=20);}
+assert.match(quotesUi,/整柜报价注意事项（13条）/);
+assert.match(quotesUi,/fclQuoteTerms\.map/);
+assert.match(quotesUi,/p\.sale_reference_usd/);
+assert.match(quotesUi,/以上为参考价格/);
+assert.doesNotMatch(quotesUi,/已找到可比较的运输方案[\s\S]{0,200}加价后的公开参考售价/);
+assert.doesNotMatch(quotesUi,/自动采用10%操作费/);
+console.log('Customer price UI omits purchase-cost formulas and includes 13 bilingual FCL remarks.');
