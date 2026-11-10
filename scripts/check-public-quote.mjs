@@ -236,3 +236,10 @@ assert.match(quotesUi,/estimate&&\!\(form\.containerType==='FCL'&&stationSuggest
 assert.match(quotesUi,/status==='unmatched'&&\!stationSuggestions\.some/);
 assert.match(quotesUi,/整柜运输方案及参考价格/);
 console.log('FCL quote shows one scheme-price list instead of duplicate price and no-rate messaging.');
+
+assert.match(quotesUi,/lg:grid-cols-3/);
+assert.doesNotMatch(quotesUi,/lg:grid-cols-4/);
+assert.match(quotesUi,/form\.containerType==='LCL'&&<details[^\n]*拼箱运输须知（7条）/);
+assert.match(quotesUi,/form\.containerType==='FCL'&&<details[^\n]*整柜报价注意事项（13条）/);
+assert.match(quotesUi,/填写提货地与目的地，查看可选运输方案和价格/);
+console.log('Quote UI: compact desktop grid and mode-specific FCL/LCL terms verified.');
