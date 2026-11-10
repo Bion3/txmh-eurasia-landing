@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {destinationRegion,destinationRegions} from '../lib/destinationRegions';
+import {originAreas,originCitiesByArea} from '../lib/originCities';
 import {useLocation} from 'react-router';
 import {getPublicQuoteEstimate,getPricedDestinationChoices,getFclStationSuggestions} from '../api/publicQuotes';
 import {checkLclCargoRestrictions,lclTermsZh,lclTermsEn} from '../lib/lclQuoteRestrictions';
@@ -16,6 +17,8 @@ export default function PublicQuoteFlow({locale='en'}) {
  const [form,setForm,draft]=usePersistentFormDraft('eurasiago:unified-quote',empty);
  const [status,setStatus]=useState('idle'),[estimate,setEstimate]=useState(null),[contactOpen,setContactOpen]=useState(false),[sending,setSending]=useState(false),[message,setMessage]=useState('');
  const [stationSuggestions,setStationSuggestions]=useState([]);
+ const [originArea,setOriginArea]=useState('all');
+ const [originFocused,setOriginFocused]=useState(false);
  const [destinationArea,setDestinationArea]=useState('all');
  const [destinationFocused,setDestinationFocused]=useState(false);
  const [pricedDestinations,setPricedDestinations]=useState([]),[destinationsLoading,setDestinationsLoading]=useState(true),[destinationsError,setDestinationsError]=useState(false);
@@ -29,6 +32,7 @@ export default function PublicQuoteFlow({locale='en'}) {
     .finally(()=>{if(alive)setDestinationsLoading(false);});
   return ()=>{alive=false;};
  },[]);
+ const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||city.includes(form.pol.trim())).slice(0,30);
  const pricedRoutes=pricedDestinations.filter(r=>r.transport===(form.containerType==='FCL'?'fcl':'lcl'));
  const pricedStops=[...new Set(pricedRoutes.map(r=>String(r.destination||'').trim()).filter(Boolean))]
   .sort((a,b)=>a.localeCompare(b,zh?'zh-CN':'en'));
@@ -88,7 +92,26 @@ export default function PublicQuoteFlow({locale='en'}) {
    </fieldset>
    <fieldset disabled={sending} className="grid gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
     <label className="grid gap-1.5 text-sm font-medium text-slate-700"><span>{t('服务范围','Service scope')}</span><select className={inputClass} value={form.serviceScope} onChange={e=>change('serviceScope',e.target.value)}>{Object.entries(scopes).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
-    {fields('pol',t('起运地 / 提货城市','Origin / Pickup city'),{required:true,placeholder:t('例如：太仓 / 上海','e.g. Taicang / Shanghai')})}
+    <div className="grid gap-1.5 text-sm font-medium text-slate-700">
+      <span>{t('起运地 / 提货城市','Origin / Pickup city')}</span>
+      <div className="grid grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] gap-2">
+        <select className={inputClass} value={originArea} aria-label={t('国内起运地区域','Origin region')} onChange={e=>{setOriginArea(e.target.value);setOriginFocused(true)}}>
+          {originAreas.map(([id,cn,en])=><option key={id} value={id}>{zh?cn:en}</option>)}
+        </select>
+        <div className="relative min-w-0">
+          <input className={inputClass} value={form.pol} required autoComplete="off"
+            aria-label={t('起运城市','Origin city')} aria-expanded={originFocused}
+            onFocus={()=>setOriginFocused(true)} onBlur={()=>setOriginFocused(false)}
+            onChange={e=>{change('pol',e.target.value);setOriginFocused(true)}}
+            placeholder={t('选择或输入城市','Select or type city')}/>
+          {originFocused&&<div role="listbox" aria-label={t('国内起运城市建议','Origin city suggestions')} className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl">
+            {originMatches.length?originMatches.map(city=><button key={city} type="button" role="option" aria-selected={form.pol===city}
+              onMouseDown={e=>e.preventDefault()} onClick={()=>{change('pol',city);setOriginFocused(false)}}
+              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{city}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('未找到匹配城市，可直接输入','No match; enter any city')}</div>}
+          </div>}
+        </div>
+      </div>
+    </div>
     <div className="grid gap-1.5 text-sm font-medium text-slate-700">
       <span>{t('目的地 / 目的站','Destination / Terminal')}</span>
       <datalist id="eurasiago-pricing-destinations">{pricedStops.map(stop=><option key={stop} value={stop}/>)}</datalist>
