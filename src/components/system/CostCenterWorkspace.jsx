@@ -772,6 +772,8 @@ export default function CostCenterWorkspace({ onNavigateQuotes, onNotify }) {
     keyword: "",
   });
   const [selectedSheetId, setSelectedSheetId] = useState("");
+  const [originFilter, setOriginFilter] = useState("");
+  const [showCreateItem, setShowCreateItem] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState("");
   const [rateHealthPlanText, setRateHealthPlanText] = useState("");
   const [supplierPlanText, setSupplierPlanText] = useState("");
@@ -792,7 +794,9 @@ export default function CostCenterWorkspace({ onNavigateQuotes, onNotify }) {
   const rateSheetQuery = useRateSheetList({ ...filters, page_size: 100 });
   const liveRateSheets = rateSheetQuery.data?.items || [];
   const displayRateSheets = liveRateSheets.length ? liveRateSheets : fallbackRateSheets;
-  const selectedSheet = displayRateSheets.find((sheet) => sheet.id === selectedSheetId) || displayRateSheets[0];
+  const originOptions = [...new Set(displayRateSheets.map((sheet) => sheet.origin_port || sheet.origin_country || "").filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+  const visibleRateSheets = displayRateSheets.filter((sheet) => !originFilter || (sheet.origin_port || sheet.origin_country) === originFilter);
+  const selectedSheet = visibleRateSheets.find((sheet) => sheet.id === selectedSheetId) || visibleRateSheets[0];
   const itemQuery = useRateSheetItems(selectedSheet?.isFallback ? null : selectedSheet?.id, { page_size: 100 });
   const createItemMutation = useCreateRateSheetItem(selectedSheet?.id);
   const liveItems = itemQuery.data?.items || [];
@@ -800,10 +804,10 @@ export default function CostCenterWorkspace({ onNavigateQuotes, onNotify }) {
   const vendors = vendorQuery.data?.items || [];
 
   useEffect(() => {
-    if (displayRateSheets.length && !displayRateSheets.some((sheet) => sheet.id === selectedSheetId)) {
-      setSelectedSheetId(displayRateSheets[0].id);
+    if (visibleRateSheets.length && !visibleRateSheets.some((sheet) => sheet.id === selectedSheetId)) {
+      setSelectedSheetId(visibleRateSheets[0].id);
     }
-  }, [displayRateSheets, selectedSheetId]);
+  }, [visibleRateSheets, selectedSheetId]);
 
   const summary = useMemo(() => {
     const quoteItems = displayItems.filter((item) => item.included_in_quote);
@@ -1047,13 +1051,256 @@ export default function CostCenterWorkspace({ onNavigateQuotes, onNotify }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="供应商" value={summary.vendors} hint="承运商、拖车、报关、海外代理" />
         <SummaryCard label="有效费率表" value={summary.sheets} hint="按运输方式和货型匹配报价" />
         <SummaryCard label="当前费项" value={summary.items} hint={`${summary.quoteItemCount} 项参与自动报价`} />
         <SummaryCard label="自动核价覆盖" value={summary.coverage} hint="铁路、海运、空运基础覆盖" />
       </div>
 
+      <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><h2 className="text-xl font-bold text-slate-950">航线成本管理</h2><p className="mt-1 text-sm text-slate-500">按起运站筛选航线，点击费率表查看费用明细；不改变原有报价匹配逻辑。</p></div>
+          <button type="button" onClick={() => onNavigateQuotes?.()} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">测试报价</button>
+        </div>
+      </div>
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <Field label="起运站">
+              <select value={originFilter} onChange={(event) => setOriginFilter(event.target.value)} className={inputClass}>
+                <option value="">全部起运站</option>
+                {originOptions.map((origin) => <option key={origin} value={origin}>{origin}</option>)}
+              </select>
+            </Field>
+            <Field label="运输方式">
+              <select value={filters.mode} onChange={(event) => updateFilter("mode", event.target.value)} className={inputClass}>
+                <option value="">全部</option>
+                <option value="rail">铁路</option>
+                <option value="sea">海运</option>
+                <option value="air">空运</option>
+              </select>
+            </Field>
+            <Field label="货型">
+              <select value={filters.shipment_type} onChange={(event) => updateFilter("shipment_type", event.target.value)} className={inputClass}>
+                <option value="">全部</option>
+                <option value="FCL">整箱</option>
+                <option value="LCL">拼箱</option>
+                <option value="air_cargo">空运货</option>
+              </select>
+            </Field>
+            <Field label="状态">
+              <select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)} className={inputClass}>
+                <option value="">全部</option>
+                <option value="active">生效</option>
+                <option value="draft">草稿</option>
+                <option value="expired">过期</option>
+                <option value="archived">归档</option>
+              </select>
+            </Field>
+            <Field label="搜索">
+              <input
+                value={filters.keyword}
+                onChange={(event) => updateFilter("keyword", event.target.value)}
+                placeholder="航线、目的地或费率号"
+                className={inputClass}
+              />
+            </Field>
+          </div>
+          <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+            {dataStateMessage}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
+        <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-bold text-slate-950">费率表</h3>
+              <p className="text-sm text-slate-500">报价按优先级匹配第一张有效表</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigateQuotes?.()}
+              className="rounded-full bg-slate-950 px-3 py-2 text-xs font-semibold text-white"
+            >
+              去报价验证
+            </button>
+          </div>
+
+          <div className="max-h-[680px] space-y-2 overflow-y-auto pr-1">
+            {visibleRateSheets.map((sheet, index) => (
+              <div key={sheet.id}>
+                {(index === 0 || (visibleRateSheets[index - 1].origin_port || visibleRateSheets[index - 1].origin_country) !== (sheet.origin_port || sheet.origin_country)) && (
+                  <div className="px-2 pb-1 pt-3 text-xs font-bold text-slate-500">{sheet.origin_port || sheet.origin_country || "未设置起运站"}</div>
+                )}
+              <button
+                type="button"
+                onClick={() => setSelectedSheetId(sheet.id)}
+                className={`w-full rounded-xl border px-3 py-3 text-left transition ${
+                  selectedSheet?.id === sheet.id
+                    ? "border-sky-300 bg-sky-50 shadow-sm"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-bold text-slate-950">{sheet.name}</div>
+                    <div className="mt-1 text-xs text-slate-500">{sheet.rate_sheet_no || "未编号"}</div>
+                  </div>
+                  <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${
+                    sheet.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                  }`}>
+                    {sheet.status || "draft"}
+                  </span>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-slate-600">
+                  <span>{modeLabels[sheet.mode] || sheet.mode} / {shipmentLabels[sheet.shipment_type] || sheet.shipment_type}</span>
+                  <span className="text-right">{sheet.currency || "USD"}</span>
+                  <span>{sheet.origin_port || "任意起运地"}</span>
+                  <span className="text-right">{sheet.destination_port || "任意目的地"}</span>
+                </div>
+                <div className="mt-2 text-xs text-slate-500">
+                  供应商：{sheet.vendor?.vendor_name || "未绑定"}，优先级 {sheet.priority || 100}
+                </div>
+              </button>
+              </div>
+            ))}
+            {!visibleRateSheets.length && <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">当前筛选下没有航线，请调整起运站或搜索条件。</p>}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-950">{selectedSheet?.name || "费项明细"}</h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  {selectedSheet?.origin_port || "任意起运地"} → {selectedSheet?.destination_port || "任意目的地"}，{selectedSheet?.vendor?.vendor_name || "未绑定供应商"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-950 px-4 py-3 text-right text-white">
+                <div className="text-xs text-slate-300">自动报价费项</div>
+                <div className="text-xl font-bold">{summary.quoteItemCount}</div>
+              </div>
+            </div>
+
+            <div className="mt-4 overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead>
+                  <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-3 py-3">费项</th>
+                    <th className="px-3 py-3">计费</th>
+                    <th className="px-3 py-3 text-right">最低</th>
+                    <th className="px-3 py-3 text-right">单价</th>
+                    <th className="px-3 py-3">报价</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {displayItems.map((item) => (
+                    <tr key={item.id} className="align-top">
+                      <td className="px-3 py-3">
+                        <div className="font-semibold text-slate-950">{item.fee_name}</div>
+                        <div className="mt-1 text-xs text-slate-500">{item.fee_code}</div>
+                      </td>
+                      <td className="px-3 py-3 text-slate-600">
+                        <div>{calcMethodLabels[item.calc_method] || item.calc_method}</div>
+                        <div className="mt-1 text-xs text-slate-500">{item.unit || "-"}</div>
+                      </td>
+                      <td className="px-3 py-3 text-right font-medium text-slate-700">
+                        {Number(item.min_charge || 0).toLocaleString()} {item.currency || selectedSheet?.currency || "USD"}
+                      </td>
+                      <td className="px-3 py-3 text-right font-bold text-slate-950">
+                        {Number(item.unit_price || 0).toLocaleString()} {item.currency || selectedSheet?.currency || "USD"}
+                      </td>
+                      <td className="px-3 py-3">
+                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                          item.included_in_quote ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                        }`}>
+                          {item.included_in_quote ? "自动带入" : "仅成本"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {!displayItems.length && (
+                    <tr>
+                      <td colSpan="5" className="px-3 py-10 text-center text-sm text-slate-500">
+                        当前费率表还没有费项。新增费项后，勾选自动报价即可进入报价核算。
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div><div className="text-sm font-bold text-slate-900">维护费用</div><div className="text-xs text-slate-500">按需新增，不必每次展开全部字段</div></div>
+            <button type="button" onClick={() => setShowCreateItem((value) => !value)} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white">{showCreateItem ? "收起" : "新增费项"}</button>
+          </div>
+          {showCreateItem && <form onSubmit={handleCreateItem} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-950">新增费项</h3>
+                <p className="mt-1 text-sm text-slate-500">例如主运费、文件费、报关费、拖车费、海外派送费。</p>
+              </div>
+              <label className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+                <input
+                  type="checkbox"
+                  checked={itemDraft.included_in_quote}
+                  onChange={(event) => updateDraft("included_in_quote", event.target.checked)}
+                />
+                参与自动报价
+              </label>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-4">
+              <Field label="费项代码">
+                <input value={itemDraft.fee_code} onChange={(event) => updateDraft("fee_code", event.target.value)} placeholder="DOC" className={inputClass} />
+              </Field>
+              <Field label="费项名称">
+                <input value={itemDraft.fee_name} onChange={(event) => updateDraft("fee_name", event.target.value)} placeholder="文件费" className={inputClass} />
+              </Field>
+              <Field label="计费方式">
+                <select value={itemDraft.calc_method} onChange={(event) => updateDraft("calc_method", event.target.value)} className={inputClass}>
+                  {Object.entries(calcMethodLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="单位">
+                <input value={itemDraft.unit} onChange={(event) => updateDraft("unit", event.target.value)} placeholder="SHIPMENT" className={inputClass} />
+              </Field>
+              <Field label="最低收费">
+                <input type="number" min="0" step="0.01" value={itemDraft.min_charge} onChange={(event) => updateDraft("min_charge", event.target.value)} placeholder="0" className={inputClass} />
+              </Field>
+              <Field label="成本单价">
+                <input type="number" min="0" step="0.01" value={itemDraft.unit_price} onChange={(event) => updateDraft("unit_price", event.target.value)} placeholder="88" className={inputClass} />
+              </Field>
+              <Field label="币种">
+                <select value={itemDraft.currency} onChange={(event) => updateDraft("currency", event.target.value)} className={inputClass}>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="CNY">CNY</option>
+                </select>
+              </Field>
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  disabled={createItemMutation.isPending}
+                  className="w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {createItemMutation.isPending ? "保存中..." : "保存费项"}
+                </button>
+              </div>
+            </div>
+          </form>}
+        </section>
+      </div>
+      <details className="group rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <summary className="cursor-pointer select-none text-base font-bold text-slate-900">高级管理：供应商运营、异常检查与费率审批 <span className="ml-2 text-xs font-normal text-slate-500">按需展开</span></summary>
+        <div className="mt-5 space-y-6">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-5 xl:grid-cols-[330px_1fr]">
           <div>
@@ -1616,225 +1863,9 @@ export default function CostCenterWorkspace({ onNavigateQuotes, onNotify }) {
         ) : null}
       </section>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-          <div className="grid gap-3 md:grid-cols-4">
-            <Field label="运输方式">
-              <select value={filters.mode} onChange={(event) => updateFilter("mode", event.target.value)} className={inputClass}>
-                <option value="">全部</option>
-                <option value="rail">铁路</option>
-                <option value="sea">海运</option>
-                <option value="air">空运</option>
-              </select>
-            </Field>
-            <Field label="货型">
-              <select value={filters.shipment_type} onChange={(event) => updateFilter("shipment_type", event.target.value)} className={inputClass}>
-                <option value="">全部</option>
-                <option value="FCL">整箱</option>
-                <option value="LCL">拼箱</option>
-                <option value="air_cargo">空运货</option>
-              </select>
-            </Field>
-            <Field label="状态">
-              <select value={filters.status} onChange={(event) => updateFilter("status", event.target.value)} className={inputClass}>
-                <option value="">全部</option>
-                <option value="active">生效</option>
-                <option value="draft">草稿</option>
-                <option value="expired">过期</option>
-                <option value="archived">归档</option>
-              </select>
-            </Field>
-            <Field label="搜索">
-              <input
-                value={filters.keyword}
-                onChange={(event) => updateFilter("keyword", event.target.value)}
-                placeholder="线路/费率号/港口"
-                className={inputClass}
-              />
-            </Field>
-          </div>
-          <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-            {dataStateMessage}
-          </div>
         </div>
-      </div>
+      </details>
 
-      <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
-        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-bold text-slate-950">费率表</h3>
-              <p className="text-sm text-slate-500">报价按优先级匹配第一张有效表</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onNavigateQuotes?.()}
-              className="rounded-full bg-slate-950 px-3 py-2 text-xs font-semibold text-white"
-            >
-              去报价验证
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {displayRateSheets.map((sheet) => (
-              <button
-                key={sheet.id}
-                type="button"
-                onClick={() => setSelectedSheetId(sheet.id)}
-                className={`w-full rounded-2xl border p-4 text-left transition ${
-                  selectedSheet?.id === sheet.id
-                    ? "border-sky-300 bg-sky-50 shadow-sm"
-                    : "border-slate-200 bg-white hover:border-slate-300"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-bold text-slate-950">{sheet.name}</div>
-                    <div className="mt-1 text-xs text-slate-500">{sheet.rate_sheet_no || "未编号"}</div>
-                  </div>
-                  <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${
-                    sheet.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-                  }`}>
-                    {sheet.status || "draft"}
-                  </span>
-                </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
-                  <span>{modeLabels[sheet.mode] || sheet.mode} / {shipmentLabels[sheet.shipment_type] || sheet.shipment_type}</span>
-                  <span className="text-right">{sheet.currency || "USD"}</span>
-                  <span>{sheet.origin_port || "任意起运地"}</span>
-                  <span className="text-right">{sheet.destination_port || "任意目的地"}</span>
-                </div>
-                <div className="mt-3 text-xs text-slate-500">
-                  供应商：{sheet.vendor?.vendor_name || "未绑定"}，优先级 {sheet.priority || 100}
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-bold text-slate-950">{selectedSheet?.name || "费项明细"}</h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  {selectedSheet?.origin_port || "任意起运地"} → {selectedSheet?.destination_port || "任意目的地"}，{selectedSheet?.vendor?.vendor_name || "未绑定供应商"}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-950 px-4 py-3 text-right text-white">
-                <div className="text-xs text-slate-300">自动报价费项</div>
-                <div className="text-xl font-bold">{summary.quoteItemCount}</div>
-              </div>
-            </div>
-
-            <div className="mt-4 overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead>
-                  <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    <th className="px-3 py-3">费项</th>
-                    <th className="px-3 py-3">计费</th>
-                    <th className="px-3 py-3 text-right">最低</th>
-                    <th className="px-3 py-3 text-right">单价</th>
-                    <th className="px-3 py-3">报价</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {displayItems.map((item) => (
-                    <tr key={item.id} className="align-top">
-                      <td className="px-3 py-3">
-                        <div className="font-semibold text-slate-950">{item.fee_name}</div>
-                        <div className="mt-1 text-xs text-slate-500">{item.fee_code}</div>
-                      </td>
-                      <td className="px-3 py-3 text-slate-600">
-                        <div>{calcMethodLabels[item.calc_method] || item.calc_method}</div>
-                        <div className="mt-1 text-xs text-slate-500">{item.unit || "-"}</div>
-                      </td>
-                      <td className="px-3 py-3 text-right font-medium text-slate-700">
-                        {Number(item.min_charge || 0).toLocaleString()} {item.currency || selectedSheet?.currency || "USD"}
-                      </td>
-                      <td className="px-3 py-3 text-right font-bold text-slate-950">
-                        {Number(item.unit_price || 0).toLocaleString()} {item.currency || selectedSheet?.currency || "USD"}
-                      </td>
-                      <td className="px-3 py-3">
-                        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                          item.included_in_quote ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-                        }`}>
-                          {item.included_in_quote ? "自动带入" : "仅成本"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {!displayItems.length && (
-                    <tr>
-                      <td colSpan="5" className="px-3 py-10 text-center text-sm text-slate-500">
-                        当前费率表还没有费项。新增费项后，勾选自动报价即可进入报价核算。
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <form onSubmit={handleCreateItem} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-bold text-slate-950">新增费项</h3>
-                <p className="mt-1 text-sm text-slate-500">例如主运费、文件费、报关费、拖车费、海外派送费。</p>
-              </div>
-              <label className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
-                <input
-                  type="checkbox"
-                  checked={itemDraft.included_in_quote}
-                  onChange={(event) => updateDraft("included_in_quote", event.target.checked)}
-                />
-                参与自动报价
-              </label>
-            </div>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-4">
-              <Field label="费项代码">
-                <input value={itemDraft.fee_code} onChange={(event) => updateDraft("fee_code", event.target.value)} placeholder="DOC" className={inputClass} />
-              </Field>
-              <Field label="费项名称">
-                <input value={itemDraft.fee_name} onChange={(event) => updateDraft("fee_name", event.target.value)} placeholder="文件费" className={inputClass} />
-              </Field>
-              <Field label="计费方式">
-                <select value={itemDraft.calc_method} onChange={(event) => updateDraft("calc_method", event.target.value)} className={inputClass}>
-                  {Object.entries(calcMethodLabels).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="单位">
-                <input value={itemDraft.unit} onChange={(event) => updateDraft("unit", event.target.value)} placeholder="SHIPMENT" className={inputClass} />
-              </Field>
-              <Field label="最低收费">
-                <input type="number" min="0" step="0.01" value={itemDraft.min_charge} onChange={(event) => updateDraft("min_charge", event.target.value)} placeholder="0" className={inputClass} />
-              </Field>
-              <Field label="成本单价">
-                <input type="number" min="0" step="0.01" value={itemDraft.unit_price} onChange={(event) => updateDraft("unit_price", event.target.value)} placeholder="88" className={inputClass} />
-              </Field>
-              <Field label="币种">
-                <select value={itemDraft.currency} onChange={(event) => updateDraft("currency", event.target.value)} className={inputClass}>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="CNY">CNY</option>
-                </select>
-              </Field>
-              <div className="flex items-end">
-                <button
-                  type="submit"
-                  disabled={createItemMutation.isPending}
-                  className="w-full rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {createItemMutation.isPending ? "保存中..." : "保存费项"}
-                </button>
-              </div>
-            </div>
-          </form>
-        </section>
-      </div>
     </div>
   );
 }
