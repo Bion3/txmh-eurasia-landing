@@ -101,7 +101,7 @@ export default function PublicQuoteFlow({locale='en'}) {
       <span className="mt-0.5 block text-xs opacity-70">{zh?mode.hintCn:mode.hintEn}</span>
      </button>)}
    </fieldset>
-   <fieldset disabled={sending} className="grid gap-x-3 gap-y-3 sm:grid-cols-2">
+   <fieldset disabled={sending} className="grid gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
     
     <div className="grid gap-1.5 text-sm font-medium text-slate-700">
       <span>{t('起运地 / 提货城市','Origin / Pickup city')}</span>
