@@ -70,7 +70,7 @@ export default function PublicQuoteFlow({locale='en'}) {
    const result=await getPublicQuoteEstimate(quoteForm);
    if(current!==revision.current)return;
    setResolvedScope(scope);setEstimate(result);setStatus(result?'matched':'unmatched');if(!result)setContactOpen(true);
-   if(form.containerType==='FCL'){const suggestions=await getFclStationSuggestions(quoteForm).catch(()=>[]);if(current===revision.current)setStationSuggestions(suggestions);}
+   if(form.containerType==='FCL'){const suggestions=await getFclStationSuggestions(form).catch(()=>[]);if(current===revision.current)setStationSuggestions(suggestions);}
   }
   catch{if(current!==revision.current)return;setStatus('error');setContactOpen(true);}
  }
