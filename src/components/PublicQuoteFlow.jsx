@@ -91,7 +91,7 @@ export default function PublicQuoteFlow({locale='en'}) {
     {fields('pol',t('起运地 / 提货城市','Origin / Pickup city'),{required:true,placeholder:t('例如：太仓 / 上海','e.g. Taicang / Shanghai')})}
     <div className="grid gap-1.5 text-sm font-medium text-slate-700">
       <span>{t('目的地 / 目的站','Destination / Terminal')}</span>
-      <datalist id="eurasiago-pricing-destinations">{areaStops.map(stop=><option key={stop} value={stop}/>)}</datalist>
+      <datalist id="eurasiago-pricing-destinations">{pricedStops.map(stop=><option key={stop} value={stop}/>)}</datalist>
       <div className="grid grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] gap-2">
         <select className={inputClass} aria-label={t('目的地区域','Destination region')} value={destinationArea} onChange={e=>{setDestinationArea(e.target.value);setDestinationFocused(true);}}>
           {destinationRegions.map(([id,cn,en])=><option key={id} value={id}>{zh?cn:en}</option>)}
