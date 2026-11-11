@@ -37,7 +37,7 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
         </Link>
 
         <div className="flex items-center gap-3">
-          <nav className="hidden md:flex items-center gap-2" aria-label="Primary navigation">
+          <nav className="hidden lg:flex items-center gap-2" aria-label="Primary navigation">
             {navItems.map((item) => (
               <NavLink
                 key={item.page}
@@ -49,9 +49,16 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
                 {item.label}
               </NavLink>
             ))}
+            <a
+              href="https://crm.eurasiago.com/client.html"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition whitespace-nowrap"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {locale === "zh" ? "客户中心" : "Customer Portal"}
+            </a>
           </nav>
 
-          <div className="w-px h-6 bg-gray-200 hidden md:block" aria-hidden="true" />
+          <div className="w-px h-6 bg-gray-200 hidden lg:block" aria-hidden="true" />
 
           <button
             type="button"
@@ -63,7 +70,7 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
 
           <button
             type="button"
-            className="md:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition"
+            className="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition"
             onClick={() => setIsMenuOpen((open) => !open)}
             aria-label={isMenuOpen ? "Close menu" : "打开菜单"}
             aria-expanded={isMenuOpen}
@@ -78,7 +85,7 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
       </div>
 
       {isMenuOpen && (
-        <nav className="md:hidden border-t border-gray-200 bg-white px-4 py-3 shadow-sm" aria-label="Mobile navigation">
+        <nav className="lg:hidden border-t border-gray-200 bg-white px-4 py-3 shadow-sm" aria-label="Mobile navigation">
           <div className="grid gap-2">
             {navItems.map((item) => (
               <NavLink
@@ -91,6 +98,13 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
                 {item.label}
               </NavLink>
             ))}
+            <a
+              href="https://crm.eurasiago.com/client.html"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition whitespace-nowrap"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {locale === "zh" ? "客户中心" : "Customer Portal"}
+            </a>
           </div>
         </nav>
       )}
