@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets/|hero-background.jpg|robots.txt|sitemap.xml|_redirects).*)",
+      "source": "/((?!routes(?:/|$)|assets/|hero-background.jpg|robots.txt|sitemap.xml|_redirects).*)",
       "destination": "/index.html"
     }
   ]

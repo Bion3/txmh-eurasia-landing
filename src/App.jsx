@@ -24,15 +24,15 @@ const siteUrl = "https://www.eurasiago.com";
 
 const seoProfiles = {
   home: {
-    title: "China to Europe Rail Freight | Rail LCL, Customs & Door Delivery",
+    title: "中欧班列货代_国际铁路运输_中欧铁路拼箱整箱报价 | EurasiaGo",
     description:
-      "China to Europe rail freight for LCL and FCL shipments. Rail consolidation, customs clearance, Amazon FBA and door-to-door delivery across Europe.",
+      "EurasiaGo 提供中欧班列货代、国际铁路运输、铁路拼箱 LCL、整柜 FCL 及中国至德国、波兰、俄罗斯、中亚铁路物流服务。查询线路与运价，获取人工确认报价。",
     path: "/",
   },
   quote: {
-    title: "Request a China-Europe Rail Freight Quote | EurasiaGo",
+    title: "中欧班列运价查询_铁路拼箱整柜询价 | EurasiaGo",
     description:
-      "Request a firm quote for China-Europe rail LCL, FCL, customs clearance, Amazon FBA and EU door delivery. Share route, cargo and shipping window.",
+      "查询中欧班列铁路拼箱、整柜运价。选择国内起运地与境外目的站，按箱型、货量获取参考报价，缺失费用由人工确认。",
     path: "/quote",
   },
   order: {
@@ -42,13 +42,13 @@ const seoProfiles = {
     path: "/order",
   },
   route: {
-    title: "China-Europe Rail Routes | DDP, FBA, Germany & Poland Delivery",
+    title: "中欧班列线路_德国波兰俄罗斯中亚铁路运输 | EurasiaGo",
     description:
-      "Compare China-Europe rail freight routes and services for Germany door delivery, Amazon FBA, Europe DDP, Poland warehouses and Western Europe hubs.",
+      "了解中国至德国、波兰、俄罗斯、中亚的铁路运输线路、口岸、拼箱整柜服务与操作要求，按目的地快速询价。",
     path: "/routes",
   },
   about: {
-    title: "About EurasiaGo | China-Europe Rail Logistics Partner",
+    title: "关于 EurasiaGo_中欧班列与国际铁路物流服务",
     description:
       "EurasiaGo connects China and Europe with rail freight, LCL consolidation, customs coordination and final-mile delivery services.",
     path: "/about",
