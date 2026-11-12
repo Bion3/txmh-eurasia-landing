@@ -20,6 +20,8 @@ export default function PublicQuoteFlow({locale='en'}) {
  const location=useLocation();
  const [form,setForm,draft]=usePersistentFormDraft('eurasiago:unified-quote',empty);
  const [status,setStatus]=useState('idle'),[estimate,setEstimate]=useState(null),[contactOpen,setContactOpen]=useState(false),[sending,setSending]=useState(false),[message,setMessage]=useState('');
+ const [loadingSeconds,setLoadingSeconds]=useState(0);
+ useEffect(()=>{if(status!=='loading'){setLoadingSeconds(0);return undefined;}const started=Date.now();const timer=window.setInterval(()=>setLoadingSeconds(Math.floor((Date.now()-started)/1000)),1000);return ()=>window.clearInterval(timer);},[status]);
  const [stationSuggestions,setStationSuggestions]=useState([]);
  const [resolvedScope,setResolvedScope]=useState(null);
  const [originArea,setOriginArea]=useState('all');
@@ -182,7 +184,8 @@ export default function PublicQuoteFlow({locale='en'}) {
    </div></details>
    {form.containerType==='LCL'&&checkLclCargoRestrictions(form).manualRequired&&<div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"><strong>{t('特殊货物：需要人工确认','Special cargo: manual review required')}</strong><ul className="mt-2 list-disc space-y-1 pl-5">{checkLclCargoRestrictions(form).notices.map((line,i)=><li key={i}>{zh?line:({bulkShipment:lclTermsEn[0],oversizePiece:lclTermsEn[2],excludedCargo:lclTermsEn[6],specialCargo:lclTermsEn[5]})[checkLclCargoRestrictions(form).reasons[i]]}</li>)}</ul></div>}
    {form.containerType==='LCL'&&<details className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm font-medium text-slate-700">{t('拼箱运输须知（7条）','LCL shipping notes (7 points)')}</summary><ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-6 text-slate-600">{(zh?lclTermsZh:lclTermsEn).map((term,i)=><li key={i}>{term}</li>)}</ol><p className="mt-2 text-xs text-slate-500">{t('超限与特殊货物需人工确认；商检、查验及额外作业费不包含在自动参考价中。','Oversize and special cargo require approval; inspections and extra handling are not included in automated reference rates.')}</p></details>}
-   <button disabled={status==='loading'||sending} className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">{status==='loading'?t('正在查询…','Checking…'):t('查看价格','Check price')}</button>
+   <button disabled={status==='loading'||sending} className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">{status==='loading'?t('正在匹配报价…','Matching rates…'):t('查看价格','Check price')}</button>
+   {status==='loading'&&<div role="status" aria-live="polite" className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900"><span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-blue-600 border-t-transparent align-middle"/> <span className="ml-2">{loadingSeconds<4?t('正在查询可用线路和成本…','Checking routes and costs…'):loadingSeconds<10?t('正在核对费用组合，请稍候…','Verifying cost components, please wait…'):t('查询耗时较长，仍在处理，请勿重复点击。','This is taking longer than expected. Still working; please do not resubmit.')}</span><span className="ml-2 text-xs">{loadingSeconds}s</span></div>}
   </form>
   <div aria-live="polite" className="mt-4">
    {estimate&&resolvedScope==='door_to_station'&&!estimate.partial&&<p className="mb-2 text-xs text-amber-700">{t('当前报价不保证包含上门提货费；请以费用明细为准。','This quote does not guarantee pickup charges; check included items.')}</p>}
@@ -200,13 +203,18 @@ export default function PublicQuoteFlow({locale='en'}) {
     <p className="font-semibold">{t('整柜运输方案及参考价格','FCL route options and indicative rates')}</p>
     <p className="mt-1">{t('以下为可选运输方案及参考价格，具体服务和费用以订舱确认为准。','Available transport options and indicative prices; final services and charges are subject to booking confirmation.')}</p>
     {(()=>{
-     const plans=stationSuggestions.flatMap(s=>s.quotePlans||[]).filter(p=>Number(p.sale_reference_usd)>0)
+     const candidates=stationSuggestions.flatMap(s=>s.quotePlans||[]).filter(p=>Number(p.sale_reference_usd)>0)
+      .filter(p=>!form.equipment||p.equipment===form.equipment)
       .sort((a,b)=>Number(b.estimate_status==='segment_covered')-Number(a.estimate_status==='segment_covered')
        ||Number(a.sale_reference_usd)-Number(b.sale_reference_usd));
+     // Show one best eligible option per railway departure station, not repeated
+     // factory loading-area and equipment variants.
+     const seen=new Set();
+     const plans=candidates.filter(p=>{const key=String(p.rail_station||'').trim();if(seen.has(key))return false;seen.add(key);return true;});
      return plans.length?<div className="mt-3 grid gap-2">
       {plans.slice(0,5).map((p,i)=><div key={p.rail_station+'-'+p.equipment+'-'+(p.loading_area||'')+'-'+i} className="rounded-lg border border-amber-200 bg-white p-3">
        <div className="flex flex-wrap justify-between gap-2">
-        <strong>{form.pol} → {p.rail_station} → {form.pod} <span className="font-normal text-xs">· {p.container} {p.equipment}</span></strong>
+        <strong>{form.pol} → {p.rail_station} → {form.pod} <span className="font-normal text-xs">· {p.container} {p.equipment==='SOC'&&(/租箱|container rental|container lease|箱租/i.test((p.covered_segments||[]).join(' ')))?t('含租箱 · 对客整柜价','Container included · FCL customer rate'):p.equipment==='SOC'?t('SOC · 租箱费请核实','SOC · verify container rental'):p.equipment==='COC'?'COC':p.equipment}</span></strong>
         <strong className="text-base text-blue-800">USD {(Number(p.sale_reference_usd)*(Number(form.quantity)||1)).toLocaleString(undefined,{maximumFractionDigits:2})}</strong>
        </div>
        <div className="mt-1 text-xs text-slate-600">{p.estimate_status==='segment_covered'?t('方案参考价（以所列服务为准）','Indicative rate for the listed services'):t('部分费用待补，价格仅供参考','Some charges are not yet included')}
