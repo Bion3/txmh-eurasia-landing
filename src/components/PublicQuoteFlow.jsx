@@ -39,13 +39,18 @@ export default function PublicQuoteFlow({locale='en'}) {
     .finally(()=>{if(alive)setDestinationsLoading(false);});
   return ()=>{alive=false;};
  },[]);
- const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||city.includes(form.pol.trim())).slice(0,30);
  const pricedRoutes=pricedDestinations.filter(r=>r.transport===(form.containerType==='FCL'?'fcl':'lcl'));
+ const normalizeCity=value=>String(value||'').trim().replace(/市$/,'').toLowerCase();
+ const pricedOrigins=new Set(pricedRoutes.map(r=>normalizeCity(r.origin)).filter(Boolean));
+ const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||city.includes(form.pol.trim()))
+  .sort((a,b)=>Number(pricedOrigins.has(normalizeCity(b)))-Number(pricedOrigins.has(normalizeCity(a)))||a.localeCompare(b,'zh-CN')).slice(0,30);
  const pricedStops=[...new Set(pricedRoutes.map(r=>String(r.destination||'').trim()).filter(Boolean))]
   .sort((a,b)=>a.localeCompare(b,zh?'zh-CN':'en'));
- const pricedForSelected=pricedRoutes.some(r=>r.destination===form.pod);
+ const pricedForSelected=pricedRoutes.some(r=>normalizeCity(r.destination)===normalizeCity(form.pod));
+ const pricedPair=pricedRoutes.some(r=>normalizeCity(r.destination)===normalizeCity(form.pod)&&normalizeCity(r.origin)===normalizeCity(form.pol));
  const areaStops=pricedStops.filter(stop=>destinationArea==='all'||destinationRegion(stop)===destinationArea);
- const destinationMatches=areaStops.filter(stop=>!form.pod.trim()||stop.toLowerCase().includes(form.pod.trim().toLowerCase())).slice(0,35);
+ const destinationMatches=areaStops.filter(stop=>!form.pod.trim()||stop.toLowerCase().includes(form.pod.trim().toLowerCase()))
+  .sort((a,b)=>Number(pricedRoutes.some(r=>normalizeCity(r.origin)===normalizeCity(form.pol)&&normalizeCity(r.destination)===normalizeCity(b)))-Number(pricedRoutes.some(r=>normalizeCity(r.origin)===normalizeCity(form.pol)&&normalizeCity(r.destination)===normalizeCity(a)))||a.localeCompare(b,zh?'zh-CN':'en')).slice(0,35);
 
  useEffect(()=>{
   const params=new URLSearchParams(location.search), values={};
@@ -120,7 +125,7 @@ export default function PublicQuoteFlow({locale='en'}) {
           {originFocused&&<div role="listbox" aria-label={t('国内起运城市建议','Origin city suggestions')} className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl">
             {originMatches.length?originMatches.map(city=><button key={city} type="button" role="option" aria-selected={form.pol===city}
               onMouseDown={e=>e.preventDefault()} onClick={()=>{change('pol',city);setOriginFocused(false)}}
-              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{city}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('未找到匹配城市，可直接输入','No match; enter any city')}</div>}
+              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{city}{pricedOrigins.has(normalizeCity(city))&&<span className="ml-2 text-xs font-semibold text-emerald-700">{t('有价线路','Rates available')}</span>}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('未找到匹配城市，可直接输入','No match; enter any city')}</div>}
           </div>}
         </div>
       </div>
@@ -141,7 +146,7 @@ export default function PublicQuoteFlow({locale='en'}) {
           {destinationFocused&&areaStops.length>0&&<div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl" role="listbox" aria-label={t('目的站建议','Destination suggestions')}>
             {destinationMatches.length?destinationMatches.map(stop=><button key={stop} type="button" role="option" aria-selected={form.pod===stop}
               onMouseDown={e=>e.preventDefault()} onClick={()=>{change('pod',stop);setDestinationFocused(false)}}
-              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{stop}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('没有匹配站点，可直接输入','No matches; you can type a destination')}</div>}
+              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{stop}<span className="ml-2 text-xs font-semibold text-emerald-700">{t('有参考价','Rate listed')}</span></button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('没有匹配站点，可直接输入','No matches; you can type a destination')}</div>}
           </div>}
         </div>
       </div>
@@ -156,6 +161,7 @@ export default function PublicQuoteFlow({locale='en'}) {
       </>:
       <>{fields('volume',t('货物体积 CBM','Volume · CBM'),{type:'number',min:'0.001',step:'any'})}{fields('weight',t('毛重 KG','Gross weight · KG'),{type:'number',min:'0.001',step:'any'})}</>}
    </fieldset>
+   {!destinationsLoading&&!destinationsError&&form.pol.trim()&&form.pod.trim()&&!pricedPair&&<div role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"><strong>{t('当前起运地—目的地暂无直接发布价格','No published direct rate for this origin–destination pair')}</strong><p className="mt-1">{t('可继续查询其他衔接方案；如无报价，请提交人工询价，我们将核实费用。','You can still check connecting options. If no rate is returned, please submit a manual inquiry.')}</p><button type="button" onClick={()=>setContactOpen(true)} className="mt-2 rounded-lg bg-amber-900 px-3 py-2 text-xs font-semibold text-white">{t('提交人工询价','Request manual quote')}</button></div>}
    <p className="text-xs text-slate-500">{t('服务范围根据起运地自动判断；提货费是否包含以报价明细为准。FBA、DDP 暂不提供在线报价。','Service scope is inferred from origin. Pickup charges are included only when explicitly shown. FBA and DDP online quotes are not available.')}</p>
    <details className="rounded-xl bg-slate-50 px-4 py-3"><summary className="cursor-pointer text-sm text-slate-600">{t('更多信息（选填）','More details (optional)')}</summary><div className="mt-4 grid gap-4 sm:grid-cols-2">
     {form.containerType==='FCL'&&<>
