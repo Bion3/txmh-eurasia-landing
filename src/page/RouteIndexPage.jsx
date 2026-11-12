@@ -6,6 +6,68 @@ import { captureAcquisitionAttribution } from "../lib/acquisitionAttribution";
 import { buildFallbackInquiry } from "../lib/publicInquiryFallback";
 
 const siteUrl = "https://www.eurasiago.com";
+const routeDirectoryCopy = {
+  zh: {
+    eyebrow: "中欧铁路运输线路",
+    heading: "中欧班列线路查询",
+    intro: "按目的地浏览中欧班列及国际铁路运输线路，支持拼箱、整柜和延伸配送询价。",
+    quote: "获取报价",
+    home: "查看首页线路",
+    formTitle: "不确定选择哪条线路？",
+    formDesc: "填写起运地、目的地及货物信息，我们将协助确认合适线路和报价要求。",
+    name: "姓名 *",
+    company: "公司",
+    email: "邮箱",
+    phone: "电话 / WhatsApp",
+    origin: "起运地 *",
+    destination: "目的地 *",
+    service: "服务需求",
+    window: "预计发货时间",
+    cargo: "货物信息 / 备注",
+    submit: "提交线路咨询",
+    sending: "正在提交…",
+    backup: "邮件备用咨询",
+    copy: "复制咨询信息",
+    view: "查看线路详情",
+    routeQuote: "询价",
+    lane: "运输线路",
+    to: "至",
+    choose: "如何选择线路",
+    chooseTitle: "按目的地选择合适线路",
+    chooseDesc: "先选择目的地，再结合起运站、货量和交付地址确认拼箱或整柜方案。",
+    tips: ["德国：杜伊斯堡及后续配送","Germany: Duisburg and onward delivery"],
+  },
+  en: {
+    eyebrow: "China–Europe rail routes",
+    heading: "China–Europe rail freight routes",
+    intro: "Browse rail freight routes by destination. Choose a corridor for LCL or FCL service details and request a quote.",
+    quote: "Request a quote",
+    home: "See homepage routes",
+    formTitle: "Not sure which route to choose?",
+    formDesc: "Tell us your origin, destination and cargo. We can recommend a suitable route and quote requirements.",
+    name: "Name *",
+    company: "Company",
+    email: "Email",
+    phone: "Phone / WhatsApp",
+    origin: "Origin *",
+    destination: "Destination *",
+    service: "Service need",
+    window: "Shipping window",
+    cargo: "Cargo / notes",
+    submit: "Request route advice",
+    sending: "Submitting...",
+    backup: "Email backup",
+    copy: "Copy details",
+    view: "View route",
+    routeQuote: "Get quote",
+    lane: "Lane",
+    to: "to",
+    choose: "How to choose",
+    chooseTitle: "Choose by destination",
+    chooseDesc: "Start with the destination, then confirm LCL or FCL options based on origin, cargo volume and delivery address.",
+    tips: ["波兰：马拉舍维奇、华沙及东欧","Poland: Małaszewicze, Warsaw and Eastern Europe"],
+  },
+};
 // Keep legacy URLs accessible while presenting one clear entry per destination/service.
 const visibleRoutes = routeLandingPages.filter(page => ![
   "china-to-amazon-fba-germany-rail-ddp",
@@ -93,7 +155,8 @@ function routeIndexStructuredData() {
   };
 }
 
-export default function RouteIndexPage() {
+export default function RouteIndexPage({ locale = "en" }) {
+  const c = routeDirectoryCopy[locale === "zh" ? "zh" : "en"];
   const createLeadMutation = useCreateLead();
   const [recommendationForm, setRecommendationForm, recommendationDraft] = usePersistentFormDraft(
     "eurasiago:route-index-recommendation",
@@ -224,7 +287,7 @@ export default function RouteIndexPage() {
           <form onSubmit={handleRecommendationSubmit} className="mt-10 rounded-[2rem] border border-white/10 bg-white p-5 text-slate-950 shadow-2xl md:p-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <h2 className="text-xl font-black">Not sure which route to choose?</h2>
+                <h2 className="text-xl font-black">{c.formTitle}</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                   Tell us your origin, destination and cargo. Sales can recommend the best route page, service scope and quote requirements.
                 </p>
@@ -252,7 +315,7 @@ export default function RouteIndexPage() {
 
             <div className="mt-5 grid gap-3 md:grid-cols-4">
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Name *</span>
+                <span className="text-xs font-bold text-slate-500">{c.name}</span>
                 <input
                   value={recommendationForm.name}
                   onChange={(event) => updateRecommendationForm("name", event.target.value)}
@@ -261,7 +324,7 @@ export default function RouteIndexPage() {
                 />
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Company</span>
+                <span className="text-xs font-bold text-slate-500">{c.company}</span>
                 <input
                   value={recommendationForm.company}
                   onChange={(event) => updateRecommendationForm("company", event.target.value)}
@@ -270,7 +333,7 @@ export default function RouteIndexPage() {
                 />
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Email</span>
+                <span className="text-xs font-bold text-slate-500">{c.email}</span>
                 <input
                   type="email"
                   value={recommendationForm.email}
@@ -280,7 +343,7 @@ export default function RouteIndexPage() {
                 />
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Phone / WhatsApp</span>
+                <span className="text-xs font-bold text-slate-500">{c.phone}</span>
                 <input
                   value={recommendationForm.phone}
                   onChange={(event) => updateRecommendationForm("phone", event.target.value)}
@@ -289,7 +352,7 @@ export default function RouteIndexPage() {
                 />
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Origin *</span>
+                <span className="text-xs font-bold text-slate-500">{c.origin}</span>
                 <input
                   value={recommendationForm.origin}
                   onChange={(event) => updateRecommendationForm("origin", event.target.value)}
@@ -298,7 +361,7 @@ export default function RouteIndexPage() {
                 />
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Destination *</span>
+                <span className="text-xs font-bold text-slate-500">{c.destination}</span>
                 <input
                   value={recommendationForm.destination}
                   onChange={(event) => updateRecommendationForm("destination", event.target.value)}
@@ -307,7 +370,7 @@ export default function RouteIndexPage() {
                 />
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Service need</span>
+                <span className="text-xs font-bold text-slate-500">{c.service}</span>
                 <select
                   value={recommendationForm.serviceNeed}
                   onChange={(event) => updateRecommendationForm("serviceNeed", event.target.value)}
@@ -321,7 +384,7 @@ export default function RouteIndexPage() {
                 </select>
               </label>
               <label className="grid gap-1.5">
-                <span className="text-xs font-bold text-slate-500">Shipping window</span>
+                <span className="text-xs font-bold text-slate-500">{c.window}</span>
                 <select
                   value={recommendationForm.readyDate}
                   onChange={(event) => updateRecommendationForm("readyDate", event.target.value)}
@@ -334,7 +397,7 @@ export default function RouteIndexPage() {
                 </select>
               </label>
               <label className="grid gap-1.5 md:col-span-4">
-                <span className="text-xs font-bold text-slate-500">Cargo / notes</span>
+                <span className="text-xs font-bold text-slate-500">{c.cargo}</span>
                 <input
                   value={recommendationForm.cargo}
                   onChange={(event) => updateRecommendationForm("cargo", event.target.value)}
@@ -350,7 +413,7 @@ export default function RouteIndexPage() {
                 disabled={createLeadMutation.isPending}
                 className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {createLeadMutation.isPending ? "Submitting..." : "Ask sales to recommend route"}
+                {createLeadMutation.isPending ? c.sending : c.submit}
               </button>
               <a
                 href={buildRecommendationEmail(recommendationForm).mailto}
@@ -400,9 +463,9 @@ export default function RouteIndexPage() {
               <p className="mt-3 text-sm leading-7 text-slate-600">{page.description}</p>
 
               <div className="mt-5 rounded-3xl bg-slate-50 p-4">
-                <div className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">Lane</div>
+                <div className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{c.lane}</div>
                 <div className="mt-2 text-sm font-bold text-slate-900">{page.origin}</div>
-                <div className="my-1 text-xs font-bold text-emerald-600">to</div>
+                <div className="my-1 text-xs font-bold text-emerald-600">{c.to}</div>
                 <div className="text-sm font-bold text-slate-900">{page.destination}</div>
               </div>
 
@@ -436,7 +499,7 @@ export default function RouteIndexPage() {
       <section className="bg-slate-50 px-6 py-16 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-sky-600">How to choose</p>
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-sky-600">{c.choose}</p>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950">
               Start with destination and service scope
             </h2>
@@ -445,12 +508,7 @@ export default function RouteIndexPage() {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              "Germany delivery: Duisburg or Germany door pages",
-              "Germany rail: Duisburg gateway and onward delivery",
-              "Poland and Eastern Europe: Warsaw / Malaszewicze page",
-              "Russia and Central Asia: rail or combined transport",
-            ].map((item) => (
+            {c.tips.map((item) => (
               <div key={item} className="rounded-3xl border border-slate-200 bg-white p-5 text-sm font-bold leading-6 text-slate-700 shadow-sm">
                 {item}
               </div>
