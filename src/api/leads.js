@@ -109,7 +109,8 @@ export const leadsApi = {
     const signature = JSON.stringify(fields);
     if (!publicRequestIds.has(signature)) publicRequestIds.set(signature, crypto.randomUUID());
     const id = publicRequestIds.get(signature);
-    const lead = { ...fields, id, assigned_to: null, status: 'new' };
+    const leadNo = `EGQ-${new Date().toISOString().slice(2,10).replace(/-/g,'')}-${id.slice(0,8).toUpperCase()}`;
+    const lead = { ...fields, id, lead_no: leadNo, assigned_to: null, status: 'new' };
     await withRequestDeadline(async signal => {
       const { error } = await publicSupabase.from('leads').insert([lead]).abortSignal(signal);
       // The same UUID is reused after an uncertain response; never create a second lead.
