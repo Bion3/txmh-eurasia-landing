@@ -40,6 +40,7 @@ export default function PublicQuoteFlow({locale='en'}) {
   return ()=>{alive=false;};
  },[]);
  const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||city.includes(form.pol.trim())).slice(0,30);
+ const pricedRoutes=pricedDestinations.filter(r=>r.transport===(form.containerType==='FCL'?'fcl':'lcl'));
  // Station choices are navigational, not a promise that a rate is available.
  const stationStops=[...new Set(pricedDestinations.map(r=>String(r.destination||'').trim()).filter(Boolean))]
   .sort((a,b)=>a.localeCompare(b,zh?'zh-CN':'en'));
