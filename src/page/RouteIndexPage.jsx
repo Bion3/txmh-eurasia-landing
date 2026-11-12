@@ -6,6 +6,13 @@ import { captureAcquisitionAttribution } from "../lib/acquisitionAttribution";
 import { buildFallbackInquiry } from "../lib/publicInquiryFallback";
 
 const siteUrl = "https://www.eurasiago.com";
+// Keep legacy URLs accessible while presenting one clear entry per destination/service.
+const visibleRoutes = routeLandingPages.filter(page => ![
+  "china-to-amazon-fba-germany-rail-ddp",
+  "china-to-europe-ddp-rail-door-delivery",
+  "shenzhen-guangzhou-to-germany-door-delivery",
+  "china-to-poland-warehouse-rail-freight",
+].includes(page.slug));
 
 const emptyRecommendationForm = {
   name: "",
@@ -41,8 +48,8 @@ function serviceNeedLabel(value) {
   const labels = {
     not_sure: "Need route recommendation",
     germany_door: "Germany door delivery",
-    amazon_fba: "Amazon FBA / EU warehouse",
-    ddp: "DDP / customs + door delivery",
+    amazon_fba: "Warehouse delivery",
+    ddp: "Customs and door delivery",
     poland_warehouse: "Poland warehouse / Eastern Europe",
   };
   return labels[value] || value || "Need route recommendation";
@@ -74,10 +81,10 @@ function routeIndexStructuredData() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     "@id": `${siteUrl}/routes#route-list`,
-    name: "China-Europe rail freight routes and services",
+    name: "China-Europe rail freight routes",
     description:
-      "China-Europe rail freight, DDP, Amazon FBA, Poland warehouse and Germany door delivery route directory.",
-    itemListElement: routeLandingPages.map((page, index) => ({
+      "China-Europe rail freight routes to Germany, Poland, Russia and Central Asia.",
+    itemListElement: visibleRoutes.map((page, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: page.title,
@@ -194,10 +201,10 @@ export default function RouteIndexPage() {
             China-Europe rail route directory
           </p>
           <h1 className="mt-5 max-w-4xl text-4xl font-black leading-tight tracking-tight md:text-6xl">
-            Find the right rail, DDP, FBA or warehouse route from China to Europe
+            China–Europe rail freight routes
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-            Compare high-intent China-Europe rail logistics pages by destination, cargo fit and service scope. Each route page keeps the selected lane in the quote form so sales can reply with context.
+            Browse rail freight routes by destination. Choose a corridor for LCL or FCL service details and request a quote.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
@@ -308,8 +315,8 @@ export default function RouteIndexPage() {
                 >
                   <option value="not_sure">Need route recommendation</option>
                   <option value="germany_door">Germany door delivery</option>
-                  <option value="amazon_fba">Amazon FBA / EU warehouse</option>
-                  <option value="ddp">DDP / customs + door delivery</option>
+                  <option value="amazon_fba">Warehouse delivery</option>
+                  <option value="ddp">Customs and door delivery</option>
                   <option value="poland_warehouse">Poland warehouse / Eastern Europe</option>
                 </select>
               </label>
@@ -332,7 +339,7 @@ export default function RouteIndexPage() {
                   value={recommendationForm.cargo}
                   onChange={(event) => updateRecommendationForm("cargo", event.target.value)}
                   className="rounded-2xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
-                  placeholder="FBA cartons, 5 CBM, DDP Germany, Poland warehouse..."
+                  placeholder="5 CBM, 1200 kg, Germany warehouse..."
                 />
               </label>
             </div>
@@ -384,7 +391,7 @@ export default function RouteIndexPage() {
 
       <section className="px-6 py-16 md:py-20">
         <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-3">
-          {routeLandingPages.map((page) => (
+          {visibleRoutes.map((page) => (
             <article key={page.slug} className="flex h-full flex-col rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
               <div className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600">
                 {page.transit}
@@ -434,15 +441,15 @@ export default function RouteIndexPage() {
               Start with destination and service scope
             </h2>
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              If you know the final delivery address, choose the closest route or service page. If you are comparing DDP, FBA or warehouse delivery, open the service-specific page so the quote request keeps the right context.
+              If you know the final delivery address, choose the closest route or service page. For warehouse or door delivery, provide the final address when requesting a quote.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               "Germany delivery: Duisburg or Germany door pages",
-              "Amazon replenishment: FBA Germany / EU warehouse page",
+              "Germany rail: Duisburg gateway and onward delivery",
               "Poland and Eastern Europe: Warsaw / Malaszewicze page",
-              "DDP or one-flow delivery: China to Europe DDP page",
+              "Russia and Central Asia: rail or combined transport",
             ].map((item) => (
               <div key={item} className="rounded-3xl border border-slate-200 bg-white p-5 text-sm font-bold leading-6 text-slate-700 shadow-sm">
                 {item}
