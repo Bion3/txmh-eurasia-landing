@@ -145,7 +145,7 @@ export default function PublicQuoteFlow({locale='en'}) {
         </div>
       </div>
       <span className="text-xs font-normal text-slate-500" aria-live="polite">
-        {destinationsLoading?t('正在读取目的站…','Loading destinations…'):destinationsError?t('站点列表暂不可用，可手动填写','Station list unavailable; type a destination'):pricedForSelected?t('该目的站有可查询线路','Routes available for this destination'):zh?'当前区域 '+areaStops.length+' 个目的站，也可手动输入其他站点':areaStops.length+' destinations in this region; other destinations may be typed'}
+        {destinationsLoading?t('正在读取目的站…','Loading destinations…'):destinationsError?t('站点列表暂不可用，可手动填写','Station list unavailable; type a destination'):zh?'当前区域 '+areaStops.length+' 个目的站，也可手动输入其他站点':areaStops.length+' destinations in this region; other destinations may be typed'}
       </span>
     </div>
     {form.containerType==='FCL'?
