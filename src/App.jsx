@@ -166,7 +166,7 @@ export default function App() {
             element={<HomePage locale={locale} text={text} changePage={changePage} />}
           />
           <Route path="/about" element={<AboutPage locale={locale} text={text} />} />
-          <Route path="/routes" element={<RouteIndexPage changePage={changePage} />} />
+          <Route path="/routes" element={<RouteIndexPage locale={locale} changePage={changePage} />} />
           <Route path="/routes/:slug" element={<RouteLandingPage changePage={changePage} />} />
           <Route
             path="/quote"
