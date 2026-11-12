@@ -214,7 +214,7 @@ export default function PublicQuoteFlow({locale='en'}) {
      return plans.length?<div className="mt-3 grid gap-2">
       {plans.slice(0,5).map((p,i)=><div key={p.rail_station+'-'+p.equipment+'-'+(p.loading_area||'')+'-'+i} className="rounded-lg border border-amber-200 bg-white p-3">
        <div className="flex flex-wrap justify-between gap-2">
-        <strong>{form.pol} → {p.rail_station} → {form.pod} <span className="font-normal text-xs">· {p.container} {p.equipment==='SOC'&&(/租箱|container rental|container lease|箱租/i.test((p.covered_segments||[]).join(' ')))?t('含租箱 · 对客整柜价','Container included · FCL customer rate'):p.equipment==='SOC'?t('SOC · 租箱费请核实','SOC · verify container rental'):p.equipment==='COC'?'COC':p.equipment}</span></strong>
+        <strong>{form.pol} → {p.rail_station} → {form.pod} <span className="font-normal text-xs">· {p.container} {p.equipment==='SOC'&&(/租箱|container rental|container lease|箱租/i.test((p.covered_segments||[]).join(' ')))?t('整柜含箱价（COC报价口径）','Container-included FCL rate (COC-style quote)'):p.equipment==='SOC'?t('SOC · 租箱费请核实','SOC · verify container rental'):p.equipment==='COC'?'COC':p.equipment}</span></strong>
         <strong className="text-base text-blue-800">USD {(Number(p.sale_reference_usd)*(Number(form.quantity)||1)).toLocaleString(undefined,{maximumFractionDigits:2})}</strong>
        </div>
        <div className="mt-1 text-xs text-slate-600">{p.estimate_status==='segment_covered'?t('方案参考价（以所列服务为准）','Indicative rate for the listed services'):t('部分费用待补，价格仅供参考','Some charges are not yet included')}
