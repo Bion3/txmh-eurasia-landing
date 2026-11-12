@@ -42,9 +42,9 @@ export default function PublicQuoteFlow({locale='en'}) {
  const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||city.includes(form.pol.trim())).slice(0,30);
  const pricedRoutes=pricedDestinations.filter(r=>r.transport===(form.containerType==='FCL'?'fcl':'lcl'));
  // Station choices are navigational, not a promise that a rate is available.
- const stationStops=[...new Set(pricedDestinations.map(r=>String(r.destination||'').trim()).filter(Boolean))]
+ const pricedStops=[...new Set(pricedDestinations.map(r=>String(r.destination||'').trim()).filter(Boolean))]
   .sort((a,b)=>a.localeCompare(b,zh?'zh-CN':'en'));
- const areaStops=stationStops.filter(stop=>destinationArea==='all'||destinationRegion(stop)===destinationArea);
+ const areaStops=pricedStops.filter(stop=>destinationArea==='all'||destinationRegion(stop)===destinationArea);
  const destinationMatches=areaStops.filter(stop=>!form.pod.trim()||stop.toLowerCase().includes(form.pod.trim().toLowerCase())).slice(0,35);
 
  useEffect(()=>{
@@ -127,7 +127,7 @@ export default function PublicQuoteFlow({locale='en'}) {
     </div>
     <div className="grid gap-1.5 text-sm font-medium text-slate-700">
       <span>{t('目的地 / 目的站','Destination / Terminal')}</span>
-      <datalist id="eurasiago-pricing-destinations">{stationStops.map(stop=><option key={stop} value={stop}/>)}</datalist>
+      <datalist id="eurasiago-pricing-destinations">{pricedStops.map(stop=><option key={stop} value={stop}/>)}</datalist>
       <div className="grid grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] gap-2">
         <select className={inputClass} aria-label={t('目的地区域','Destination region')} value={destinationArea} onChange={e=>{setDestinationArea(e.target.value);setDestinationFocused(true);}}>
           {destinationRegions.map(([id,cn,en])=><option key={id} value={id}>{zh?cn:en}</option>)}
