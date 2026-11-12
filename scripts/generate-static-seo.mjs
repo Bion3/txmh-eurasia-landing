@@ -15,7 +15,11 @@ const replaceMeta = (html, title, description, url) => html
   .replace(/<meta property="og:description" content="[^"]*"\s*\/>/, `<meta property="og:description" content="${esc(description)}" />`);
 async function emit(path, title, description, html) {
   const url = origin + path;
-  const output = replaceMeta(base, title, description, url).replace('<div id="root"></div>', `<div id="root">${html}</div>`);
+  const staticContent = `<div id="seo-static-content">${html}</div>`;
+  const bootstrap = '<script>document.documentElement.classList.add("seo-js-enabled")</script><style>.seo-js-enabled #seo-static-content{display:none!important}</style>';
+  const output = replaceMeta(base, title, description, url)
+    .replace("</head>", `${bootstrap}</head>`)
+    .replace('<div id="root"></div>', `<div id="root"></div>${staticContent}`);
   const dir = new URL("." + path + "/", root);
   await mkdir(dir, {recursive:true});
   await writeFile(new URL("index.html", dir), output);
