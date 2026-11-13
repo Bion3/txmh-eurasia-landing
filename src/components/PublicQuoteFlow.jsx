@@ -9,6 +9,14 @@ import {leadsApi} from '../api/leads';
 import {usePersistentFormDraft} from '../hooks/usePersistentFormDraft';
 import {captureAcquisitionAttribution} from '../lib/acquisitionAttribution';
 
+
+// Display-only bilingual names. Keep original station/city values for price matching.
+const bilingualNames={
+'上海':'Shanghai','宁波':'Ningbo','杭州':'Hangzhou','义乌':'Yiwu','温州':'Wenzhou','嘉兴':'Jiaxing','湖州':'Huzhou','绍兴':'Shaoxing','金华':'Jinhua','南京':'Nanjing','苏州':'Suzhou','太仓':'Taicang','昆山':'Kunshan','无锡':'Wuxi','常州':'Changzhou','南通':'Nantong','镇江':'Zhenjiang','扬州':'Yangzhou','徐州':'Xuzhou','合肥':'Hefei','芜湖':'Wuhu','济南':'Jinan','青岛':'Qingdao','烟台':'Yantai','临沂':'Linyi','潍坊':'Weifang','厦门':'Xiamen','福州':'Fuzhou','泉州':'Quanzhou','南昌':'Nanchang','深圳':'Shenzhen','广州':'Guangzhou','东莞':'Dongguan','佛山':'Foshan','中山':'Zhongshan','珠海':'Zhuhai','惠州':'Huizhou','汕头':'Shantou','南宁':'Nanning','柳州':'Liuzhou','桂林':'Guilin','海口':'Haikou','三亚':'Sanya','北京':'Beijing','天津':'Tianjin','石家庄':'Shijiazhuang','唐山':'Tangshan','保定':'Baoding','廊坊':'Langfang','太原':'Taiyuan','大同':'Datong','呼和浩特':'Hohhot','包头':'Baotou','郑州':'Zhengzhou','洛阳':'Luoyang','武汉':'Wuhan','襄阳':'Xiangyang','长沙':'Changsha','株洲':'Zhuzhou','岳阳':'Yueyang','成都':'Chengdu','重庆':'Chongqing','贵阳':'Guiyang','昆明':'Kunming','绵阳':'Mianyang','德阳':'Deyang','宜宾':'Yibin','遵义':'Zunyi','南充':'Nanchong','西安':"Xi'an",'咸阳':'Xianyang','宝鸡':'Baoji','兰州':'Lanzhou','银川':'Yinchuan','西宁':'Xining','乌鲁木齐':'Urumqi','霍尔果斯':'Khorgos','阿拉山口':'Alashankou','沈阳':'Shenyang','大连':'Dalian','长春':'Changchun','哈尔滨':'Harbin','满洲里':'Manzhouli','齐齐哈尔':'Qiqihar',
+'伊斯坦布尔':'Istanbul','土耳其':'Turkey','伦敦':'London','俄罗斯':'Russia','克列西哈':'Kleshchikha','莫斯科':'Moscow','圣彼得堡':'Saint Petersburg','叶卡捷琳堡':'Yekaterinburg','新西伯利亚':'Novosibirsk','赤塔':'Chita','伊尔库茨克':'Irkutsk','后贝加尔':'Zabaikalsk','汉堡':'Hamburg','杜伊斯堡':'Duisburg','不来梅':'Bremen','慕尼黑':'Munich','柏林':'Berlin','马拉舍维奇':'Małaszewicze','华沙':'Warsaw','罗兹':'Łódź','罗德兹':'Łódź','格但斯克':'Gdańsk','卡托维兹':'Katowice','布拉格':'Prague','布尔诺':'Brno','布达佩斯':'Budapest','米兰':'Milan','维罗纳':'Verona','巴黎':'Paris','里昂':'Lyon','鹿特丹':'Rotterdam','阿姆斯特丹':'Amsterdam','列日':'Liège','曼海姆':'Mannheim','科隆':'Cologne','维也纳':'Vienna','贝尔格莱德':'Belgrade','阿拉木图':'Almaty','阿斯塔纳':'Astana','阿腾科里':'Altynkol','多斯特克':'Dostyk','塔什干':'Tashkent','比什凯克':'Bishkek','杜尚别':'Dushanbe','阿什哈巴德':'Ashgabat','德黑兰':'Tehran','巴库':'Baku','喀布尔':'Kabul','切斯卡特热博瓦':'Česká Třebová','丝林':'Sławków','伊斯坦布尔（土耳其）':'Istanbul (Turkey)','南线':'Southern route','时刻表':'Timetabled service','德国':'Germany','波兰':'Poland','捷克':'Czechia','匈牙利':'Hungary','意大利':'Italy','法国':'France','荷兰':'Netherlands','比利时':'Belgium','英国':'United Kingdom','奥地利':'Austria','哈萨克斯坦':'Kazakhstan'
+};
+const englishLabel=(value)=>{const source=String(value||'');let output=source;for(const [cn,en] of Object.entries(bilingualNames).sort((a,b)=>b[0].length-a[0].length)){output=output.split(cn).join(en)}return output===source?source:output+' / '+source};
+
 const empty = {pol:'',loadingArea:'',emptyPickupCity:'',pod:'',containerType:'FCL',containerSize:'',equipment:'',quantity:'',volume:'',weight:'',pieceLength:'',pieceWidth:'',pieceHeight:'',pieceWeight:'',cargoRisk:'unspecified',serviceScope:'port_to_port',cargo:'',notes:'',name:'',contact:''};
 // A city is a pickup location unless the customer explicitly names a rail terminal.
 // Do not infer that a city-level price includes door pickup.
@@ -39,13 +47,13 @@ export default function PublicQuoteFlow({locale='en'}) {
     .finally(()=>{if(alive)setDestinationsLoading(false);});
   return ()=>{alive=false;};
  },[]);
- const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||city.includes(form.pol.trim())).slice(0,30);
+ const originMatches=originCitiesByArea(originArea).filter(city=>!form.pol.trim()||(city.includes(form.pol.trim())||englishLabel(city).toLowerCase().includes(form.pol.trim().toLowerCase()))).slice(0,30);
  const pricedRoutes=pricedDestinations.filter(r=>r.transport===(form.containerType==='FCL'?'fcl':'lcl'));
  // Station choices are navigational, not a promise that a rate is available.
  const pricedStops=[...new Set(pricedDestinations.map(r=>String(r.destination||'').trim()).filter(Boolean))]
   .sort((a,b)=>a.localeCompare(b,zh?'zh-CN':'en'));
  const areaStops=pricedStops.filter(stop=>destinationArea==='all'||destinationRegion(stop)===destinationArea);
- const destinationMatches=areaStops.filter(stop=>!form.pod.trim()||stop.toLowerCase().includes(form.pod.trim().toLowerCase())).slice(0,35);
+ const destinationMatches=areaStops.filter(stop=>!form.pod.trim()||(stop.toLowerCase().includes(form.pod.trim().toLowerCase())||englishLabel(stop).toLowerCase().includes(form.pod.trim().toLowerCase()))).slice(0,35);
 
  useEffect(()=>{
   const params=new URLSearchParams(location.search), values={};
@@ -109,7 +117,7 @@ export default function PublicQuoteFlow({locale='en'}) {
    <fieldset disabled={sending} className="grid gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
     
     <div className="grid gap-1.5 text-sm font-medium text-slate-700">
-      <span>{t('起运地 / 提货城市','Origin / Pickup city')}</span>
+      <span>{t('起运地 / 提货地点','Origin / Pickup Location')}</span>
       <div className="grid grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] gap-2">
         <select className={inputClass} value={originArea} aria-label={t('国内起运地区域','Origin region')} onChange={e=>{setOriginArea(e.target.value);setOriginFocused(true)}}>
           {originAreas.map(([id,cn,en])=><option key={id} value={id}>{zh?cn:en}</option>)}
@@ -119,17 +127,17 @@ export default function PublicQuoteFlow({locale='en'}) {
             aria-label={t('起运城市','Origin city')} aria-expanded={originFocused}
             onFocus={()=>setOriginFocused(true)} onBlur={()=>setOriginFocused(false)}
             onChange={e=>{change('pol',e.target.value);setOriginFocused(true)}}
-            placeholder={t('选择或输入城市','Select or type city')}/>
+            placeholder={t('选择或输入城市','Search city (English / 中文)')}/>
           {originFocused&&<div role="listbox" aria-label={t('国内起运城市建议','Origin city suggestions')} className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl">
             {originMatches.length?originMatches.map(city=><button key={city} type="button" role="option" aria-selected={form.pol===city}
               onMouseDown={e=>e.preventDefault()} onClick={()=>{change('pol',city);setOriginFocused(false)}}
-              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{city}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('未找到匹配城市，可直接输入','No match; enter any city')}</div>}
+              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50" >{zh?city:englishLabel(city)}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('未找到匹配城市，可直接输入','No match; enter any city')}</div>}
           </div>}
         </div>
       </div>
     </div>
     <div className="grid gap-1.5 text-sm font-medium text-slate-700">
-      <span>{t('目的地 / 目的站','Destination / Terminal')}</span>
+      <span>{t('目的地 / 铁路目的站','Destination / Rail Terminal')}</span>
       <datalist id="eurasiago-pricing-destinations">{pricedStops.map(stop=><option key={stop} value={stop}/>)}</datalist>
       <div className="grid grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] gap-2">
         <select className={inputClass} aria-label={t('目的地区域','Destination region')} value={destinationArea} onChange={e=>{setDestinationArea(e.target.value);setDestinationFocused(true);}}>
@@ -139,12 +147,12 @@ export default function PublicQuoteFlow({locale='en'}) {
           <input className={inputClass} required value={form.pod} autoComplete="off"
             onFocus={()=>setDestinationFocused(true)} onBlur={()=>setDestinationFocused(false)}
             onChange={e=>{change('pod',e.target.value);setDestinationFocused(true)}}
-            placeholder={t('搜索或输入目的站','Search or type destination')}
+            placeholder={t('搜索或输入目的站','Search terminal (English / 中文)')}
             aria-label={t('目的站','Destination station')} aria-expanded={destinationFocused}/>
           {destinationFocused&&areaStops.length>0&&<div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl" role="listbox" aria-label={t('目的站建议','Destination suggestions')}>
             {destinationMatches.length?destinationMatches.map(stop=><button key={stop} type="button" role="option" aria-selected={form.pod===stop}
               onMouseDown={e=>e.preventDefault()} onClick={()=>{change('pod',stop);setDestinationFocused(false)}}
-              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50">{stop}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('没有匹配站点，可直接输入','No matches; you can type a destination')}</div>}
+              className="block w-full rounded-lg px-3 py-2 text-left text-sm font-normal hover:bg-blue-50 focus:bg-blue-50" >{zh?stop:englishLabel(stop)}</button>):<div className="px-3 py-2 text-xs font-normal text-slate-500">{t('没有匹配站点，可直接输入','No matches; you can type a destination')}</div>}
           </div>}
         </div>
       </div>
