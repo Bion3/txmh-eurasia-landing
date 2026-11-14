@@ -102,6 +102,7 @@ export default function PublicQuoteFlow({locale='en'}) {
  return <section id="public-quote" className="mx-auto max-w-6xl rounded-2xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-900/10 sm:p-6 lg:p-7">
   <h1 className="text-2xl font-bold text-slate-950">{t('获取运费报价','Get a freight quote')}</h1>
   <p className="mt-2 text-sm text-slate-500">{t('填写提货地与目的地，查看可选运输方案和价格。','Enter pickup and destination to compare available routes and prices.')}</p>
+  <a className="mt-3 inline-block text-sm font-semibold text-blue-700 underline" href="https://crm.eurasiago.com/client.html?section=inquiries">{t('登录客户中心保存询价（无需填写邮箱）','Save an inquiry in the Customer Portal (no contact email required)')}</a>
   <form onSubmit={calculate} className="mt-4 space-y-3">
    <fieldset disabled={sending} className="grid grid-cols-2 gap-2" aria-label={t('选择运输方式','Choose shipment type')}>
     {[
