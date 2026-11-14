@@ -24,7 +24,7 @@ const corridorGroups={
   erenhot:["border-mongolia","mn-zamynuud-ulaanbaatar","mn-ulaanbaatar-sukhbaatar","mn-sukhbaatar-naushki","ru-naushki-ulanude","ru-ulanude-irkutsk","ru-irkutsk-novosibirsk","ru-novosibirsk-yekaterinburg","ru-yekaterinburg-moscow","f-shijiazhuang-erlian","f-jinan-erlian"],
   west:["trunk-west","trunk-khorgos","border-dostyk","border-altynkol","europe-moscow","central-almaty","central-tashkent","caspian-aktau","caspian-baku","iran-tehran","iran-mary","iran-ashgabat","turkiye-istanbul"]
 };
-const worldUrl="https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
+const worldUrl="/data/world.geojson";
 export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   const ui=mapUi[locale==="zh"?"zh":"en"];
   const stationName=(id)=>locale==="zh"?(byId[id]?.label||id):(stationNamesEn[id]||byId[id]?.label||id);
@@ -32,6 +32,7 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   const stationRefs=useRef({});
   const [features,setFeatures]=useState([]);
   const [mapError,setMapError]=useState(false);
+  const [mapRetry,setMapRetry]=useState(0);
   const [selected,setSelected]=useState(null);
   const [search,setSearch]=useState("");
   const [corridor,setCorridor]=useState("all");
@@ -40,9 +41,16 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
   const [show,setShow]=useState({feeder:true,main:true,europe:true,central:true,westasia:true});
   useEffect(()=>{
     let live=true;
-    fetch(worldUrl).then(r=>{if(!r.ok)throw new Error("map fetch");return r.json()}).then(data=>{if(live)setFeatures(data.features||[])}).catch(()=>{if(live)setMapError(true)});
-    return ()=>{live=false};
-  },[]);
+    const controller=new AbortController();
+    setMapError(false);
+    const timeout=setTimeout(()=>controller.abort(),12000);
+    fetch(worldUrl,{signal:controller.signal,cache:"force-cache"})
+      .then(r=>{if(!r.ok)throw new Error("map fetch");return r.json()})
+      .then(data=>{if(live){setFeatures(data.features||[]);setMapError(!(data.features||[]).length)}})
+      .catch(()=>{if(live)setMapError(true)})
+      .finally(()=>clearTimeout(timeout));
+    return ()=>{live=false;clearTimeout(timeout);controller.abort()};
+  },[mapRetry]);
   const byId=useMemo(()=>Object.fromEntries(hubs.map(h=>[h.id,h])),[]);
   const visibleRoutes=routes.filter(r=>show[r.kind]);
   const sharedFeederIds=["f-suzhou-xuzhou","f-xuzhou-shijiazhuang","f-xuzhou-jinan"];
@@ -90,7 +98,7 @@ export default function EurasiaMapSvg({ mapText, locale="en", onQuote }) {
       </g>})}
     </svg></div>
     <div className="bg-white/90 px-3 py-1 text-[11px] text-slate-600 md:hidden">{ui.hint}</div>
-    {!features.length&&<div className="bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?ui.error:ui.loading}</div>}
+    {!features.length&&<div className="bg-white/90 px-3 py-1 text-xs text-slate-600">{mapError?<>{ui.error} <button type="button" className="ml-2 underline text-blue-700" onClick={()=>setMapRetry(v=>v+1)}>{locale==="zh"?"重试加载":"Retry"}</button></>:ui.loading}</div>}
     {selected&&<div className="border-t border-slate-200 bg-white/95 p-3 text-xs">
       <button className="float-right ml-2" onClick={()=>setSelected(null)} aria-label={ui.close}>×</button>
       {selected.type==="hub"?<div className="flex flex-wrap items-center justify-between gap-3"><div><strong className="text-sm">{stationName(selected.value.id)}</strong><div className="mt-1 text-slate-500">{locale==="zh"?"目的站已选择":"Destination selected"}</div></div>{onQuote&&<button type="button" className="rounded-lg bg-blue-700 px-4 py-2.5 font-semibold text-white hover:bg-blue-800" onClick={()=>onQuote({destination:selected.value.label})}>{locale==="zh"?"立即询价":"Get a quote"}</button>}</div>:<><strong>{selected.value.points.map(stationName).join(" → ")}</strong><div>{ui.route}</div></>}
