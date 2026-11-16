@@ -21,7 +21,13 @@ export default function CustomerAccount({locale='zh'}){
  const result=section==='inquiries'?await supabase.rpc('freight_portal_inquiries'):await supabase.from('freight_portal_orders').select('id,data,updated_at').eq('company_id',companyId).order('updated_at',{ascending:false}).limit(100);
  if(result.error)throw result.error;
  if(!live)return;
- if(section==='inquiries')setInquiries(result.data||[]);else setOrders(result.data||[]);
+ if(section==='inquiries'){
+ const {data:threads,error:threadsError}=await supabase.from('freight_inquiry_threads').select('inquiry_id').eq('company_id',companyId).limit(1000);
+ if(threadsError)throw threadsError;
+ if(!live)return;
+ const allowed=new Set((threads||[]).map(t=>t.inquiry_id));
+ setInquiries((result.data||[]).filter(item=>allowed.has(item.inquiry_id)));
+ }else setOrders(result.data||[]);
  }catch(e){if(live)setError(msg(e))}finally{if(live)setBusy(false)}})();
  return()=>{live=false}},[session?.access_token,section]);
  async function saveNewPassword(e){e.preventDefault();setBusy(true);setError('');const {error}=await supabase.auth.updateUser({password});setBusy(false);if(error)setError(msg(error));else{setRecovery(false);setPassword('');setNotice(zh?'密码已更新':'Password updated');navigate('/account',{replace:true})}}
