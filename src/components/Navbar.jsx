@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router";
 
 export default function Navbar({ locale, text, currentPage, toggleLocale }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
 
   const navItems = [
     { page: "home", to: "/", label: text.nav.home },
@@ -49,22 +50,26 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
                 {item.label}
               </NavLink>
             ))}
-            <a
-              href="https://crm.eurasiago.com/client.html"
-              className="px-4 py-2 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition whitespace-nowrap"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {locale === "zh" ? "我的账户" : "My Account"}
-            </a>
           </nav>
 
-          <a
-            href="https://crm.eurasiago.com/client.html"
-            className="shrink-0 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition whitespace-nowrap"
-            aria-label={locale === "zh" ? "登录客户账户" : "Sign in to customer account"}
-          >
-            {locale === "zh" ? "登录" : "Sign in"}
-          </a>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsAccountOpen((open) => !open)}
+              aria-expanded={isAccountOpen}
+              aria-haspopup="menu"
+              className="shrink-0 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition whitespace-nowrap"
+            >
+              {locale === "zh" ? "客户登录 / 账户" : "Sign in / Account"}
+            </button>
+            {isAccountOpen && (
+              <div role="menu" className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg z-[70]">
+                <a role="menuitem" href="https://crm.eurasiago.com/client.html" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "登录 / 我的账户" : "Sign in / My Account"}</a>
+                <a role="menuitem" href="https://crm.eurasiago.com/client.html?section=inquiries" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "我的询价" : "My Inquiries"}</a>
+                <a role="menuitem" href="https://crm.eurasiago.com/client.html?section=orders" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "我的订单" : "My Orders"}</a>
+              </div>
+            )}
+          </div>
 
           <div className="w-px h-6 bg-gray-200 hidden lg:block" aria-hidden="true" />
 
