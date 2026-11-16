@@ -9,7 +9,21 @@ export default function CustomerAccount({locale='zh'}){
  const section=location.pathname.endsWith('/inquiries')?'inquiries':'orders';
  const [session,setSession]=useState(null),[ready,setReady]=useState(false),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[mode,setMode]=useState('login'),[recovery,setRecovery]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[company,setCompany]=useState(null),[orders,setOrders]=useState([]),[inquiries,setInquiries]=useState([]),[selected,setSelected]=useState(null),[replies,setReplies]=useState([]),[reply,setReply]=useState('');
  useEffect(()=>{if(!supabase){setError('Customer authentication is not configured');setReady(true);return}let active=true;supabase.auth.getSession().then(({data,error})=>{if(active){setSession(data.session);setReady(true);if(error)setError(msg(error))}});const {data:{subscription}}=supabase.auth.onAuthStateChange((event,s)=>{if(active){setSession(s);setReady(true);if(event==='PASSWORD_RECOVERY')setRecovery(true)}});return()=>{active=false;subscription.unsubscribe()}},[]);
- useEffect(()=>{if(!session||!supabase)return;let live=true;setBusy(true);setError('');Promise.all([supabase.from('freight_portal_companies').select('id,name').limit(1),section==='inquiries'?supabase.rpc('freight_portal_inquiries'):supabase.from('freight_portal_orders').select('id,data,updated_at').order('updated_at',{ascending:false}).limit(100)]).then(([c,r])=>{if(!live)return;if(c.error)throw c.error;if(r.error)throw r.error;setCompany(c.data?.[0]||null);if(section==='inquiries')setInquiries(r.data||[]);else setOrders(r.data||[])}).catch(e=>{if(live)setError(msg(e))}).finally(()=>{if(live)setBusy(false)});return()=>{live=false}},[session?.access_token,section]);
+ useEffect(()=>{if(!session||!supabase){setCompany(null);setOrders([]);setInquiries([]);setSelected(null);setReplies([]);return}let live=true;setBusy(true);setError('');setSelected(null);setReplies([]);
+ (async()=>{try{
+ const {data:companyId,error:identityError}=await supabase.rpc('freight_portal_company');if(identityError)throw identityError;
+ if(!live)return;
+ if(!companyId){setCompany(null);setOrders([]);setInquiries([]);return}
+ const {data:companies,error:companyError}=await supabase.from('freight_portal_companies').select('id,name').eq('id',companyId).limit(1);if(companyError)throw companyError;
+ if(!live)return;
+ const customerCompany=companies?.[0]||null;setCompany(customerCompany);
+ if(!customerCompany){setOrders([]);setInquiries([]);return}
+ const result=section==='inquiries'?await supabase.rpc('freight_portal_inquiries'):await supabase.from('freight_portal_orders').select('id,data,updated_at').eq('company_id',companyId).order('updated_at',{ascending:false}).limit(100);
+ if(result.error)throw result.error;
+ if(!live)return;
+ if(section==='inquiries')setInquiries(result.data||[]);else setOrders(result.data||[]);
+ }catch(e){if(live)setError(msg(e))}finally{if(live)setBusy(false)}})();
+ return()=>{live=false}},[session?.access_token,section]);
  async function saveNewPassword(e){e.preventDefault();setBusy(true);setError('');const {error}=await supabase.auth.updateUser({password});setBusy(false);if(error)setError(msg(error));else{setRecovery(false);setPassword('');setNotice(zh?'密码已更新':'Password updated');navigate('/account',{replace:true})}}
  async function authenticate(e){e.preventDefault();setBusy(true);setError('');setNotice('');try{if(mode==='login'){const {error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;navigate(location.pathname==='/login'?'/account':location.pathname,{replace:true})}else if(mode==='register'){const {error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:redirectTo}});if(error)throw error;setNotice(zh?'请查收邮箱验证链接，企业权限由 CRM 管理。':'Check your verification email. Company access is assigned by CRM.')}else if(mode==='reset'){const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;setNotice(zh?'密码重置邮件已发送（如邮箱已注册）。':'Password reset email sent if the account exists.')}}catch(e){setError(msg(e))}finally{setBusy(false)}}
  async function loadReplies(x){setSelected(x);setReplies([]);const {data,error}=await supabase.from('freight_inquiry_replies').select('id,body,sender_type,created_at').eq('inquiry_id',x.inquiry_id).order('created_at');if(error)setError(msg(error));else setReplies(data||[])}
