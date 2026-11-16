@@ -64,9 +64,9 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
             </button>
             {isAccountOpen && (
               <div role="menu" className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg z-[70]">
-                <a role="menuitem" href="https://crm.eurasiago.com/client.html" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "登录 / 我的账户" : "Sign in / My Account"}</a>
-                <a role="menuitem" href="https://crm.eurasiago.com/client.html?section=inquiries" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "我的询价" : "My Inquiries"}</a>
-                <a role="menuitem" href="https://crm.eurasiago.com/client.html?section=orders" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "我的订单" : "My Orders"}</a>
+                <a role="menuitem" href="/login" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "登录 / 我的账户" : "Sign in / My Account"}</a>
+                <a role="menuitem" href="/account/inquiries" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "我的询价" : "My Inquiries"}</a>
+                <a role="menuitem" href="/account/orders" className="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50" onClick={() => setIsAccountOpen(false)}>{locale === "zh" ? "我的订单" : "My Orders"}</a>
               </div>
             )}
           </div>
