@@ -8,6 +8,7 @@ import { i18n } from "./data/i18n";
 import { getRouteLandingPage } from "./data/routeLandingPages";
 import { trackAcquisitionPageView } from "./lib/acquisitionAttribution";
 
+const CustomerAccount = lazy(() => import("./page/CustomerAccount"));
 const AboutPage = lazy(() => import("./page/AboutPage"));
 const QuoteCalculator = lazy(() => import("./components/TMS/QuoteCalculator"));
 const RouteIndexPage = lazy(() => import("./page/RouteIndexPage"));
@@ -47,6 +48,7 @@ const seoProfiles = {
       "了解中国至德国、波兰、俄罗斯、中亚的铁路运输线路、口岸、拼箱整柜服务与操作要求，按目的地快速询价。",
     path: "/routes",
   },
+  account: { title: "Eurasiago Customer Account", description: "Secure customer login, inquiries and orders.", path: "/account", robots: "noindex, nofollow" },
   about: {
     title: "关于 EurasiaGo_中欧班列与国际铁路物流服务",
     description:
@@ -56,6 +58,7 @@ const seoProfiles = {
 };
 
 function currentPageFromPath(pathname) {
+  if (pathname.startsWith("/account") || pathname.startsWith("/login")) return "account";
   if (pathname.startsWith("/routes")) return "route";
   if (pathname.startsWith("/order")) return "order";
   if (pathname.startsWith("/quote")) return "quote";
@@ -177,6 +180,10 @@ export default function App() {
             }
           />
           <Route path="/order" element={<SelfServiceOrderPage />} />
+          <Route path="/login" element={<CustomerAccount locale={locale} />} />
+          <Route path="/account" element={<CustomerAccount locale={locale} />} />
+          <Route path="/account/inquiries" element={<CustomerAccount locale={locale} />} />
+          <Route path="/account/orders" element={<CustomerAccount locale={locale} />} />
           <Route path="/system/*" element={<Navigate to="/quote" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
