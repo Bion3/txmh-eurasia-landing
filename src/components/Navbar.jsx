@@ -54,9 +54,17 @@ export default function Navbar({ locale, text, currentPage, toggleLocale }) {
               className="px-4 py-2 rounded-xl text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition whitespace-nowrap"
               onClick={() => setIsMenuOpen(false)}
             >
-              {locale === "zh" ? "客户中心" : "Customer Portal"}
+              {locale === "zh" ? "我的账户" : "My Account"}
             </a>
           </nav>
+
+          <a
+            href="https://crm.eurasiago.com/client.html"
+            className="shrink-0 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition whitespace-nowrap"
+            aria-label={locale === "zh" ? "登录客户账户" : "Sign in to customer account"}
+          >
+            {locale === "zh" ? "登录" : "Sign in"}
+          </a>
 
           <div className="w-px h-6 bg-gray-200 hidden lg:block" aria-hidden="true" />
 
